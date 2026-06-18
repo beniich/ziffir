@@ -1,0 +1,6 @@
+{
+  "name": "Zafir Command Academy",
+  "description": "Premium luxury hotel operations command center featuring VIP arrivals, dining dispatch, suite floorplan controllers, channel synchronizers, vault files, facility blueprints, and the certified scholarly registry.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
