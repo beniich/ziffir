@@ -1,10 +1,27 @@
-import React from 'react';
-import { Utensils, CheckCircle, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Utensils, CheckCircle, ChevronRight, Receipt, CreditCard, RefreshCw, Shield } from 'lucide-react';
 import { RoomServiceOrder } from '../types';
+import confetti from 'canvas-confetti';
 
 interface RoomServiceTabProps {
   roomOrders: RoomServiceOrder[];
   advanceOrderStatus: (id: string) => void;
+  addAuditLog?: (action: string, reason: string, status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', role?: string) => void;
+}
+
+interface SimulatedInvoice {
+  id: string;
+  orderId: string;
+  guest: string;
+  room: string;
+  details: string;
+  baseAmount: number;
+  vat: number;
+  serviceCharge: number;
+  total: number;
+  status: 'DRAFT' | 'PENDING' | 'PAID' | 'REFUNDED';
+  refundReason?: string;
+  refundAmount?: number;
 }
 
 // Custom vector culinary illustration renderer based on order ID
@@ -304,9 +321,149 @@ export const CulinaryVectorSVG: React.FC<{ orderId: string }> = ({ orderId }) =>
   }
 };
 
-export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, advanceOrderStatus }) => {
+export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, advanceOrderStatus, addAuditLog }) => {
+  // Invoices lists corresponding to the roomOrders
+  const [invoices, setInvoices] = useState<SimulatedInvoice[]>([
+    { id: 'INV-2026-041', orderId: 'order-1', guest: 'Mr. Chen', room: 'Suite 201', details: 'Gourmet French Breakfast Platter', baseAmount: 48, vat: 9.6, serviceCharge: 15, total: 72.6, status: 'PENDING' },
+    { id: 'INV-2026-042', orderId: 'order-2', guest: 'Ms. Al-Fayed', room: 'Suite 202', details: 'Chef Selection Premium Sushi Platter', baseAmount: 95, vat: 19.0, serviceCharge: 15, total: 129.0, status: 'PAID' },
+    { id: 'INV-2026-043', orderId: 'order-3', guest: 'Dr. Rossi', room: 'Suite 203', details: 'Angus Steak Barolo wine dinner', baseAmount: 140, vat: 28.0, serviceCharge: 15, total: 183.0, status: 'PENDING' }
+  ]);
+
+  // Selected Invoice block
+  const [activeInvId, setActiveInvId] = useState('INV-2026-041');
+  const currentInvoice = invoices.find(inv => inv.id === activeInvId) || invoices[0];
+
+  // Credit Card Form inputs
+  const [payMethod, setPayMethod] = useState<'CARD' | 'BANK_TRANSFER' | 'CASH'>('CARD');
+  const [cardName, setCardName] = useState('CHEN S.');
+  const [cardNumber, setCardNumber] = useState('4242 •••• •••• 4242');
+  const cardExpiry = '09 / 29';
+  const [cardCvc, setCardCvc] = useState('981');
+  
+  // Payment capture states
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
+
+  // Refund states (Sprint 15 RefundModal)
+  const [showRefundPrompt, setShowRefundPrompt] = useState(false);
+  const [refundReason, setRefundReason] = useState('Disappointing champagne service temperature');
+  const [refundValue, setRefundValue] = useState<number>(30);
+
+  // Sync new orders to invoices live
+  const handleSelectInvoiceByOrderId = (orderId: string, order: RoomServiceOrder) => {
+    // Check if invoice exists, if not, create on-the-fly!
+    const exists = invoices.find(inv => inv.orderId === orderId);
+    if (!exists) {
+      // Calculate random prices based on order id digits
+      const randBase = orderId.includes('5') ? 65 : orderId.includes('4') ? 35 : 55;
+      const vat = Math.round(randBase * 0.2 * 10) / 10;
+      const service = 15;
+      const invId = `INV-2026-05${Math.floor(1 + Math.random() * 9)}`;
+      const newInv: SimulatedInvoice = {
+        id: invId,
+        orderId,
+        guest: order.guest.split(' ')[0],
+        room: order.room,
+        details: order.details,
+        baseAmount: randBase,
+        vat,
+        serviceCharge: service,
+        total: randBase + vat + service,
+        status: 'PENDING'
+      };
+      setInvoices(prev => [...prev, newInv]);
+      setActiveInvId(invId);
+    } else {
+      setActiveInvId(exists.id);
+    }
+  };
+
+  // Perform secure Stripe charge
+  const handleStripeChargeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (currentInvoice.status === 'PAID') return;
+
+    setIsProcessingPayment(true);
+    setPaymentMessage("Connecting Stripe API Sandbox tunnels... Sending secure payload");
+    
+    setTimeout(() => {
+      setPaymentMessage("Sovereign card authorized. Capture amount: $" + currentInvoice.total.toFixed(2));
+      
+      setTimeout(() => {
+        setInvoices(prev => prev.map(inv => {
+          if (inv.id === activeInvId) {
+            return {
+              ...inv,
+              status: 'PAID'
+            };
+          }
+          return inv;
+        }));
+
+        setIsProcessingPayment(false);
+        setPaymentMessage(null);
+
+        if (addAuditLog) {
+          addAuditLog(
+            'INVOICE_BILLING_CAPTURED',
+            `Stripe capture successful for Room ${currentInvoice.room} (${currentInvoice.guest}). Paid value: $${currentInvoice.total.toFixed(2)}. Reference ticket: ${currentInvoice.id}.`,
+            'AUTHORIZED',
+            'OPERATOR'
+          );
+        }
+
+        confetti({ particleCount: 40, spread: 60, colors: ['#c19a6b', '#ffffff'] });
+      }, 1000);
+    }, 1250);
+  };
+
+  // Process Refund (Sprint 15 RefundModal)
+  const handleIssueRefund = () => {
+    if (refundValue > currentInvoice.total) {
+      alert("Error: Refund amount cannot exceed the paid balance!");
+      return;
+    }
+
+    setInvoices(prev => prev.map(inv => {
+      if (inv.id === activeInvId) {
+        return {
+          ...inv,
+          status: 'REFUNDED',
+          refundReason: refundReason,
+          refundAmount: refundValue,
+          total: currentInvoice.total - refundValue
+        };
+      }
+      return inv;
+    }));
+
+    setShowRefundPrompt(false);
+
+    if (addAuditLog) {
+      addAuditLog(
+        'REFUND_ISSUED',
+        `Stripe Refund of $${refundValue.toFixed(2)} dispatched on ${currentInvoice.id}. Reason: "${refundReason}". Ledger synchronized.`,
+        'AUTHORIZED',
+        'MANAGER'
+      );
+    }
+
+    confetti({ particleCount: 20, spread: 30, colors: ['#dc2626', '#ffffff'] });
+  };
+
   return (
     <div className="space-y-6 animate-fade-in" id="room-service-tab">
+      
+      {/* Toast feedback */}
+      {paymentMessage && (
+        <div className="p-4 bg-sky-500/10 border border-sky-500/35 rounded-2xl text-sky-800 font-mono text-xs flex items-center justify-between shadow-sm animate-pulse">
+          <span className="flex items-center gap-1.5">
+            <RefreshCw className="w-4 h-4 animate-spin text-sky-600" />
+            {paymentMessage}
+          </span>
+        </div>
+      )}
+
       <div className="glass-panel p-6 rounded-2xl relative overflow-hidden bg-white/40 border border-white/60 shadow-xl">
         
         {/* Header Block in Camel & Slate */}
@@ -325,9 +482,14 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
         {/* Orders Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {roomOrders.map((order) => (
-            <div key={order.id} className="bg-white/45 border border-white/60 rounded-2xl overflow-hidden shadow-md flex flex-col justify-between hover:border-[#c19a6b]/70 transition-all duration-300">
+            <div 
+              key={order.id} 
+              onClick={() => handleSelectInvoiceByOrderId(order.id, order)}
+              className={`border rounded-2xl overflow-hidden shadow-md flex flex-col justify-between hover:border-[#c19a6b]/90 transition-all duration-300 cursor-pointer ${
+                currentInvoice.orderId === order.id ? 'border-[#c19a6b] ring-1 ring-[#c19a6b]/40 bg-white/50 shadow-lg' : 'bg-white/45 border-white/60'
+              }`}
+            >
               
-              {/* Specialized visual custom SVG drawn directly instead of Unsplash */}
               <div className="h-44 w-full relative">
                 <CulinaryVectorSVG orderId={order.id} />
                 <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent opacity-95" />
@@ -338,7 +500,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
                 </span>
                 
                 <div className="absolute bottom-3 left-4 right-4 z-10">
-                  <p className="text-xs font-semibold text-slate-700 font-mono">Guest: {order.guest}</p>
+                  <p className="text-xs font-semibold text-slate-700 font-mono mb-0.5">Guest: {order.guest}</p>
                   <p className="text-sm font-bold text-slate-800 truncate">{order.details}</p>
                 </div>
               </div>
@@ -373,7 +535,10 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
                   </span>
                   
                   <button
-                    onClick={() => advanceOrderStatus(order.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      advanceOrderStatus(order.id);
+                    }}
                     className="text-xs bg-[#c19a6b]/20 hover:bg-[#c19a6b] hover:text-white text-[#7c5a30] border border-[#c19a6b]/40 font-mono font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1 active:scale-95 duration-200"
                   >
                     <span>Advance Status</span>
@@ -387,6 +552,302 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
         </div>
 
       </div>
+
+      {/* SPRINT 15 Luxury Invoicing and Stripe Payment Segment */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="billing-payment-hub">
+        
+        {/* Left column: Highly detailed compliant receipt billing docket */}
+        <section className="lg:col-span-7 glass-panel rounded-3xl p-6 bg-white/40 border border-white/60 shadow-xl flex flex-col justify-between">
+          <div>
+            <h3 className="text-lg font-serif-luxury text-slate-800 font-bold mb-4 flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-[#c19a6b]" /> Certified Gastronomy Invoice Statement
+            </h3>
+            <p className="text-xs text-slate-500 mb-6 font-sans">Formal regulatory compliant checkout statement. Synchronized with decentral ledger systems.</p>
+
+            {/* Simulated Printed Docket Sheet */}
+            <div className="bg-slate-50 border border-slate-300 rounded-2xl p-6 text-xs font-mono text-slate-700 shadow-inner relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-[#c19a6b]/15 px-3 py-1 border-b border-l border-[#c19a6b]/30 rounded-bl text-[9px] font-bold text-[#7c5a30]">
+                {currentInvoice.status}
+              </div>
+
+              <div className="border-b border-black/10 pb-4 mb-4 flex justify-between items-start">
+                <div>
+                  <h4 className="font-serif-luxury font-bold text-slate-800 text-sm">ZAFIR HOSPITALITY GROUP</h4>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Sovereign Embassy Suite Accounts</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-slate-900 leading-tight">{currentInvoice.id}</p>
+                  <p className="text-[9px] text-slate-500 mt-1">ISSUED DATE: 2026-06-19</p>
+                </div>
+              </div>
+
+              <div className="space-y-1 pb-4 border-b border-black/10 mb-4 text-[11px]">
+                <p><span className="text-slate-500">CLIENT SUITE REF:</span> <strong className="text-slate-850 font-sans">{currentInvoice.room}</strong></p>
+                <p><span className="text-slate-500">BILL TO SOVEREIGN:</span> <strong className="text-slate-850 font-sans">{currentInvoice.guest}</strong></p>
+                <p><span className="text-slate-500">CREDENTIAL SIGNATURE:</span> OK_SECURED_STRIPE_API</p>
+              </div>
+
+              <div className="space-y-2 mb-6">
+                <span className="text-[10px] text-slate-550 uppercase font-bold tracking-wider block mb-1">Itemized Room Placements</span>
+                <div className="flex justify-between border-b border-black/5 pb-1.5">
+                  <span className="text-slate-800">{currentInvoice.details}</span>
+                  <span className="font-bold text-slate-900">${currentInvoice.baseAmount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-b border-black/5 pb-1.5 text-slate-600">
+                  <span>Luxury Hospitality VAT (20%)</span>
+                  <span>${currentInvoice.vat.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-b border-black/5 pb-1.5 text-slate-600">
+                  <span>Elite Class Suite Surcharge/Delivery</span>
+                  <span>${currentInvoice.serviceCharge.toFixed(2)}</span>
+                </div>
+
+                {currentInvoice.refundAmount && (
+                  <div className="flex justify-between text-red-600 border-b border-red-200 pb-1.5 font-bold">
+                    <span>Authorized Partial Refund</span>
+                    <span>-${currentInvoice.refundAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-between items-center text-sm border-t border-black/10 pt-4 font-bold text-slate-900">
+                <span>TOTAL DUE BALANCE (USD)</span>
+                <span className="text-lg text-[#7c5a30]">${currentInvoice.total.toFixed(2)}</span>
+              </div>
+
+              {currentInvoice.status === 'REFUNDED' && currentInvoice.refundReason && (
+                <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-xl border border-red-200 text-[10px] leading-relaxed">
+                  <strong>⚠ COMPLAINT REFUND DIRECTIVE ISSUED:</strong> {currentInvoice.refundReason}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Refund Issuance Drawer (Sprint 15 RefundModal) */}
+          {currentInvoice.status === 'PAID' && (
+            <div className="pt-6 border-t border-black/5 animate-fade-in">
+              <button 
+                onClick={() => setShowRefundPrompt(true)}
+                className="py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition shadow flex items-center justify-center gap-1.5 font-mono"
+              >
+                <span>Trigger Sovereign Refund (RefundModal)</span>
+              </button>
+            </div>
+          )}
+
+          {/* Refund dialog overlay */}
+          {showRefundPrompt && (
+            <div className="bg-slate-100 border border-slate-300 rounded-2xl p-4 mt-4 space-y-3 animate-fade-in text-xs font-mono text-slate-700 shadow-inner">
+              <h4 className="font-bold text-red-600 flex items-center gap-1 uppercase">Refund Action Required</h4>
+              <div className="space-y-2">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-500">Refund Reason Reason</label>
+                  <input 
+                    type="text" 
+                    value={refundReason}
+                    onChange={(e) => setRefundReason(e.target.value)}
+                    className="p-2 border rounded-lg bg-white"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-500">Refund Deduction Amount ($)</label>
+                  <input 
+                    type="number" 
+                    value={refundValue}
+                    onChange={(e) => setRefundValue(Number(e.target.value))}
+                    max={currentInvoice.total}
+                    className="p-2 border rounded-lg bg-white"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button 
+                  onClick={handleIssueRefund} 
+                  className="bg-red-600 text-white font-bold py-1.5 px-3 rounded hover:bg-red-700"
+                >
+                  Confirm Partial Refund
+                </button>
+                <button 
+                  onClick={() => setShowRefundPrompt(false)}
+                  className="bg-slate-200 text-slate-700 py-1.5 px-3 rounded"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+        </section>
+
+        {/* Right column: Interactive Stripe Elements terminal */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="glass-panel rounded-3xl p-6 bg-white/40 border border-white/60 shadow-xl space-y-4">
+            
+            <div className="border-b border-black/5 pb-2">
+              <h4 className="text-xs font-mono font-bold text-[#7c5a30] uppercase tracking-widest flex items-center gap-1.5">
+                <CreditCard className="w-4 h-4 text-[#c19a6b]" /> Secure Checkout Terminal (Stripe Sandbox)
+              </h4>
+              <p className="text-[10px] text-slate-500 mt-0.5">Compliant payment form simulator utilizing tokenized elements.</p>
+            </div>
+
+            {/* Payment method selector */}
+            <div className="grid grid-cols-3 gap-2 py-1">
+              <button 
+                onClick={() => setPayMethod('CARD')}
+                className={`py-2 text-[10px] font-mono font-bold uppercase border rounded-lg transition ${
+                  payMethod === 'CARD' ? 'border-[#c19a6b] bg-[#c19a6b]/10 text-[#7c5a30]' : 'border-slate-350 bg-white/30 text-slate-600'
+                }`}
+              >
+                Card
+              </button>
+              <button 
+                onClick={() => setPayMethod('BANK_TRANSFER')}
+                className={`py-2 text-[10px] font-mono font-bold uppercase border rounded-lg transition ${
+                  payMethod === 'BANK_TRANSFER' ? 'border-[#c19a6b] bg-[#c19a6b]/10 text-[#7c5a30]' : 'border-slate-350 bg-white/30 text-slate-600'
+                }`}
+              >
+                Bank wire
+              </button>
+              <button 
+                onClick={() => setPayMethod('CASH')}
+                className={`py-2 text-[10px] font-mono font-bold uppercase border rounded-lg transition ${
+                  payMethod === 'CASH' ? 'border-[#c19a6b] bg-[#c19a6b]/10 text-[#7c5a30]' : 'border-slate-350 bg-white/30 text-slate-600'
+                }`}
+              >
+                Cash
+              </button>
+            </div>
+
+            {payMethod === 'CARD' ? (
+              <form onSubmit={handleStripeChargeSubmit} className="space-y-3 pt-1">
+                
+                {/* Credit Card Graphic Frame */}
+                <div className="bg-gradient-to-tr from-stone-900 to-slate-800 rounded-2xl p-5 text-white font-mono shadow-md relative overflow-hidden h-36 flex flex-col justify-between">
+                  <div className="flex justify-between items-start">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Sovereign Token Card</span>
+                    <Shield className="w-5 h-5 text-amber-500 fill-amber-500/30" />
+                  </div>
+                  
+                  <div className="text-sm font-semibold tracking-widest text-[#FFF3DE]">
+                    {cardNumber || '•••• •••• •••• ••••'}
+                  </div>
+
+                  <div className="flex justify-between items-end text-[9px] uppercase text-slate-300">
+                    <div>
+                      <span className="text-[7px] text-slate-500 block">Cardholder</span>
+                      <span>{cardName || 'Guest Sovereign'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[7px] text-slate-500 block">Expires</span>
+                      <span>{cardExpiry || '00/00'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[7px] text-slate-500 block">CVC Security</span>
+                      <span>{cardCvc || '•••'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-bold text-slate-500 uppercase">Cardholder Name</label>
+                    <input 
+                      type="text" 
+                      value={cardName} 
+                      onChange={(e) => setCardName(e.target.value)} 
+                      required 
+                      className="p-2 border border-slate-300 rounded-lg bg-white/60 focus:outline-none focus:border-[#c19a6b]" 
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="col-span-2 flex flex-col gap-1">
+                      <label className="text-[9px] font-bold text-slate-500 uppercase">Token Card Number</label>
+                      <input 
+                        type="text" 
+                        value={cardNumber} 
+                        onChange={(e) => setCardNumber(e.target.value)} 
+                        required 
+                        className="p-2 border border-slate-300 rounded-lg bg-white/60 focus:outline-none text-[11px]" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-bold text-slate-500 uppercase">CVV</label>
+                      <input 
+                        type="password" 
+                        value={cardCvc} 
+                        onChange={(e) => setCardCvc(e.target.value)} 
+                        required 
+                        maxLength={3} 
+                        className="p-2 border border-slate-300 rounded-lg bg-white/60 focus:outline-none" 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button 
+                  type="submit"
+                  disabled={currentInvoice.status === 'PAID' || isProcessingPayment}
+                  className={`w-full py-2.5 font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1.5 border shadow ${
+                    currentInvoice.status === 'PAID' 
+                      ? 'bg-emerald-100 border-emerald-350 text-emerald-700 cursor-not-allowed shadow-none'
+                      : 'bg-[#c19a6b] hover:bg-[#7c5a30] text-white border-[#7c5a30]/30 hover:scale-95 duration-200'
+                  }`}
+                >
+                  {isProcessingPayment ? <RefreshCw className="w-4 h-4 animate-spin text-white" /> : <CreditCard className="w-4 h-4" />}
+                  <span>
+                    {currentInvoice.status === 'PAID' ? '✓ Capture Paid' : 'Authorize Stripe Charge'}
+                  </span>
+                </button>
+
+              </form>
+            ) : (
+              <div className="py-8 text-center space-y-4 animate-fade-in font-mono text-xs">
+                <span className="w-12 h-12 rounded-full bg-[#c19a6b]/20 flex items-center justify-center mx-auto text-[#7c5a30]">
+                  <Receipt className="w-6 h-6" />
+                </span>
+                <div>
+                  <p className="font-semibold text-slate-800">
+                    {payMethod === 'CASH' ? 'Awaiting Cash Escrow Dispatch' : 'Awaiting Bank SWIFT Parity Wire'}
+                  </p>
+                  <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                    Check receipt for instructions. Sign-off off-chain verification to captures funds on ledgers.
+                  </p>
+                </div>
+                
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setInvoices(prev => prev.map(inv => {
+                      if (inv.id === activeInvId) {
+                        return { ...inv, status: 'PAID' };
+                      }
+                      return inv;
+                    }));
+                    if (addAuditLog) {
+                      addAuditLog('OFFLINE_BILLING_SETTLED', `Received offline currency settlement for ${currentInvoice.id}. Value: $${currentInvoice.total.toFixed(2)}.`, 'AUTHORIZED', 'OPERATOR');
+                    }
+                    confetti({ particleCount: 20 });
+                  }}
+                  className="px-4 py-2 bg-[#c19a6b] hover:bg-[#7c5a30] text-white rounded-lg font-bold"
+                >
+                  Confirm Escrow Parity Manual Release
+                </button>
+              </div>
+            )}
+
+            {/* Visual reassurance footer */}
+            <div className="pt-2 border-t border-black/5 flex justify-between items-center text-[8px] font-mono text-slate-400">
+              <span className="flex items-center gap-1"><Shield className="w-3 h-3 text-[#c19a6b]" /> SECURE ELEMENT TOKENIZED</span>
+              <span>STRIPE_VERSION_892_PROD</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
     </div>
   );
 };
+

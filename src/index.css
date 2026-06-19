@@ -118,3 +118,107 @@
     linear-gradient(90deg, rgba(10, 31, 68, 0.04) 1px, transparent 1px);
   background-size: 20px 20px;
 }
+
+/* ========================================================
+   AUDITAX DYNAMIC AESTHETIC & THEME CONTROLS (5 STYLES)
+   ======================================================== */
+
+/* 1. Global Borders & Shadows as requested: thick black outlines with custom electric gold/accent glow shadows */
+.premium-border-glow {
+  border: 2px solid #000000 !important;
+  box-shadow: var(--dynamic-glow-shadow) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-border-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--dynamic-glow-shadow-hover) !important;
+}
+
+/* 2. Cyberpunk Mode Overlay & Flicker effects */
+@keyframes scanline-move {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.cyber-scanlines::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 99;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+@keyframes crt-flicker {
+  0% { opacity: 0.985; transform: scale(1); }
+  50% { opacity: 0.995; transform: scale(1.002); }
+  100% { opacity: 0.985; transform: scale(1); }
+}
+
+.cyber-crt-flicker {
+  animation: crt-flicker 0.15s infinite;
+}
+
+@keyframes cyber-hologram-pulse {
+  0%, 100% {
+    text-shadow: 0 0 4px var(--accent-light), 0 0 10px var(--accent-light);
+    opacity: 0.9;
+  }
+  50% {
+    text-shadow: 0 0 10px var(--accent-color), 0 0 25px var(--accent-color);
+    opacity: 1;
+  }
+}
+
+.cyber-neon-header {
+  animation: cyber-hologram-pulse 2s ease-in-out infinite;
+}
+
+/* Glitch text effect */
+.cyber-text-glitch {
+  position: relative;
+}
+.cyber-text-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 1px;
+  text-shadow: -1px 0 #ff00ff;
+  top: 0;
+  color: #c19a6b;
+  overflow: hidden;
+  clip: rect(0, 900px, 0, 0); 
+  animation: noise-anim 2s infinite linear alternate-reverse;
+}
+@keyframes noise-anim {
+  0% { clip: rect(10px, 9999px, 44px, 0); }
+  50% { clip: rect(60px, 9999px, 80px, 0); }
+  100% { clip: rect(2px, 9999px, 12px, 0); }
+}
+
+/* 3. Luxury Discreet Mode Overrides */
+.font-serif-luxury-discreet {
+  font-family: 'Times New Roman', Georgia, serif !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+.luxury-accent-line {
+  position: relative;
+}
+.luxury-accent-line::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #c19a6b, transparent);
+}
+
+.luxury-discreet-card {
+  border-left: 3px solid #c19a6b !important;
+}
+

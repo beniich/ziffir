@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, RefreshCw, Download, Link, Check, QrCode } from 'lucide-react';
 import { Course } from '../types';
+import { AuditEntry } from '../App';
 
 interface LedgerTabProps {
   studentName: string;
@@ -14,6 +15,7 @@ interface LedgerTabProps {
   exportPDF: () => void;
   isGenerating: boolean;
   qrCodeUrl: string;
+  auditLogs?: AuditEntry[];
 }
 
 export const LedgerTab: React.FC<LedgerTabProps> = ({
@@ -27,7 +29,8 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
   removeCourse,
   exportPDF,
   isGenerating,
-  qrCodeUrl
+  qrCodeUrl,
+  auditLogs = []
 }) => {
   // Local form state to append dynamic modules
   const [newCode, setNewCode] = useState('');
@@ -288,6 +291,74 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
               </div>
             </div>
 
+          </div>
+        </div>
+
+        {/* Full-width Forensic Security & Cryptographical Audit Logs Console */}
+        <div className="lg:col-span-12 premium-border-glow rounded-3xl p-6 bg-slate-950/90 border-2 border-stone-900 text-stone-100 shadow-[0_0_20px_rgba(193,154,107,0.4)] relative overflow-hidden mt-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-800 pb-4 mb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <h4 className="text-sm font-mono tracking-widest text-[#c19a6b] font-bold uppercase">
+                  FORENSIC AUDIT RECORD & CHINED ROLES LEDGER
+                </h4>
+              </div>
+              <p className="text-[10px] text-slate-400 font-mono">
+                Decentralized blockchain logs tracking dynamic clearance role elevation & visual engine shifts
+              </p>
+            </div>
+            <div className="text-[10px] bg-sky-500/10 border border-sky-500/30 text-sky-400 font-mono px-3 py-1 rounded-lg">
+              SYNC STATUS: BLOCKS SECURED // PARITY PARALLEL ACTIVE
+            </div>
+          </div>
+
+          <div className="overflow-x-auto rounded-xl border border-stone-800 bg-[#060a12]/80 max-h-72 overflow-y-auto">
+            <table className="w-full text-left border-collapse font-mono text-[10.5px]">
+              <thead>
+                <tr className="bg-stone-900 border-b border-stone-800 text-[#c19a6b] uppercase tracking-wider text-[9px]">
+                  <th className="p-3 pl-4">ID</th>
+                  <th className="p-3">Time / Timestamp</th>
+                  <th className="p-3">Event / Action</th>
+                  <th className="p-3">Subject / Role</th>
+                  <th className="p-3">Clearance Status</th>
+                  <th className="p-3">Action Description / Reason log</th>
+                  <th className="p-3 pr-4 text-right">Block Hash (SHA-256)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-900">
+                {auditLogs.slice().reverse().map((log) => (
+                  <tr key={log.id} className="hover:bg-slate-900/50 transition">
+                    <td className="p-3 pl-4 font-bold text-slate-600">{log.id}</td>
+                    <td className="p-3 text-slate-400 text-nowrap">{log.timestamp}</td>
+                    <td className="p-3 font-semibold text-slate-100 uppercase tracking-wide">{log.action}</td>
+                    <td className="p-3 font-semibold text-[#c19a6b] text-nowrap">{log.role}</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-0.5 rounded text-[8px] font-bold border ${
+                        log.status === 'AUTHORIZED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                        log.status === 'BYPASS' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                        'bg-red-500/10 text-red-400 border-red-500/20 animate-pulse'
+                      }`}>
+                        {log.status === 'AUTHORIZED' && 'AUTHORIZED'}
+                        {log.status === 'BYPASS' && 'SOVEREIGN_BYPASS'}
+                        {log.status === 'RESTRICTED_ATTEMPT' && 'ATTEMPT_DENIED'}
+                      </span>
+                    </td>
+                    <td className="p-3 text-slate-350 max-w-xs truncate" title={log.reason}>
+                      {log.reason}
+                    </td>
+                    <td className="p-3 pr-4 text-right font-mono text-stone-500 text-[10px] select-all uppercase">
+                      {log.hash.slice(0, 16)}...
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="mt-4 pt-3 border-t border-stone-800 flex justify-between items-center text-[9px] text-stone-500 font-mono">
+            <span>CHAIN ANCHOR COMPLIANCE LOGS SHIELDED WITH DUAL-SIGN SIGNATURES</span>
+            <span className="text-[#c19a6b] select-none">SHA_CHAINING_LINKED_BY_HASH: TRUE</span>
           </div>
         </div>
 

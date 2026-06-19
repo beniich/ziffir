@@ -37,9 +37,10 @@ interface ArrivalsTabProps {
     status: string;
     time: string;
   }>;
+  userRole?: 'operator' | 'manager';
 }
 
-export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights }) => {
+export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, userRole = 'operator' }) => {
   // Sparkline arrivals data config - warm colors for luxury light layout
   const chartData = {
     labels: ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00'],
@@ -95,6 +96,17 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights }) 
               <Plane className="w-6 h-6 text-[#c19a6b]" /> Zafir Arrivals Command
             </h2>
             <p className="text-xs text-slate-600">Live flight tracking, VIP chauffeur handshakes & luxury arrivals scheduler</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {userRole === 'operator' ? (
+              <span className="text-[10px] bg-sky-500/10 text-sky-700 border border-sky-500/30 px-3 py-1 rounded-lg font-mono font-bold tracking-widest uppercase shadow-sm">
+                🛡️ LEVEL-4-ARRIVAL (OPERATOR)
+              </span>
+            ) : (
+              <span className="text-[10px] bg-amber-500/10 text-amber-700 border border-amber-500/30 px-3 py-1 rounded-lg font-mono font-bold tracking-widest uppercase shadow-sm animate-pulse">
+                👑 LEVEL-5-PROPRIETOR (MANAGER)
+              </span>
+            )}
           </div>
         </div>
 
