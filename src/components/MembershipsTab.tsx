@@ -25,11 +25,11 @@ ChartJS.register(
   Filler
 );
 
-interface MembershipsTabProps {
-  addAuditLog?: (action: string, reason: string, status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', role?: string) => void;
-}
+import { useAddAuditLog } from '../shared/store/auditStore';
 
-export const MembershipsTab: React.FC<MembershipsTabProps> = ({ addAuditLog }) => {
+export const MembershipsTab: React.FC = () => {
+  const addAuditLog = useAddAuditLog();
+
   // ChartJS configs for MRR growth
   const mrrData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],

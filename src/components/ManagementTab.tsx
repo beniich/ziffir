@@ -25,16 +25,7 @@ interface Personnel {
   avatar: string;
 }
 
-interface ManagementTabProps {
-  language: 'EN' | 'FR' | 'RU';
-  auditLogs: AuditEntry[];
-  addAuditLog: (
-    action: string, 
-    reason: string, 
-    status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', 
-    roleStr?: string
-  ) => void;
-}
+// Removed props interface as we now read from stores
 
 const tabTranslations = {
   EN: {
@@ -212,11 +203,12 @@ const INITIAL_STAFF: Personnel[] = [
   { id: 'ST-7741', name: 'Jean-Pierre', role: 'Operator', clearance: 'L3', status: 'Suspended', department: 'Plant Room', avatar: 'JP' }
 ];
 
-export const ManagementTab: React.FC<ManagementTabProps> = ({ 
-  language, 
-  auditLogs, 
-  addAuditLog 
-}) => {
+import { useAuditStore, useAddAuditLog } from '../shared/store/auditStore';
+
+export const ManagementTab: React.FC = () => {
+  const language = 'EN';
+  const auditLogs = useAuditStore(state => state.audits);
+  const addAuditLog = useAddAuditLog();
   const trans = tabTranslations[language] || tabTranslations.EN;
 
   // Personnel State
@@ -382,7 +374,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
   const filteredLogs = auditLogs.filter(log => {
     const matchesSearch = 
       log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.reason.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.details.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.role.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus = 
@@ -833,12 +825,12 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
                       </td>
                       <td className="p-3 font-semibold text-slate-100 uppercase tracking-wide">{log.action}</td>
                       <td className="p-3 font-semibold text-[#c19a6b] text-nowrap">{log.role}</td>
-                      <td className="p-3 text-slate-300 max-w-lg font-mono tracking-tight leading-normal" title={log.reason}>
-                        {log.reason}
-                        <span className="block text-[8px] text-slate-500 mt-0.5 font-mono">Timestamp: {log.timestamp}</span>
+                      <td className="p-3 text-slate-300 max-w-lg font-mono tracking-tight leading-normal" title={log.details}>
+                        {log.details}
+                        <span className="block text-[8px] text-slate-500 mt-0.5 font-mono">Timestamp: {new Date(log.timestamp).toLocaleString()}</span>
                       </td>
                       <td className="p-3 pr-4 text-right font-mono text-stone-500 text-[10px] select-all uppercase">
-                        {log.hash.slice(0, 20)}...
+                        {log.hash ? log.hash.slice(0, 20) : 'N/A'}...
                       </td>
                     </tr>
                   ))

@@ -36,3 +36,29 @@ export interface VaultDocument {
   progress: number;
   securityLevel: string;
 }
+
+export type UserRole = 'operator' | 'manager' | 'admin';
+export type ThemeMode = 'dark' | 'light';
+export type ColorScheme = 'gold' | 'silver' | 'bronze';
+export type StyleMode = 'luxe' | 'cyberpunk' | 'standard';
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  role: UserRole;
+  department: string;
+  shift: string;
+  status: 'active' | 'break' | 'off';
+  avatar: string;
+}
+
+export interface AuditLog {
+  id: string;
+  timestamp: number | string;
+  user: string;
+  role: string;
+  action: string;
+  details: string;
+  status?: string;
+  hash?: string;
+}

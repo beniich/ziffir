@@ -1,16 +1,12 @@
 import React from 'react';
 import { Layers, RefreshCw } from 'lucide-react';
 
-interface ChannelSyncTabProps {
-  channels: Array<{
-    name: string;
-    status: string;
-    iconColor: string;
-  }>;
-  syncLogs: string[];
-}
+import { useAppStore } from '../shared/store/appStore';
 
-export const ChannelSyncTab: React.FC<ChannelSyncTabProps> = ({ channels, syncLogs }) => {
+export const ChannelSyncTab: React.FC = () => {
+  const channels = useAppStore((s) => s.channels);
+  const syncLogs = useAppStore((s) => s.syncLogs);
+
   return (
     <div className="space-y-6 animate-fade-in" id="channel-sync-tab">
       <div className="glass-panel p-6 rounded-3xl relative overflow-hidden bg-white/40 border border-white/60 shadow-xl">

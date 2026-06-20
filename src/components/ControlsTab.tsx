@@ -1,31 +1,22 @@
 import React from 'react';
 import { Plus, Minus, Map } from 'lucide-react';
 
-interface ControlsTabProps {
-  lightScene: 'ambient' | 'bright' | 'relax' | 'night';
-  setLightScene: (scene: 'ambient' | 'bright' | 'relax' | 'night') => void;
-  currentTemp: number;
-  setCurrentTemp: (temp: number) => void;
-  targetTemp: number;
-  setTargetTemp: (temp: number) => void;
-  glassOpacity: number;
-  setGlassOpacity: (opacity: number) => void;
-  glowingRooms: Record<string, boolean>;
-  toggleRoomGlow: (room: string) => void;
-}
+import { useAppStore } from '../shared/store/appStore';
 
-export const ControlsTab: React.FC<ControlsTabProps> = ({
-  lightScene,
-  setLightScene,
-  currentTemp,
-  setCurrentTemp,
-  targetTemp,
-  setTargetTemp,
-  glassOpacity,
-  setGlassOpacity,
-  glowingRooms,
-  toggleRoomGlow
-}) => {
+export const ControlsTab: React.FC = () => {
+  const {
+    lightScene,
+    setLightScene,
+    currentTemp,
+    setCurrentTemp,
+    targetTemp,
+    setTargetTemp,
+    glassOpacity,
+    setGlassOpacity,
+    glowingRooms,
+    toggleRoomGlow
+  } = useAppStore();
+
   return (
     <div className="space-y-6 animate-fade-in" id="controls-tab">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

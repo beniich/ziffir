@@ -3,11 +3,9 @@ import { Utensils, CheckCircle, ChevronRight, Receipt, CreditCard, RefreshCw, Sh
 import { RoomServiceOrder } from '../types';
 import confetti from 'canvas-confetti';
 
-interface RoomServiceTabProps {
-  roomOrders: RoomServiceOrder[];
-  advanceOrderStatus: (id: string) => void;
-  addAuditLog?: (action: string, reason: string, status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', role?: string) => void;
-}
+import { useAppStore } from '../shared/store/appStore';
+import { useAuditStore } from '../shared/store/auditStore';
+import { useSecurityStore } from '../shared/store/securityStore';
 
 interface SimulatedInvoice {
   id: string;
@@ -321,7 +319,22 @@ export const CulinaryVectorSVG: React.FC<{ orderId: string }> = ({ orderId }) =>
   }
 };
 
-export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, advanceOrderStatus, addAuditLog }) => {
+export const RoomServiceTab: React.FC = () => {
+  const roomOrders = useAppStore((s) => s.orders);
+  const advanceOrderStatus = useAppStore((s) => s.advanceOrderStatus);
+  
+  const logAudit = useAuditStore((s) => s.logAudit);
+  const userRole = useSecurityStore((s) => s.userRole);
+  const userName = useSecurityStore((s) => s.userName);
+
+  const addAuditLog = (action: string, reason: string, status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', role?: string) => {
+    logAudit({
+      user: userName || 'System',
+      role: role || userRole,
+      action,
+      details: `${reason} [${status}]`,
+    });
+  };
   // Invoices lists corresponding to the roomOrders
   const [invoices, setInvoices] = useState<SimulatedInvoice[]>([
     { id: 'INV-2026-041', orderId: 'order-1', guest: 'Mr. Chen', room: 'Suite 201', details: 'Gourmet French Breakfast Platter', baseAmount: 48, vat: 9.6, serviceCharge: 15, total: 72.6, status: 'PENDING' },

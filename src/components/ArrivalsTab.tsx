@@ -24,23 +24,14 @@ ChartJS.register(
   Filler
 );
 
-interface ArrivalsTabProps {
-  vipGuests: Array<{
-    name: string;
-    vip: string;
-    status: string;
-    info: string;
-    flight: string;
-  }>;
-  flights: Array<{
-    id: string;
-    status: string;
-    time: string;
-  }>;
-  userRole?: 'operator' | 'manager';
-}
+import { useAppStore } from '../shared/store/appStore';
+import { useSecurityStore } from '../shared/store/securityStore';
 
-export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, userRole = 'operator' }) => {
+export const ArrivalsTab: React.FC = () => {
+  const vipGuests = useAppStore((s) => s.vipGuests);
+  const flights = useAppStore((s) => s.flights);
+  const userRole = useSecurityStore((s) => s.userRole);
+
   // Sparkline arrivals data config - warm colors for luxury light layout
   const chartData = {
     labels: ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00'],

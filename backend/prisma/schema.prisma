@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ════════════════════════════════════════════════════════════
+// AUDIT — Logs avec hash chaîné (blockchain-style)
+// ════════════════════════════════════════════════════════════
+model Audit {
+  id           String   @id @default(cuid())
+  logId        String   @unique  // LOG-001, LOG-002, etc.
+  timestamp    DateTime @default(now())
+  user         String
+  role         String
+  action       String
+  reason       String
+  previousHash String
+  hash         String   @unique
+  status       String   // AUTHORIZED | BYPASS | RESTRICTED_ATTEMPT
+  createdAt    DateTime @default(now())
+
+  @@index([timestamp])
+  @@index([action])
+  @@index([user])
+  @@map("audits")
+}
+
+// ════════════════════════════════════════════════════════════
+// ROOM SERVICE — Cours (catalogue) + Commandes
+// ════════════════════════════════════════════════════════════
+model Course {
+  code        String   @id
+  name        String
+  nameFr      String?
+  category    String   // breakfast | appetizer | main | dessert | beverage
+  price       Float
+  prepTime    Int      @default(15)
+  available   Boolean  @default(true)
+  allergens   String   @default("") // CSV
+  vectorKey   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems  OrderItem[]
+
+  @@map("courses")
+}
+
+model RoomOrder {
+  id              String   @id @default(cuid())
+  orderRef        String   @unique // order-1, order-2, etc.
+  roomNumber      String
+  guestName       String
+  guestVIP        Boolean  @default(false)
+  status          String   @default("Preparation") // Preparation | Quality Check | Out for Delivery | Delivered
+  priority        String   @default("normal")
+  notes           String?
+  subtotal        Float
+  vat             Float
+  serviceCharge   Float
+  total           Float
+  estimatedDelivery DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  items           OrderItem[]
+
+  @@index([status])
+  @@index([roomNumber])
+  @@map("room_orders")
+}
+
+model OrderItem {
+  id          String    @id @default(cuid())
+  orderId     String
+  courseCode  String
+  name        String
+  quantity    Int       @default(1)
+  price       Float
+
+  order       RoomOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  course      Course    @relation(fields: [courseCode], references: [code])
+
+  @@map("order_items")
+}
+
+// ════════════════════════════════════════════════════════════
+// LEDGER — Cours académiques & GPA
+// ════════════════════════════════════════════════════════════
+model LedgerCourse {
+  code           String   @id
+  name           String
+  category       String   // Operations | Gastronomy | Service | Management
+  credits        Float
+  grade          String
+  completedDate  String
+  blockchainHash String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("ledger_courses")
+}
+
+// ════════════════════════════════════════════════════════════
+// STAFF — Personnel
+// ════════════════════════════════════════════════════════════
+model StaffMember {
+  id             String   @id @default(cuid())
+  staffRef       String   @unique // s-001, s-002, etc.
+  name           String
+  role           String   // operator | manager | admin
+  department     String
+  clearanceLevel Int      @default(1)
+  active         Boolean  @default(true)
+  lastAccess     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("staff")
+}
+
+// ════════════════════════════════════════════════════════════
+// VAULT — Documents sécurisés
+// ════════════════════════════════════════════════════════════
+model VaultDocument {
+  id           String   @id @default(cuid())
+  docRef       String   @unique // doc-001, etc.
+  name         String
+  category     String   // passport | contract | insurance | valuable | other
+  owner        String
+  room         String
+  fingerprint  Boolean  @default(true)
+  depositDate  DateTime @default(now())
+  withdrawnAt  DateTime?
+
+  @@index([owner])
+  @@map("vault_documents")
+}
+
+// ════════════════════════════════════════════════════════════
+// CONTROLS — État des suites
+// ════════════════════════════════════════════════════════════
+model SuiteControl {
+  id            String   @id @default(cuid())
+  controlRef    String   @unique // ctrl-201, etc.
+  suite         String
+  lights        Boolean  @default(false)
+  climate       Int      @default(20)
+  curtains      String   @default("closed") // open | half | closed
+  music         Boolean  @default(false)
+  musicVolume   Int      @default(0)
+  doNotDisturb  Boolean  @default(false)
+  updatedAt     DateTime @updatedAt
+
+  @@map("suite_controls")
+}
+
+// ════════════════════════════════════════════════════════════
+// CHANNEL SYNC — Pricing rules
+// ════════════════════════════════════════════════════════════
+model PricingRule {
+  id                String   @id @default(cuid())
+  ruleRef           String   @unique // p-201, etc.
+  suite             String
+  basePrice         Float
+  channelMultipliers String  @default("{}") // JSON stringifié
+  lastSync          DateTime @default(now())
+  status            String   @default("synced") // synced | pending | error
+
+  @@map("pricing_rules")
+}

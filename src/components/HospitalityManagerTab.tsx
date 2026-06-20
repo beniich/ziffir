@@ -56,17 +56,13 @@ export interface StockItem {
   location: string;
 }
 
-interface HospitalityManagerTabProps {
-  language: 'EN' | 'FR' | 'RU';
-  addAuditLog?: (
-    action: string, 
-    reason: string, 
-    status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', 
-    role?: string
-  ) => void;
-}
+// Removed props interface as we now read from stores
 
-export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ language, addAuditLog }) => {
+import { useAddAuditLog } from '../shared/store/auditStore';
+
+export const HospitalityManagerTab: React.FC = () => {
+  const language = 'EN';
+  const addAuditLog = useAddAuditLog();
   // 1) Suites State
   const [suites, setSuites] = useState<SuiteInfo[]>([
     { id: 'Suite 301', classTier: 'Presidential', guestName: 'Prince Al-Saud', occupancy: 'Occupied', cleaningStatus: 'Spotless', cardAccess: 'ACTIVE', temperature: 21.5, notes: 'Prefers jasmine incense at sunset' },
