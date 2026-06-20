@@ -96,9 +96,6 @@ export function Layout() {
   const [major] = useState<string>('Master of Premium Hospitality');
   const [blockchainId] = useState<string>('0x89C...D4AF');
   const courses = useAppStore(s => s.courses);
-  
-  const totalGPA = 3.95;
-  const totalCredits = 18;
 
   useEffect(() => {
     fetchAudits();
