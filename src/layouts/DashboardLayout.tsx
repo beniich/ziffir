@@ -1,8 +1,10 @@
-import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { Badge } from '../components/ui/Badge';
-import { ROLE_LABELS, type UserRole } from '../types';
+import { ROLE_LABELS } from '../types';
+import { ConditionalSidebar } from '../components/navigation/ConditionalSidebar';
+import { RoleSwitcher } from '../components/layout/RoleSwitcher';
 
 interface Props {
   variant: 'client' | 'hotel' | 'admin';
@@ -67,25 +69,7 @@ export const DashboardLayout = ({ variant }: Props) => {
           </Link>
         </div>
 
-        <nav className="px-4 space-y-1 mt-4">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === `/${variant === 'admin' ? 'admin' : variant}`}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                  isActive
-                    ? 'bg-amber-500/20 text-amber-300 border-l-2 border-amber-400'
-                    : 'text-slate-300 hover:bg-slate-800/50'
-                }`
-              }
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span className="font-medium text-sm">{item.label}</span>
-            </NavLink>
-          ))}
-        </nav>
+        <ConditionalSidebar />
 
         {/* User card */}
         <div className="absolute bottom-6 left-4 right-4 space-y-2">
@@ -113,8 +97,13 @@ export const DashboardLayout = ({ variant }: Props) => {
       </aside>
 
       {/* Main content */}
-      <main className="ml-64 min-h-screen">
-        <Outlet />
+      <main className="ml-64 min-h-screen flex flex-col">
+        <header className="h-16 border-b border-slate-800/50 bg-slate-900/30 backdrop-blur-md flex items-center justify-end px-6 sticky top-0 z-10">
+          <RoleSwitcher />
+        </header>
+        <div className="flex-1">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

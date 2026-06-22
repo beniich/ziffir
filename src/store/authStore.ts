@@ -17,6 +17,7 @@ interface AuthState {
   clearError: () => void;
   hasRole: (...roles: UserRole[]) => boolean;
   hasHigherRole: (role: UserRole) => boolean;
+  setUser: (user: User) => void;
   reset: () => void;
 }
 
@@ -27,6 +28,8 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+
+      setUser: (user) => set({ user, isAuthenticated: true }),
 
       login: async (email, password) => {
         set({ isLoading: true, error: null });
