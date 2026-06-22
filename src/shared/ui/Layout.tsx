@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { LogOut } from 'lucide-react';
 import { 
   GraduationCap, 
   Plane, 
@@ -873,6 +875,13 @@ export function Layout() {
                 EP
               </div>
             </div>
+            <button
+              onClick={() => useAuthStore.getState().logout()}
+              title="Se déconnecter"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </header>

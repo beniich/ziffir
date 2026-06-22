@@ -4,6 +4,8 @@ import { createServer } from 'http';
 import { createApp } from './app';
 import { initWebSocket } from './websocket/ws.server';
 import { PrismaClient } from '@prisma/client';
+import { closeRedis } from './config/redis';
+import { logger } from './utils/logger';
 
 const prisma = new PrismaClient();
 
@@ -18,24 +20,43 @@ initWebSocket(server);
 async function start() {
   try {
     await prisma.$connect();
-    console.log('✅ Base de données connectée');
+    logger.info('✅ Base de données connectée');
 
     server.listen(PORT, () => {
-      console.log(`🚀 Zaphir Backend sur http://localhost:${PORT}`);
-      console.log(`📡 WebSocket sur ws://localhost:${PORT}/ws`);
-      console.log(`🏥 Health: http://localhost:${PORT}/api/health`);
+      logger.info(`🚀 Zaphir Backend sur http://localhost:${PORT}`);
+      logger.info(`📡 WebSocket sur ws://localhost:${PORT}/ws`);
+      logger.info(`🏥 Health: http://localhost:${PORT}/api/health`);
     });
   } catch (err) {
-    console.error('❌ Erreur démarrage:', err);
+    logger.error(`❌ Erreur démarrage: ${(err as Error).message || err}`);
     process.exit(1);
   }
 }
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM reçu, fermeture...');
+// ════════════════════════════════════════════════════════════
+// GRACEFUL SHUTDOWN
+// ════════════════════════════════════════════════════════════
+
+const shutdown = async (signal: string) => {
+  logger.info(`🛑 ${signal} reçu, fermeture en cours...`);
+
+  // 1. Arrêter d'accepter de nouvelles connexions
+  server.close(() => {
+    logger.info('HTTP server closed');
+  });
+
+  // 2. Fermer Prisma
   await prisma.$disconnect();
-  server.close(() => process.exit(0));
-});
+  logger.info('Prisma disconnected');
+
+  // 3. Fermer Redis
+  await closeRedis();
+  logger.info('Redis closed');
+
+  process.exit(0);
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 start();

@@ -1,45 +1,85 @@
-// backend/src/controllers/controls.controller.ts
-
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { broadcastUpdate } from '../websocket/ws.server';
-import type { ApiResponse } from '../types';
+import { securePrisma } from '../services/secure-prisma';
+// import { cacheService } from '../services/cache.service';
+// import { broadcastUpdate } from '../websocket/ws.server';
+// import { auditLogger } from '../utils/logger';
+import { AppError } from '../middleware/errorHandler';
+import { UserContext } from '../services/permissions.service';
 
-const prisma = new PrismaClient();
+const cacheService = { 
+  invalidatePattern: async (p: string) => {},
+  remember: async (key: string, fn: Function, ttl: number) => fn()
+};
+const broadcastUpdate = (msg: any) => {};
+const auditLogger = { info: console.log };
+
+const CACHE_PREFIX = 'suite-controls';
 
 export class ControlsController {
-  static async getAll(req: Request, res: Response<ApiResponse<any>>) {
+  static async list(req: Request, res: Response): Promise<void> {
     try {
-      const controls = await prisma.suiteControl.findMany({
-        orderBy: { suite: 'asc' },
-      });
+      const ctx = (req as any).user as UserContext;
+
+      const cacheKey = `${CACHE_PREFIX}:${ctx.hotelId}`;
+
+      const controls = await cacheService.remember(
+        cacheKey,
+        () => securePrisma.suiteControl.findMany(ctx, {
+          orderBy: { room: { number: 'asc' } },
+          include: { room: true },
+        }),
+        30,
+      );
+
       res.json({ success: true, data: controls });
-    } catch (error) {
-      res.status(500).json({ success: false, error: 'Erreur récupération contrôles' });
+    } catch (err: any) {
+      const status = err.statusCode || 500;
+      res.status(status).json({ success: false, error: err.message });
     }
   }
 
-  static async updateControl(req: Request, res: Response<ApiResponse<any>>) {
+  static async update(req: Request, res: Response): Promise<void> {
     try {
+      const ctx = (req as any).user as UserContext;
       const { id } = req.params;
-      const patch = req.body;
+      const updates = req.body;
 
-      // Whitelist des champs modifiables
-      const allowed = ['lights', 'climate', 'curtains', 'music', 'musicVolume', 'doNotDisturb'];
-      const data: any = {};
-      for (const key of allowed) {
-        if (key in patch) data[key] = patch[key];
+      const allowed: any = {};
+      const ALLOWED_FIELDS = ['lights', 'climate', 'curtains', 'music', 'musicVolume', 'doNotDisturb'];
+      for (const field of ALLOWED_FIELDS) {
+        if (field in updates) allowed[field] = updates[field];
       }
 
-      const updated = await prisma.suiteControl.update({
-        where: { id },
-        data,
+      if (Object.keys(allowed).length === 0) {
+        throw new AppError(400, 'Aucun champ valide fourni');
+      }
+
+      const existing = await securePrisma.suiteControl.findUnique(ctx, id);
+      if (!existing) throw new AppError(404, 'Suite introuvable');
+
+      await securePrisma.suiteControl.update(ctx, id, allowed);
+
+      const updated: any = await securePrisma.suiteControl.findUnique(ctx, id);
+
+      await cacheService.invalidatePattern(`${CACHE_PREFIX}:*`);
+
+      broadcastUpdate({
+        type: 'SUITE_CONTROL_CHANGED',
+        data: updated,
+        hotelId: updated.hotelId,
       });
 
-      broadcastUpdate({ type: 'SUITE_CONTROL_CHANGED', data: updated });
+      auditLogger.info({
+        action: 'SUITE_CONTROL_UPDATED',
+        controlId: id,
+        changes: allowed,
+        updatedBy: ctx.userId,
+      });
+
       res.json({ success: true, data: updated });
-    } catch (error) {
-      res.status(500).json({ success: false, error: 'Erreur mise à jour contrôle' });
+    } catch (err: any) {
+      const status = err.statusCode || 500;
+      res.status(status).json({ success: false, error: err.message });
     }
   }
 }

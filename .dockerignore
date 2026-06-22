@@ -1,0 +1,14 @@
+node_modules
+dist
+.env
+.env.local
+*.log
+.git
+.gitignore
+.vscode
+.idea
+playwright-report
+test-results
+coverage
+src/test
+e2e

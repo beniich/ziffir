@@ -1,70 +1,76 @@
-// src/routes/index.ts
-
 import { Router } from 'express';
-import { AuditController } from '../controllers/audit.controller';
-import { RoomServiceController } from '../controllers/room-service.controller';
-import { LedgerController } from '../controllers/ledger.controller';
-import { StaffController } from '../controllers/staff.controller';
-import { VaultController } from '../controllers/vault.controller';
-import { ControlsController } from '../controllers/controls.controller';
-import { getConnectedClientsCount } from '../websocket/ws.server';
+import { requireAuth } from '../middleware/auth';
+import { tenantIsolation } from '../middleware/tenantIsolation';
+import { register } from '../utils/metrics';
+import { checkRedisHealth } from '../config/redis';
+
+// All imported routes
+import authRoutes from './auth.routes';
+import roomOrderRoutes from './room-order.routes';
+import staffRoutes from './staff.routes';
+import vaultRoutes from './vault.routes';
+import controlsRoutes from './controls.routes';
+import pricingRoutes from './pricing.routes';
+import analyticsRoutes from './analytics.routes';
+import auditRoutes from './audit.routes';
+import hotelRoutes from './hotel.routes';
+import userRoutes from './user.routes';
+import invoiceRoutes from './invoice.routes';
+import notificationRoutes from './notification.routes';
+import aiRoutes from './ai.routes';
+import mlRoutes from './ml.routes';
 
 const router = Router();
 
 // ════════════════════════════════════════════════════════════
-// HEALTH CHECK
+// 1. ROUTES 100% PUBLIQUES (whitelist explicite)
 // ════════════════════════════════════════════════════════════
-router.get('/health', (req, res) => {
+
+router.use('/auth', authRoutes);
+
+router.get('/health', async (_req, res) => {
+  const redisHealthy = await checkRedisHealth();
   res.json({
     success: true,
     data: {
-      status: 'operational',
+      status: redisHealthy ? 'operational' : 'degraded',
       uptime: process.uptime(),
-      wsClients: getConnectedClientsCount(),
+      redis: redisHealthy ? 'up' : 'down',
       timestamp: new Date().toISOString(),
     },
   });
 });
 
-// ════════════════════════════════════════════════════════════
-// AUDITS
-// ════════════════════════════════════════════════════════════
-router.get('/audits', AuditController.getAll);
-router.post('/audits', AuditController.create);
-router.get('/audits/verify', AuditController.verify);
+router.get('/metrics', async (_req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
 
 // ════════════════════════════════════════════════════════════
-// ROOM SERVICE
+// 2. MIDDLEWARES GLOBAUX (à partir d'ici : tout est protégé)
 // ════════════════════════════════════════════════════════════
-router.get('/room-service/menu', RoomServiceController.getMenu);
-router.get('/room-service/orders', RoomServiceController.getOrders);
-router.post('/room-service/orders', RoomServiceController.createOrder);
-router.patch('/room-service/orders/:id/advance', RoomServiceController.advanceOrder);
+
+router.use(requireAuth);       // 1. Vérifie JWT → req.user
+router.use(tenantIsolation);  // 2. Injecte hotelId/userId
 
 // ════════════════════════════════════════════════════════════
-// LEDGER
+// 3. ROUTES MÉTIER (toutes protégées par défaut)
 // ════════════════════════════════════════════════════════════
-router.get('/ledger/courses', LedgerController.getCourses);
-router.post('/ledger/courses', LedgerController.createCourse);
 
-// ════════════════════════════════════════════════════════════
-// STAFF
-// ════════════════════════════════════════════════════════════
-router.get('/staff', StaffController.getAll);
-router.post('/staff', StaffController.create);
-router.patch('/staff/:id/clearance', StaffController.updateClearance);
+router.use('/room-orders', roomOrderRoutes);
+router.use('/staff', staffRoutes);
+router.use('/vault', vaultRoutes);
+router.use('/controls', controlsRoutes);
+router.use('/pricing', pricingRoutes);
+router.use('/analytics', analyticsRoutes);
+router.use('/audits', auditRoutes);
+router.use('/invoices', invoiceRoutes);
+router.use('/notifications', notificationRoutes);
+router.use('/ai', aiRoutes);
+router.use('/ml', mlRoutes);
 
-// ════════════════════════════════════════════════════════════
-// VAULT
-// ════════════════════════════════════════════════════════════
-router.get('/vault/documents', VaultController.getDocuments);
-router.post('/vault/documents', VaultController.addDocument);
-router.patch('/vault/documents/:id/withdraw', VaultController.withdrawDocument);
-
-// ════════════════════════════════════════════════════════════
-// CONTROLS
-// ════════════════════════════════════════════════════════════
-router.get('/controls/suites', ControlsController.getAll);
-router.patch('/controls/suites/:id', ControlsController.updateControl);
+// ─── Réservé SUPER_ADMIN ────────────────────────────────
+router.use('/hotels', hotelRoutes);
+router.use('/users', userRoutes);
 
 export default router;

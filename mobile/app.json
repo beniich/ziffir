@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Zaphir",
+    "slug": "zaphir-mobile",
+    "version": "1.0.0",
+    "scheme": "zaphir",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.zaphir.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Scanner de documents pour le coffre-fort",
+        "NSFaceIDUsageDescription": "Authentification biométrique",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.zaphir.app",
+      "permissions": [
+        "CAMERA",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT",
+        "INTERNET",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        { "color": "#d49619" }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

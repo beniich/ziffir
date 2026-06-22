@@ -1,65 +1,126 @@
-// src/controllers/audit.controller.ts
-
 import { Request, Response } from 'express';
-import { AuditService } from '../services/audit.service';
-import type { ApiResponse } from '../types';
+import { securePrisma } from '../services/secure-prisma';
+// import { cacheService } from '../services/cache.service';
+// import { auditLogger } from '../utils/logger';
+import { AppError } from '../middleware/errorHandler';
+import { UserContext } from '../services/permissions.service';
+import crypto from 'crypto';
+import { auditChainValid } from '../utils/metrics';
+
+const auditLogger = { info: console.log };
+
+const CACHE_PREFIX = 'audits';
 
 export class AuditController {
-  /**
-   * GET /api/audits
-   */
-  static async getAll(req: Request, res: Response<ApiResponse<any>>) {
+  static async list(req: Request, res: Response): Promise<void> {
     try {
-      const limit = Math.min(parseInt(req.query.limit as string) || 500, 1000);
-      const audits = await AuditService.findAll(limit);
+      const ctx = (req as any).user as UserContext;
+      const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
+
+      const audits = await securePrisma.audit.findMany(ctx, {
+        orderBy: { timestamp: 'desc' },
+        take: limit,
+      });
+
       res.json({ success: true, data: audits });
-    } catch (error) {
-      console.error('[AuditController.getAll]', error);
-      res.status(500).json({ success: false, error: 'Erreur récupération audits' });
+    } catch (err: any) {
+      const status = err.statusCode || 500;
+      res.status(status).json({ success: false, error: err.message });
     }
   }
 
-  /**
-   * POST /api/audits
-   */
-  static async create(req: Request, res: Response<ApiResponse<any>>) {
+  static async create(req: Request, res: Response): Promise<void> {
     try {
-      const { user, role, action, reason, status } = req.body;
+      const ctx = (req as any).user as UserContext;
+      const { action, reason, status } = req.body;
 
-      // Validation
-      if (!user || !role || !action || !reason || !status) {
-        return res.status(400).json({
-          success: false,
-          error: 'Champs requis manquants: user, role, action, reason, status',
-        });
+      if (!action || !reason || !status) {
+        throw new AppError(400, 'Champs requis: action, reason, status');
       }
 
       if (!['AUTHORIZED', 'BYPASS', 'RESTRICTED_ATTEMPT'].includes(status)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Status invalide (doit être AUTHORIZED, BYPASS ou RESTRICTED_ATTEMPT)',
-        });
+        throw new AppError(400, 'Status invalide');
       }
 
-      const audit = await AuditService.create({ user, role, action, reason, status });
+      const lastAudit: any = await securePrisma.audit.findFirst(ctx, {
+        orderBy: { timestamp: 'desc' },
+      });
+
+      const previousHash = lastAudit?.hash ?? '0'.repeat(64);
+      const logId = `LOG-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+
+      const hashInput = `${logId}|${previousHash}|${action}|${ctx.userId}|${reason}`;
+      const hash = crypto.createHash('sha256').update(hashInput).digest('hex');
+
+      const audit: any = await securePrisma.audit.create(ctx, {
+        data: {
+          logId,
+          userId: ctx.userId,
+          userName: ctx.role,
+          hotelId: ctx.hotelId,
+          action,
+          reason,
+          previousHash,
+          hash,
+          status,
+          timestamp: new Date(),
+        }
+      });
+
+      auditLogger.info({
+        action: 'AUDIT_CREATED',
+        auditId: audit.id,
+        actionType: action,
+        status,
+        userId: ctx.userId,
+      });
+
       res.status(201).json({ success: true, data: audit });
-    } catch (error) {
-      console.error('[AuditController.create]', error);
-      res.status(500).json({ success: false, error: 'Erreur création audit' });
+    } catch (err: any) {
+      const status = err.statusCode || 500;
+      res.status(status).json({ success: false, error: err.message });
     }
   }
 
-  /**
-   * GET /api/audits/verify
-   * Vérifie l'intégrité de la chaîne.
-   */
-  static async verify(req: Request, res: Response<ApiResponse<any>>) {
+  static async verify(req: Request, res: Response): Promise<void> {
     try {
-      const result = await AuditService.verifyIntegrity();
-      res.json({ success: true, data: result });
-    } catch (error) {
-      console.error('[AuditController.verify]', error);
-      res.status(500).json({ success: false, error: 'Erreur vérification chaîne' });
+      const ctx = (req as any).user as UserContext;
+
+      const audits: any[] = await securePrisma.audit.findMany(ctx, {
+        orderBy: { timestamp: 'asc' },
+      });
+
+      let valid = true;
+      let brokenAt: number | undefined;
+
+      for (let i = 0; i < audits.length; i++) {
+        const current = audits[i];
+        const expectedPrevious = i === 0 ? '0'.repeat(64) : audits[i - 1].hash;
+
+        const hashInput = `${current.logId}|${current.previousHash}|${current.action}|${current.userId}|${current.reason}`;
+        const recomputedHash = crypto.createHash('sha256').update(hashInput).digest('hex');
+
+        if (current.hash !== recomputedHash || current.previousHash !== expectedPrevious) {
+          valid = false;
+          brokenAt = i;
+          break;
+        }
+      }
+
+      auditChainValid.set(valid ? 1 : 0);
+
+      res.json({
+        success: true,
+        data: {
+          valid,
+          total: audits.length,
+          brokenAt,
+          hotelId: ctx.hotelId,
+        },
+      });
+    } catch (err: any) {
+      const status = err.statusCode || 500;
+      res.status(status).json({ success: false, error: err.message });
     }
   }
 }

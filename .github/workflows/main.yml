@@ -1,0 +1,29 @@
+name: Full Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate-backend:
+    name: Backend CI
+    uses: ./.github/workflows/backend.yml
+
+  validate-frontend:
+    name: Frontend CI
+    uses: ./.github/workflows/frontend.yml
+
+  deploy:
+    name: Deploy to Production
+    needs: [validate-backend, validate-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Deploy to production
+        run: |
+          echo "🚀 Déploiement déclenché — tous les tests ont réussi"
+          # Ajouter ici votre logique de déploiement (SSH, AWS ECS, DigitalOcean, etc.)
+          # Exemple SSH :
+          # ssh user@server "cd /app && docker compose pull && docker compose up -d --remove-orphans"
