@@ -1,0 +1,81 @@
+groups:
+  - name: zaphir_alerts
+    interval: 30s
+    rules:
+      # ─── Latence ────────────────────────────────
+      - alert: HighLatencyP95
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, route)) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latence P95 > 1s sur {{ $labels.route }}"
+          description: "La latence P95 dépasse 1 seconde depuis 5 minutes"
+
+      # ─── Taux d'erreur ──────────────────────────
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status_code=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Taux d'erreur 5xx > 5%"
+          description: "Plus de 5% des requêtes échouent en 5 minutes"
+
+      # ─── Cache hit ratio ────────────────────────
+      - alert: LowCacheHitRate
+        expr: |
+          sum(rate(zaphir_cache_operations_total{result="hit"}[5m])) /
+          sum(rate(zaphir_cache_operations_total{result=~"hit|miss"}[5m])) < 0.7
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Cache hit rate < 70%"
+          description: "Le cache Redis est sous-utilisé"
+
+      # ─── Redis down ─────────────────────────────
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis est down"
+          description: "Le service Redis ne répond plus"
+
+      # ─── Rate limit excessif ────────────────────
+      - alert: RateLimitAbuse
+        expr: rate(zaphir_rate_limit_hits_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Abus de rate limit détecté sur {{ $labels.limiter }}"
+
+      # ─── DB connections saturées ───────────────
+      - alert: PostgresConnectionsHigh
+        expr: pg_stat_activity_count > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL a plus de 80 connexions actives"
+
+      # ─── Service down ───────────────────────────
+      - alert: BackendDown
+        expr: up{job="zaphir-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend Zaphir indisponible"
+
+      # ─── Memory pressure ────────────────────────
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Backend utilise > 512 MB RAM"

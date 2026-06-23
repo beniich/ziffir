@@ -1,0 +1,55 @@
+{
+  "common": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Изменить",
+    "close": "Закрыть",
+    "loading": "Загрузка...",
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "all": "Все",
+    "yes": "Да",
+    "no": "Нет"
+  },
+  "auth": {
+    "login": "Войти",
+    "logout": "Выйти",
+    "register": "Регистрация",
+    "email": "Электронная почта",
+    "password": "Пароль",
+    "username": "Имя пользователя",
+    "forgotPassword": "Забыли пароль?",
+    "loginSuccess": "С возвращением!",
+    "loginError": "Неверные данные",
+    "accessDenied": "Доступ запрещен",
+    "insufficientRole": "Недостаточно прав"
+  },
+  "nav": {
+    "dashboard": "Панель управления",
+    "arrivals": "Прибытия",
+    "roomService": "Обслуживание",
+    "vault": "Хранилище",
+    "pos": "Касса",
+    "staff": "Персонал",
+    "audits": "Аудит",
+    "settings": "Настройки"
+  },
+  "roomService": {
+    "title": "Заказы обслуживания",
+    "advance": "Продвинуть",
+    "preparation": "Подготовка",
+    "qualityCheck": "Контроль качества",
+    "outForDelivery": "В доставке",
+    "delivered": "Доставлено",
+    "total": "Итого",
+    "newOrder": "Новый заказ"
+  },
+  "audits": {
+    "title": "Цепочка аудита",
+    "verified": "Цепочка проверена",
+    "broken": "Целостность нарушена",
+    "hash": "Хэш",
+    "previousHash": "Предыдущий хэш"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "title": "Zaphir - Métriques Business",
+  "tags": ["zaphir", "business"],
+  "panels": [
+    {
+      "title": "📦 Commandes Room Service",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(zaphir_orders_advanced_total[5m])) * 60", "legendFormat": "Avancées/min" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops", "color": { "mode": "thresholds" } } }
+    },
+    {
+      "title": "🔍 Audits créés (par statut)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(zaphir_audit_logs_created_total[5m])) by (status)",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } },
+          "unit": "ops"
+        }
+      }
+    },
+    {
+      "title": "🏨 Activité multi-hôtels (top 10)",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (hotelId) (rate(http_requests_total{service=\"backend\"}[5m])))",
+          "legendFormat": "{{hotelId}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": null },
+            { "color": "yellow", "value": 50 },
+            { "color": "red", "value": 100 }
+          ] }
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      }
+    },
+    {
+      "title": "📊 Latence par route (heatmap)",
+      "type": "heatmap",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_request_duration_seconds_bucket[5m])) by (le, route)",
+          "format": "heatmap",
+          "legendFormat": "{{route}}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "uid": "zaphir-business"
+}
