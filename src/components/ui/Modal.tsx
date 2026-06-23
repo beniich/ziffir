@@ -95,7 +95,7 @@ export const Modal = ({
       <div
         ref={modalRef}
         className={`
-          relative w-full ${sizeClasses[size]} glass-strong rounded-2xl shadow-2xl
+          relative w-full ${sizeClasses[size]} bg-obsidian-900 border border-slate-700/50 rounded-2xl shadow-2xl
           animate-slide-up ${size === 'full' ? 'flex flex-col' : ''}
         `}
         onClick={(e) => e.stopPropagation()}

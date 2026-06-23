@@ -2,12 +2,12 @@ import React from 'react';
 import { Lock, Unlock, CheckCircle } from 'lucide-react';
 import { VaultDocument } from '../types';
 
-import { useAppStore } from '../shared/store/appStore';
+interface VaultTabProps {
+  vaultDocs: VaultDocument[];
+  startDecrypt: (id: string) => void;
+}
 
-export const VaultTab: React.FC = () => {
-  const vaultDocs = useAppStore((s) => s.vaultDocs);
-  const startDecrypt = useAppStore((s) => s.decryptDoc);
-
+export const VaultTab: React.FC<VaultTabProps> = ({ vaultDocs, startDecrypt }) => {
   return (
     <div className="space-y-6 animate-fade-in" id="vault-tab">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

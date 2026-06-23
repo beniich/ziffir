@@ -24,7 +24,7 @@ interface ToastState {
 export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
   show: (toast) => {
-    const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+    const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     set((state) => ({ toasts: [...state.toasts, { ...toast, id }] }));
     return id;
   },
@@ -68,7 +68,7 @@ const ToastItem = ({ toast: t }: { toast: Toast }) => {
       role="alert"
       aria-live="polite"
       className={`
-        glass-strong rounded-xl border ${config.border} ${config.bg}
+        bg-obsidian-900/90 backdrop-blur-md rounded-xl border ${config.border} ${config.bg}
         p-4 min-w-[320px] max-w-md shadow-2xl
         animate-slide-up
       `}

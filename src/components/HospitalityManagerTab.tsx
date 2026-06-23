@@ -15,9 +15,22 @@ import {
   Lock,
   Unlock,
   AlertOctagon,
-  Box
+  Box,
+  TrendingUp
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 // Types representing Suite Status
 export interface SuiteInfo {
@@ -56,13 +69,40 @@ export interface StockItem {
   location: string;
 }
 
-// Removed props interface as we now read from stores
+interface HospitalityManagerTabProps {
+  language: 'EN' | 'FR' | 'RU';
+  addAuditLog?: (
+    action: string, 
+    reason: string, 
+    status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', 
+    role?: string
+  ) => void;
+}
 
-import { useAddAuditLog } from '../shared/store/auditStore';
+// Custom Tooltip component for Recharts charts
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-slate-900/95 border border-[#c19a6b]/35 p-3 rounded-xl shadow-xl backdrop-blur-sm text-xs text-white select-none font-mono z-50">
+        <p className="font-bold border-b border-[#c19a6b]/20 pb-1 mb-1.5 text-slate-300">{label}</p>
+        <div className="space-y-1">
+          {payload.map((pld: any, index: number) => (
+            <div key={index} className="flex items-center justify-between gap-4">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: pld.color || pld.fill }} />
+                <span className="text-slate-450 font-sans">{pld.name}:</span>
+              </span>
+              <span className="font-bold font-mono" style={{ color: pld.color || pld.fill }}>{pld.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
-export const HospitalityManagerTab: React.FC = () => {
-  const language = 'EN';
-  const addAuditLog = useAddAuditLog();
+export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ language, addAuditLog }) => {
   // 1) Suites State
   const [suites, setSuites] = useState<SuiteInfo[]>([
     { id: 'Suite 301', classTier: 'Presidential', guestName: 'Prince Al-Saud', occupancy: 'Occupied', cleaningStatus: 'Spotless', cardAccess: 'ACTIVE', temperature: 21.5, notes: 'Prefers jasmine incense at sunset' },
@@ -155,7 +195,17 @@ export const HospitalityManagerTab: React.FC = () => {
       readyDish: "Ready for Waiter",
       replenishStock: "Replenish Asset (+10)",
       criticalAlert: "REVOLVING RESERVE LOW",
-      're-keyCard': "Regen Token Access"
+      're-keyCard': "Regen Token Access",
+      dashboardTitle: "Sovereign Suite Occupancy Dashboard",
+      dashboardDesc: "Real-time 30-day occupancy trajectories, available reservation reserves, and luxury tier analytics.",
+      trendTitle: "30-Day Availability & Occupancy Trajectory",
+      breakdownTitle: "Occupancy status by Luxury Tier",
+      kpiOccupancy: "Occupancy Rate",
+      kpiAvailable: "Rooms Available",
+      kpiReserved: "Guaranteed Reserves",
+      colOccupied: "Occupied",
+      colReserved: "Reserved",
+      colAvailable: "Available"
     },
     FR: {
       suitesTitle: "Registre des Suites & Hospitalité",
@@ -194,7 +244,17 @@ export const HospitalityManagerTab: React.FC = () => {
       readyDish: "Prêt au Service",
       replenishStock: "Réapprovisionner (+10)",
       criticalAlert: "RÉSERVE CRITIQUE BASSE",
-      're-keyCard': "Régénérer Accès Card"
+      're-keyCard': "Régénérer Accès Card",
+      dashboardTitle: "Tableau de Bord d'Occupation des Suites",
+      dashboardDesc: "Analyse en temps réel de l'occupation sur 30 jours, des réserves de réservation et des gammes de luxe.",
+      trendTitle: "Trajectoire d'Occupation et Disponibilité sur 30 Jours",
+      breakdownTitle: "Statut d'occupation par Gamme de Prestige",
+      kpiOccupancy: "Taux d'Occupation",
+      kpiAvailable: "Suites Disponibles",
+      kpiReserved: "Réserves Garanties",
+      colOccupied: "Occupé",
+      colReserved: "Réservé",
+      colAvailable: "Disponible"
     },
     RU: {
       suitesTitle: "Реестр Апартаментов и Безопасности",
@@ -233,11 +293,113 @@ export const HospitalityManagerTab: React.FC = () => {
       readyDish: "Готово к подаче",
       replenishStock: "Пополнить Склад (+10)",
       criticalAlert: "ЗАПАСЫ НИЖЕ ЛИМИТА",
-      're-keyCard': "Выпустить Новую Карту"
+      're-keyCard': "Выпустить Новую Карту",
+      dashboardTitle: "Аналитическая Панель Занятости Номеров",
+      dashboardDesc: "Реально-временной мониторинг траектории за 30 дней, резервов бронирования и категорий люксов.",
+      trendTitle: "Динамика Занятости и Свободных Мест за 30 Дней",
+      breakdownTitle: "Занятость по Уровням Роскоши Номеров",
+      kpiOccupancy: "Уровень Загрузки",
+      kpiAvailable: "Свободные Номера",
+      kpiReserved: "Гарантированный Резерв",
+      colOccupied: "Занято",
+      colReserved: "Резерв",
+      colAvailable: "Свободно"
     }
   }[language];
 
+  // 30-Day Trend Data Generator based on real-time suites state
+  const trendData = React.useMemo(() => {
+    const data = [];
+    const total = suites.length || 5;
+    
+    // Seed dates from 29 days ago up to yesterday
+    for (let i = 29; i > 0; i--) {
+      const d = new Date(2026, 5, 22 - i); // June 22 is month index 5
+      const dateStr = d.toLocaleDateString(language === 'RU' ? 'ru-RU' : language === 'FR' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' });
+      
+      // Let's seed stable fluctuating historic data based on the indices of the days so it doesn't change randomly every frame
+      const seedVal = (i * 7) % 5;
+      const occupiedHist = Math.max(1, Math.min(total, Math.round(total * 0.7) + (seedVal % 2 === 0 ? 1 : -1)));
+      const reservedHist = Math.max(0, Math.min(total - occupiedHist, (seedVal % 3 === 0 ? 1 : 0)));
+      const vacantHist = Math.max(0, total - occupiedHist - reservedHist);
+      
+      data.push({
+        date: dateStr,
+        [t.colOccupied]: occupiedHist,
+        [t.colReserved]: reservedHist,
+        [t.colAvailable]: vacantHist,
+        [t.kpiOccupancy]: Math.round((occupiedHist / total) * 100)
+      });
+    }
+    
+    // Today's dynamic live data point
+    const todayOccupied = suites.filter(s => s.occupancy === 'Occupied').length;
+    const todayReserved = suites.filter(s => s.occupancy === 'Reserved').length;
+    const todayVacant = suites.filter(s => s.occupancy === 'Vacant').length;
+    const todayRate = total > 0 ? Math.round((todayOccupied / total) * 100) : 0;
+    
+    const todayDate = new Date(2026, 5, 22);
+    const todayStr = todayDate.toLocaleDateString(language === 'RU' ? 'ru-RU' : language === 'FR' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' });
+    
+    data.push({
+      date: todayStr + ' (Today)',
+      [t.colOccupied]: todayOccupied,
+      [t.colReserved]: todayReserved,
+      [t.colAvailable]: todayVacant,
+      [t.kpiOccupancy]: todayRate
+    });
+    
+    return data;
+  }, [suites, language, t]);
+
+  // Luxury Tiers breakdown counts calculation
+  const tierOccupancyData = React.useMemo(() => {
+    const tiers: Record<SuiteInfo['classTier'], { Occupied: number, Reserved: number, Vacant: number }> = {
+      'Presidential': { Occupied: 0, Reserved: 0, Vacant: 0 },
+      'Royal Embassy': { Occupied: 0, Reserved: 0, Vacant: 0 },
+      'Executive Penthouse': { Occupied: 0, Reserved: 0, Vacant: 0 },
+      'Supreme Sand': { Occupied: 0, Reserved: 0, Vacant: 0 }
+    };
+    
+    suites.forEach(s => {
+      if (tiers[s.classTier]) {
+        if (s.occupancy === 'Occupied') tiers[s.classTier].Occupied++;
+        else if (s.occupancy === 'Reserved') tiers[s.classTier].Reserved++;
+        else tiers[s.classTier].Vacant++;
+      }
+    });
+    
+    return Object.keys(tiers).map(key => ({
+      tier: key,
+      [t.colOccupied]: tiers[key as SuiteInfo['classTier']].Occupied,
+      [t.colReserved]: tiers[key as SuiteInfo['classTier']].Reserved,
+      [t.colAvailable]: tiers[key as SuiteInfo['classTier']].Vacant
+    }));
+  }, [suites, t]);
+
   // Actions implementations
+  const handleToggleOccupancy = (id: string) => {
+    setSuites(prev => prev.map(s => {
+      if (s.id === id) {
+        const occupancies: SuiteInfo['occupancy'][] = ['Occupied', 'Reserved', 'Vacant'];
+        const currentIndex = occupancies.indexOf(s.occupancy);
+        const nextOccupancy = occupancies[(currentIndex + 1) % occupancies.length];
+        
+        if (addAuditLog) {
+          addAuditLog(
+            'SUITE_OCCUPANCY_TOGGLED',
+            `Suite ID ${s.id} occupancy state cycled from ${s.occupancy} to ${nextOccupancy}.`,
+            'AUTHORIZED',
+            'MANAGER'
+          );
+        }
+        return { ...s, occupancy: nextOccupancy };
+      }
+      return s;
+    }));
+    confetti({ particleCount: 15, colors: ['#4f46e5', '#c19a6b'] });
+  };
+
   const handleCleanSuite = (id: string) => {
     setSuites(prev => prev.map(s => {
       if (s.id === id) {
@@ -419,6 +581,202 @@ export const HospitalityManagerTab: React.FC = () => {
   return (
     <div className="space-y-8 animate-fade-in" id="hospitality-manager-tab">
       
+      {/* EXQUISITE RECHARTS SUITE OCCUPANCY DASHBOARD */}
+      <div className="glass-panel p-6 rounded-3xl bg-white/40 border border-white/60 shadow-xl overflow-hidden relative" id="hospitality-occupancy-dashboard">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-black/5 pb-5 mb-6">
+          <div className="flex items-start gap-4">
+            <span className="p-3 bg-[#c19a6b]/10 text-[#7c5a30] rounded-2xl border border-[#c19a6b]/25 shadow-sm">
+              <TrendingUp className="w-6 h-6 animate-pulse" />
+            </span>
+            <div>
+              <h1 className="text-xl font-serif-luxury font-bold text-slate-800 tracking-tight">{t.dashboardTitle}</h1>
+              <p className="text-xs text-slate-500 leading-relaxed max-w-2xl">{t.dashboardDesc}</p>
+            </div>
+          </div>
+
+          {/* Quick Metrics KPI Cards */}
+          <div className="grid grid-cols-3 gap-3 w-full md:w-auto self-stretch md:self-auto">
+            {/* KPI 1 */}
+            <div className="bg-white/60 border border-slate-200 p-2.5 px-4 rounded-2xl flex flex-col justify-center min-w-[100px] shadow-sm">
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-500">{t.kpiOccupancy}</span>
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="text-lg font-bold font-mono text-indigo-600">
+                  {suites.length > 0 ? Math.round((suites.filter(s => s.occupancy === 'Occupied').length / suites.length) * 100) : 0}%
+                </span>
+                <span className="text-[9px] font-mono text-emerald-600 font-bold">▲ Live</span>
+              </div>
+            </div>
+
+            {/* KPI 2 */}
+            <div className="bg-white/60 border border-slate-200 p-2.5 px-4 rounded-2xl flex flex-col justify-center min-w-[100px] shadow-sm">
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-500">{t.kpiAvailable}</span>
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="text-lg font-bold font-mono text-slate-800">
+                  {suites.filter(s => s.occupancy === 'Vacant').length}
+                </span>
+                <span className="text-[9px] font-mono text-slate-400">/ {suites.length}</span>
+              </div>
+            </div>
+
+            {/* KPI 3 */}
+            <div className="bg-white/60 border border-slate-200 p-2.5 px-4 rounded-2xl flex flex-col justify-center min-w-[100px] shadow-sm">
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-500">{t.kpiReserved}</span>
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="text-lg font-bold font-mono text-amber-700">
+                  {suites.filter(s => s.occupancy === 'Reserved').length}
+                </span>
+                <span className="text-[9px] font-mono text-amber-500">★ Secure</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Charts Container Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* 30-Day Trend Chart */}
+          <div className="lg:col-span-8 bg-slate-50/50 border border-black/5 p-4 rounded-2xl shadow-inner flex flex-col justify-between" style={{ minHeight: '320px' }}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                📈 {t.trendTitle}
+              </h3>
+              <span className="px-2 py-0.5 bg-[#c19a6b]/20 text-[#7c5a30] border border-[#c19a6b]/35 font-mono text-[9px] font-bold uppercase rounded">
+                Live Feeds
+              </span>
+            </div>
+            
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={trendData}
+                  margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="colorOccupied" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.25}/>
+                      <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.01}/>
+                    </linearGradient>
+                    <linearGradient id="colorReserved" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#d97706" stopOpacity={0.25}/>
+                      <stop offset="95%" stopColor="#d97706" stopOpacity={0.01}/>
+                    </linearGradient>
+                    <linearGradient id="colorVacant" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.25}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.01}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis 
+                    dataKey="date" 
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 9, fill: '#64748b', fontFamily: 'monospace' }} 
+                  />
+                  <YAxis 
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                    tick={{ fontSize: 9, fill: '#64748b', fontFamily: 'monospace' }} 
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    verticalAlign="top" 
+                    height={36} 
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: 10, fontFamily: 'monospace', color: '#475569' }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    name={t.colOccupied}
+                    dataKey={t.colOccupied} 
+                    stroke="#4f46e5" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorOccupied)" 
+                    stackId="1"
+                  />
+                  <Area 
+                    type="monotone" 
+                    name={t.colReserved}
+                    dataKey={t.colReserved} 
+                    stroke="#d97706" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorReserved)" 
+                    stackId="1"
+                  />
+                  <Area 
+                    type="monotone" 
+                    name={t.colAvailable}
+                    dataKey={t.colAvailable} 
+                    stroke="#10b981" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorVacant)" 
+                    stackId="1"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Breakdown per Luxury class */}
+          <div className="lg:col-span-4 bg-slate-50/50 border border-black/5 p-4 rounded-2xl shadow-inner flex flex-col justify-between" style={{ minHeight: '320px' }}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                🏛️ {t.breakdownTitle}
+              </h3>
+            </div>
+
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={tierOccupancyData}
+                  margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis 
+                    dataKey="tier" 
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 8, fill: '#64748b' }} 
+                    tickFormatter={(value) => value.split(' ')[0]} // short display name for nice spacing
+                  />
+                  <YAxis 
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                    tick={{ fontSize: 9, fill: '#64748b', fontFamily: 'monospace' }} 
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    verticalAlign="top" 
+                    height={36} 
+                    iconType="square"
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: 10, fontFamily: 'monospace', color: '#475569' }}
+                  />
+                  <Bar name={t.colOccupied} dataKey={t.colOccupied} fill="#4f46e5" stackId="a" radius={[0, 0, 0, 0]} />
+                  <Bar name={t.colReserved} dataKey={t.colReserved} fill="#d97706" stackId="a" radius={[0, 0, 0, 0]} />
+                  <Bar name={t.colAvailable} dataKey={t.colAvailable} fill="#10b981" stackId="a" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* Dynamic Interactions hint bar */}
+        <div className="mt-4 p-3.5 bg-indigo-50/60 dark:bg-slate-900/30 rounded-2xl border border-indigo-200/40 text-[10px] text-slate-500 font-mono leading-relaxed flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+          </span>
+          <span>
+            💡 <strong className="text-indigo-750 font-bold">Real-Time Interactive State Engine:</strong> You can click the occupancy badges inside the active registry ledger below to cycle suite occupancy statuses. The dashboard trends and charts immediately sync and re-plot points dynamically!
+          </span>
+        </div>
+      </div>
+
       {/* 1) GESTION DES SUITES TABLE */}
       <div className="glass-panel p-6 rounded-3xl bg-white/40 border border-white/60 shadow-xl overflow-hidden relative">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-black/5 pb-4 mb-6">
@@ -548,14 +906,18 @@ export const HospitalityManagerTab: React.FC = () => {
                     </div>
                   </td>
                   <td className="py-3.5 px-4 font-mono">
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                      s.occupancy === 'Occupied' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
-                      s.occupancy === 'Reserved' ? 'bg-sky-100 text-sky-700 border border-sky-200' :
-                      'bg-slate-100 text-slate-600 border border-slate-200'
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${s.occupancy === 'Occupied' ? 'bg-amber-500' : s.occupancy === 'Reserved' ? 'bg-sky-500' : 'bg-slate-400'}`} />
-                      {s.occupancy}
-                    </span>
+                    <button
+                      onClick={() => handleToggleOccupancy(s.id)}
+                      title="Click to cycle occupancy status"
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold cursor-pointer hover:scale-105 active:scale-95 transition-all outline-none border ${
+                        s.occupancy === 'Occupied' ? 'bg-amber-100/90 text-amber-700 border-amber-200' :
+                        s.occupancy === 'Reserved' ? 'bg-sky-100/90 text-sky-700 border-sky-200' :
+                        'bg-slate-100/90 text-slate-600 border-slate-200'
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${s.occupancy === 'Occupied' ? 'bg-amber-500 animate-pulse' : s.occupancy === 'Reserved' ? 'bg-sky-500' : 'bg-slate-400'}`} />
+                      <span>{s.occupancy}</span>
+                    </button>
                   </td>
                   <td className="py-3.5 px-4 font-mono">
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
@@ -954,14 +1316,18 @@ export const HospitalityManagerTab: React.FC = () => {
                     </td>
                     <td className="py-3.5 px-4 font-mono">
                       {isUnderMinimum ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-500 font-bold text-[9px] border border-rose-500/20">
-                          <AlertOctagon className="w-3 h-3 text-rose-500 animate-bounce" />
-                          <span>LOW RESERVE</span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 font-bold text-[9px] border border-rose-400/50 shadow-[0_0_10px_rgba(239,68,68,0.15)] relative overflow-visible">
+                          <span className="relative flex h-2 w-2 shrink-0">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                          </span>
+                          <AlertOctagon className="w-3 h-3 text-rose-600 shrink-0" />
+                          <span className="tracking-wider uppercase">LOW STOCK</span>
                         </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 text-[9px] font-bold">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                          <span>OPTIMED</span>
+                       ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-750 text-[9px] font-bold border border-emerald-400/30">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                          <span className="tracking-wider uppercase">OPTIMIZED</span>
                         </span>
                       )}
                     </td>

@@ -39,6 +39,13 @@
   border: 1px solid rgba(255, 255, 255, 0.65);
   box-shadow: 0 8px 32px 0 rgba(10, 31, 68, 0.06);
   border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.dark .glass-panel {
+  background: rgba(12, 13, 16, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* Hover-able glass panels */
@@ -48,6 +55,12 @@
   box-shadow: 0 12px 36px 0 rgba(10, 31, 68, 0.1);
   transform: translateY(-2px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .glass-panel-hover:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(12, 13, 16, 0.7);
+  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.45);
 }
 
 /* Frosted Glassmorphism smaller cards */
@@ -61,11 +74,23 @@
   transition: all 0.25s ease;
 }
 
+.dark .glass-card {
+  background: rgba(20, 21, 24, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2);
+}
+
 .glass-card:hover {
   background: rgba(255, 255, 255, 0.78);
   border-color: rgba(193, 154, 107, 0.35);
   box-shadow: 0 6px 24px 0 rgba(10, 31, 68, 0.08);
   transform: translateY(-1px);
+}
+
+.dark .glass-card:hover {
+  background: rgba(20, 21, 24, 0.85);
+  border-color: rgba(193, 154, 107, 0.45);
+  box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.35);
 }
 
 /* Premium Gold text gradient */
@@ -96,6 +121,21 @@
 
 .animate-fade-in {
   animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes badgePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-badge-pop {
+  animation: badgePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 /* Layout Fonts */
@@ -221,4 +261,94 @@
 .luxury-discreet-card {
   border-left: 3px solid #c19a6b !important;
 }
+
+/* ========================================================
+   DARK MODE TEXT CONTRAST & READABILITY OVERRIDES
+   ======================================================== */
+.dark .text-slate-900,
+.dark .text-stone-900,
+.dark .text-slate-800,
+.dark .text-stone-800 {
+  color: #f8fafc !important; /* Very crisp Slate 50 / Stone 50 light */
+}
+
+.dark .text-slate-700,
+.dark .text-stone-700 {
+  color: #f1f5f9 !important; /* Crisp Slate 100 light */
+}
+
+.dark .text-slate-600,
+.dark .text-stone-600 {
+  color: #e2e8f0 !important; /* Readable Slate 200 light */
+}
+
+.dark .text-slate-500,
+.dark .text-stone-500 {
+  color: #cbd5e1 !important; /* Soft Slate 300 / clear secondary text */
+}
+
+.dark .text-slate-400,
+.dark .text-stone-400 {
+  color: #94a3b8 !important; /* Readable Slate 400 */
+}
+
+.dark .text-\[\#7c5a30\] {
+  color: #e6dfd5 !important; /* Lighter champagne cream instead of dark brown */
+}
+
+.dark .border-black\/5 {
+  border-color: rgba(193, 154, 107, 0.25) !important; /* Elegant subtle brown/camel border */
+}
+
+.dark .divide-black\/5 > * {
+  border-color: rgba(193, 154, 107, 0.25) !important; /* Divider lines in subtle brown/camel */
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Modals Dark Mode Contrast Overrides */
+.text-sapphire {
+  color: #0f52ba !important; /* Rich Sapphire Blue */
+}
+.dark .text-sapphire {
+  color: #3b82f6 !important; /* Lighter sparkling Sapphire Blue for dark mode contrast */
+}
+
+.dark #role-edit-modal .bg-white,
+.dark #user-details-modal .bg-white {
+  background-color: #121318 !important; /* Elegant obsidian black background */
+  color: #f1f5f9 !important;
+}
+
+.dark #role-edit-modal .bg-slate-50,
+.dark #role-edit-modal .bg-stone-50,
+.dark #role-edit-modal .bg-stone-50\/50,
+.dark #user-details-modal .bg-stone-50 {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: #f8fafc !important;
+}
+
+.dark #role-edit-modal .border-slate-200,
+.dark #role-edit-modal .border-slate-200\/60,
+.dark #role-edit-modal .border-stone-200,
+.dark #user-details-modal .border-stone-200\/60,
+.dark .border-stone-200,
+.dark .border-slate-200,
+.dark .border-stone-200\/60 {
+  border-color: rgba(193, 154, 107, 0.35) !important; /* Elegant subtle brown/camel border */
+}
+
+.dark #role-edit-modal button.bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+  color: #f1f5f9 !important;
+}
+
+.dark #role-edit-modal button.bg-slate-100:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+
 

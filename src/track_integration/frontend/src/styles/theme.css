@@ -1,0 +1,76 @@
+/* Zaphir Luxury Premium CSS Theme Palette Variables */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;650;700;800&display=swap');
+
+:root {
+  /* Obsidian Theme Palette */
+  --obsidian-bg: #090d16;
+  --obsidian-surface: rgba(15, 22, 38, 0.7);
+  --obsidian-border: rgba(255, 255, 255, 0.08);
+  --obsidian-text: #f1f5f9;
+  --obsidian-accent: #d49619;
+  --obsidian-glow: 0 8px 32px 0 rgba(212, 150, 25, 0.12);
+
+  /* Champagne Theme Palette */
+  --champagne-bg: #f4efeb;
+  --champagne-surface: rgba(255, 255, 255, 0.45);
+  --champagne-border: rgba(193, 154, 107, 0.3);
+  --champagne-text: #0f172a;
+  --champagne-accent: #7c5a30;
+  --champagne-glow: 0 8px 32px 0 rgba(124, 90, 48, 0.06);
+
+  /* Cyberpunk Palette */
+  --cyber-bg: #050508;
+  --cyber-surface: rgba(10, 10, 18, 0.85);
+  --cyber-border: #f43f5e;
+  --cyber-text: #00ffcc;
+  --cyber-accent: #ff007f;
+  --cyber-glow: 0 0 15px rgba(244, 63, 94, 0.55);
+}
+
+.theme-obsidian {
+  background-color: var(--obsidian-bg);
+  color: var(--obsidian-text);
+}
+
+.theme-champagne {
+  background-color: var(--champagne-bg);
+  color: var(--champagne-text);
+}
+
+.theme-cyber {
+  background-color: var(--cyber-bg);
+  color: var(--cyber-text);
+}
+
+/* Glassmorphism Classes */
+.z-glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.z-glass-strong {
+  background: rgba(15, 22, 38, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.55);
+}
+
+/* Animations */
+.z-pulse-glow {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(212, 150, 25, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(212, 150, 25, 0.55);
+  }
+}

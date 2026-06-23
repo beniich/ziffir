@@ -1,170 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ShieldCheck, RefreshCw, Download, Link, Check, QrCode } from 'lucide-react';
 import { Course } from '../types';
-import { INITIAL_AUDITS } from '../shared/data/mockData';
-import { useAppStore } from '../shared/store/appStore';
-import QRCode from 'qrcode';
-import jsPDF from 'jspdf';
-import confetti from 'canvas-confetti';
+import { AuditEntry } from '../App';
 
-export const LedgerTab: React.FC = () => {
-  const {
-    studentName,
-    studentId,
-    blockchainId,
-    courses,
-    addCourse,
-    removeCourse
-  } = useAppStore();
+interface LedgerTabProps {
+  studentName: string;
+  studentId: string;
+  totalGPA: string;
+  totalCredits: number;
+  blockchainId: string;
+  courses: Course[];
+  addCourse: (course: Course) => void;
+  removeCourse: (code: string) => void;
+  exportPDF: () => void;
+  isGenerating: boolean;
+  qrCodeUrl: string;
+  auditLogs?: AuditEntry[];
+}
 
-  const auditLogs = INITIAL_AUDITS;
-
-  // GPA calculations
-  const totalCredits = courses.reduce((acc, curr) => acc + curr.credits, 0);
-  const totalGPA = (() => {
-    const gradePoints: Record<string, number> = {
-      'A+': 4.3, 'A': 4.0, 'A-': 3.7,
-      'B+': 3.3, 'B': 3.0, 'B-': 2.7,
-      'C+': 2.3, 'C': 2.0, 'F': 0.0
-    };
-    let totalGradeVal = 0;
-    let totalCredsCount = 0;
-    courses.forEach(c => {
-      totalGradeVal += (gradePoints[c.grade] || 4.0) * c.credits;
-      totalCredsCount += c.credits;
-    });
-    return totalCredsCount > 0 ? (totalGradeVal / totalCredsCount).toFixed(2) : '4.00';
-  })();
-
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams();
-    queryParams.set('verify', 'true');
-    queryParams.set('student', studentName);
-    queryParams.set('id', studentId);
-    queryParams.set('gpa', totalGPA);
-    queryParams.set('credits', totalCredits.toFixed(1));
-    queryParams.set('courses', courses.length.toString());
-    queryParams.set('hash', blockchainId);
-
-    const checkUrl = `${window.location.origin}${window.location.pathname}?${queryParams.toString()}`;
-
-    QRCode.toDataURL(checkUrl, {
-      margin: 1,
-      width: 250,
-      color: {
-        dark: '#c19a6b',
-        light: '#050b16'
-      }
-    })
-    .then(url => setQrCodeUrl(url))
-    .catch(err => console.error('Error generating Camel QR verification code', err));
-  }, [courses, totalGPA, totalCredits, studentName, studentId, blockchainId]);
-
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStep, setGenerationStep] = useState('');
-
-  const exportPDF = async () => {
-    setIsGenerating(true);
-    setGenerationStep('Assembling cryptographic block variables...');
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    setGenerationStep('Aligning authorized seal...');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    try {
-      const doc = new jsPDF();
-      
-      doc.setDrawColor(193, 154, 107);
-      doc.setLineWidth(1.0);
-      doc.rect(8, 8, 194, 281);
-
-      doc.setDrawColor(12, 27, 51);
-      doc.setLineWidth(0.2);
-      doc.rect(10, 10, 190, 277);
-
-      doc.setFillColor(12, 27, 51);
-      doc.rect(12, 12, 186, 32, 'F');
-      
-      doc.setTextColor(255, 255, 255);
-      doc.setFont('Helvetica', 'bold');
-      doc.setFontSize(18);
-      doc.text("ZAFIR ELITE COMMAND ACADEMY", 105, 24, { align: 'center' });
-      
-      doc.setTextColor(193, 154, 107);
-      doc.setFont('Helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text("Registry Hub & permanent decentralized credentials ledger", 105, 31, { align: 'center' });
-
-      doc.setTextColor(12, 27, 51);
-      doc.setFont('Helvetica', 'bold');
-      doc.setFontSize(15);
-      doc.text("OFFICIAL REGISTERED TRANSCRIPT", 105, 56, { align: 'center' });
-
-      doc.setFillColor(245, 230, 211);
-      doc.rect(15, 66, 180, 36, 'F');
-
-      doc.setTextColor(12, 27, 51);
-      doc.setFontSize(9);
-      doc.text("STUDENT LEGAL NAME:", 18, 73);
-      doc.text(studentName.toUpperCase(), 64, 73);
-
-      doc.text("ACADEMIC MAJOR:", 18, 80);
-      doc.text("Master of Premium Hospitality", 64, 80);
-
-      doc.text("DATE OF BIRTH:", 18, 87);
-      doc.text("1998-05-14", 64, 87);
-
-      doc.text("GPA CUMULATIVE:", 120, 73);
-      doc.text(`${totalGPA} / 4.30`, 160, 73);
-
-      doc.text("BLOCKCHAIN ROOT:", 120, 80);
-      doc.text(blockchainId, 160, 80);
-
-      doc.setFillColor(12, 27, 51);
-      doc.rect(15, 110, 180, 8, 'F');
-      
-      doc.setTextColor(255, 255, 255);
-      doc.text("CODE", 18, 115.5);
-      doc.text("MODULE TITLE", 38, 115.5);
-      doc.text("CREDITS", 144, 115.5);
-      doc.text("GRADE", 174, 115.5);
-
-      let yOffset = 118;
-      doc.setTextColor('#1E293B');
-      courses.forEach((course) => {
-        doc.text(course.code, 18, yOffset + 5.5);
-        doc.text(course.name, 38, yOffset + 5.5);
-        doc.text(course.credits.toFixed(1), 144, yOffset + 5.5);
-        doc.text(course.grade, 174, yOffset + 5.5);
-        yOffset += 8;
-      });
-
-      const sigY = yOffset + 16;
-      doc.setDrawColor(193, 154, 107);
-      doc.circle(45, sigY + 16, 18);
-      doc.text("ZAFIR OFFICIAL", 45, sigY + 14, { align: 'center' });
-      doc.text("AUTHORIZED", 45, sigY + 19, { align: 'center' });
-
-      doc.line(100, sigY + 16, 180, sigY + 16);
-      doc.text("Dr. Alistair Vance, Dean of Academic Registry", 100, sigY + 21);
-
-      doc.save(`Zafir_Official_Ledger_${studentName.replace(' ', '_')}.pdf`);
-      
-      confetti({
-        particleCount: 100,
-        spread: 85,
-        colors: ['#c19a6b', '#ffffff']
-      });
-
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsGenerating(false);
-      setGenerationStep('');
-    }
-  };
+export const LedgerTab: React.FC<LedgerTabProps> = ({
+  studentName,
+  studentId,
+  totalGPA,
+  totalCredits,
+  blockchainId,
+  courses,
+  addCourse,
+  removeCourse,
+  exportPDF,
+  isGenerating,
+  qrCodeUrl,
+  auditLogs = []
+}) => {
   // Local form state to append dynamic modules
   const [newCode, setNewCode] = useState('');
   const [newName, setNewName] = useState('');

@@ -10,10 +10,121 @@ import {
   Trash2, 
   Fingerprint,
   RefreshCw,
-  Shield
+  Shield,
+  Lock,
+  Unlock,
+  Clock,
+  UserCog,
+  Terminal,
+  ShieldCheck,
+  ShieldAlert
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { AuditEntry } from '../App';
+
+export interface AdminAccount {
+  id: string;
+  username: string;
+  email: string;
+  assignedRole: 'Inventory Manager' | 'Financial Auditor' | 'Security Officer' | 'Super Admin' | 'L5 Operations Chief';
+  permissions: {
+    readLogs: boolean;
+    modifyInventory: boolean;
+    approveBudgets: boolean;
+    overrideFirewalls: boolean;
+    decryptData: boolean;
+  };
+  status: 'Active' | 'Locked' | 'Awaiting Activation';
+  createdAt: string;
+}
+
+export interface PrivilegeChange {
+  id: string;
+  timestamp: string;
+  adminName: string;
+  actionBy: string;
+  changeType: 'ACCOUNT_CREATED' | 'ROLE_UPGRADED' | 'PERMISSION_REVOKED' | 'PERMISSION_GRANTED' | 'ACCOUNT_LOCKED' | 'ACCOUNT_UNLOCKED';
+  description: string;
+  affectedPermissions: string[];
+}
+
+const INITIAL_ADMINS: AdminAccount[] = [
+  {
+    id: 'ADM-2041',
+    username: 'maximilian.core',
+    email: 'm.vance@sapphir.academy',
+    assignedRole: 'Financial Auditor',
+    permissions: {
+      readLogs: true,
+      modifyInventory: false,
+      approveBudgets: true,
+      overrideFirewalls: false,
+      decryptData: false,
+    },
+    status: 'Active',
+    createdAt: '2026-06-19T08:30:12Z'
+  },
+  {
+    id: 'ADM-5509',
+    username: 'seraphina.security',
+    email: 's.sterling@sapphir.academy',
+    assignedRole: 'Security Officer',
+    permissions: {
+      readLogs: true,
+      modifyInventory: false,
+      approveBudgets: false,
+      overrideFirewalls: true,
+      decryptData: true,
+    },
+    status: 'Active',
+    createdAt: '2026-06-18T14:15:33Z'
+  },
+  {
+    id: 'ADM-7112',
+    username: 'viktor.kael',
+    email: 'v.kael@sapphir.academy',
+    assignedRole: 'Inventory Manager',
+    permissions: {
+      readLogs: false,
+      modifyInventory: true,
+      approveBudgets: false,
+      overrideFirewalls: false,
+      decryptData: false,
+    },
+    status: 'Awaiting Activation',
+    createdAt: '2026-06-20T04:22:15Z'
+  }
+];
+
+const INITIAL_PRIVILEGE_HISTORY: PrivilegeChange[] = [
+  {
+    id: 'PRV-1102',
+    timestamp: '2026-06-20T04:22:15-07:00',
+    adminName: 'viktor.kael',
+    actionBy: 'Sovereign Super Admin',
+    changeType: 'ACCOUNT_CREATED',
+    description: 'Provisioned new Inventory Manager node. Awaiting identity cryptographic handshakes.',
+    affectedPermissions: ['Modify Inventory']
+  },
+  {
+    id: 'PRV-0984',
+    timestamp: '2026-06-19T08:30:12-07:00',
+    adminName: 'maximilian.core',
+    actionBy: 'Sovereign Super Admin',
+    changeType: 'ROLE_UPGRADED',
+    description: 'Upgraded admin category to Financial Auditor and granted Approve Budgets scopes.',
+    affectedPermissions: ['Read Logs', 'Approve Budgets']
+  },
+  {
+    id: 'PRV-0871',
+    timestamp: '2026-06-18T15:20:00-07:00',
+    adminName: 'seraphina.security',
+    actionBy: 'Sovereign Super Admin',
+    changeType: 'PERMISSION_GRANTED',
+    description: 'Elevated override credentials to bypass safety limit firewalls.',
+    affectedPermissions: ['Override Firewalls']
+  }
+];
 
 interface Personnel {
   id: string;
@@ -25,7 +136,16 @@ interface Personnel {
   avatar: string;
 }
 
-// Removed props interface as we now read from stores
+interface ManagementTabProps {
+  language: 'EN' | 'FR' | 'RU';
+  auditLogs: AuditEntry[];
+  addAuditLog: (
+    action: string, 
+    reason: string, 
+    status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', 
+    roleStr?: string
+  ) => void;
+}
 
 const tabTranslations = {
   EN: {
@@ -82,6 +202,22 @@ const tabTranslations = {
     idLabel: "ID Tag",
     actionsHeader: "Operations Controls",
     revokeAccess: "Revoke Access ID",
+    superAdminPanel: "Super Admin Command Center // RBAC Engine",
+    superAdminDesc: "Elevated sovereignty sector. Provision secondary administration accounts, assign specific micro-permissions, and query privilege logs.",
+    adminAccounts: "Administrative accounts & Roles",
+    createAdminTitle: "Provision Administrative Account",
+    adminName: "Username / Agent Handle",
+    adminRole: "Assigned Privilege Title",
+    adminPermissions: "Discrete Domain Permissions",
+    adminStatus: "Account Access Gate",
+    historyTitle: "Administrative Privilege Alteration Ledger",
+    historyDesc: "Immutable record tracking every privilege elevation, token grant or account creation.",
+    assignedPerms: "Assigned Domain Scopes",
+    prmInventory: "Inventory Manager",
+    prmAuditor: "Financial Auditor",
+    prmSecurity: "Security Officer",
+    actCreateAccount: "CREATION",
+    actUpdatePerms: "PRIVILEGE MODIFICATION",
   },
   FR: {
     title: "Supervision des Opérations & Contrôle du Personnel",
@@ -137,6 +273,22 @@ const tabTranslations = {
     idLabel: "Balise ID",
     actionsHeader: "Contrôles Opérationnels",
     revokeAccess: "Révoquer la Clé ID",
+    superAdminPanel: "Centre de Commandement Admin // Moteur RBAC",
+    superAdminDesc: "Secteur de souveraineté élevée. Créez des comptes d'administration secondaires, attribuez des permissions spécifiques et consultez les journaux de privilèges.",
+    adminAccounts: "Comptes d'Administration",
+    createAdminTitle: "Créer un Compte de Gouvernance Admin",
+    adminName: "Nom d'utilisateur / Identifiant",
+    adminRole: "Titre de Privilège Assigné",
+    adminPermissions: "Permissions de Domaine Spécifiques",
+    adminStatus: "Statut d'Accès du Compte",
+    historyTitle: "Grand Livre de Contrôle des Privilèges",
+    historyDesc: "Registre cryptographique immuable suivant chaque élévation de privilège ou création de compte administratif.",
+    assignedPerms: "Domaines Assignés",
+    prmInventory: "Gestionnaire d'Inventaire",
+    prmAuditor: "Auditeur Financier",
+    prmSecurity: "Officier de Sécurité",
+    actCreateAccount: "CRÉATION",
+    actUpdatePerms: "MODIFICATION PRIVILÈGE",
   },
   RU: {
     title: "Панель Оперативного Управления и Контроля Персонала",
@@ -192,6 +344,22 @@ const tabTranslations = {
     idLabel: "ID Метка",
     actionsHeader: "Управление Операциями",
     revokeAccess: "Аннулировать Доступ",
+    superAdminPanel: "Командный Центр Супер-Администратора // Движок RBAC",
+    superAdminDesc: "Сектор повышенного суверенитета. Создание вспомогательных административных учетных записей, назначение прав и аудит изменения привилегий.",
+    adminAccounts: "Административные Учетные Записи",
+    createAdminTitle: "Создать Административный Конспект",
+    adminName: "Имя Пользователя / Псевдоним",
+    adminRole: "Назначенный Полномочный Титул",
+    adminPermissions: "Специфические Права Доступа",
+    adminStatus: "Статус Доступа Конспеккта",
+    historyTitle: "Реестр Изменения Административных Привилегий",
+    historyDesc: "Неизменяемый криптографический реестр, отслеживающий каждое изменение привилегий и создание прав.",
+    assignedPerms: "Назначенные Сферы Полномочий",
+    prmInventory: "Менеджер Инвентаря",
+    prmAuditor: "Финансовый Аудитор",
+    prmSecurity: "Офицер Безопасности",
+    actCreateAccount: "СОЗДАНИЕ",
+    actUpdatePerms: "ИЗМЕНЕНИЕ ПРИВИЛЕГИЙ",
   }
 };
 
@@ -203,12 +371,11 @@ const INITIAL_STAFF: Personnel[] = [
   { id: 'ST-7741', name: 'Jean-Pierre', role: 'Operator', clearance: 'L3', status: 'Suspended', department: 'Plant Room', avatar: 'JP' }
 ];
 
-import { useAuditStore, useAddAuditLog } from '../shared/store/auditStore';
-
-export const ManagementTab: React.FC = () => {
-  const language = 'EN';
-  const auditLogs = useAuditStore(state => state.audits);
-  const addAuditLog = useAddAuditLog();
+export const ManagementTab: React.FC<ManagementTabProps> = ({ 
+  language, 
+  auditLogs, 
+  addAuditLog 
+}) => {
   const trans = tabTranslations[language] || tabTranslations.EN;
 
   // Personnel State
@@ -228,6 +395,236 @@ export const ManagementTab: React.FC = () => {
   // Filter Console State
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT'>('ALL');
+
+  // Super Admin RBAC State variables
+  const [viewMode, setViewMode] = useState<'standard' | 'rbac'>('standard');
+  const [admins, setAdmins] = useState<AdminAccount[]>(INITIAL_ADMINS);
+  const [privilegeHistory, setPrivilegeHistory] = useState<PrivilegeChange[]>(INITIAL_PRIVILEGE_HISTORY);
+  
+  // Create Administrative Account Form State
+  const [newAdminUser, setNewAdminUser] = useState('');
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [newAdminRole, setNewAdminRole] = useState<AdminAccount['assignedRole']>('Security Officer');
+  const [newAdminPerms, setNewAdminPerms] = useState<AdminAccount['permissions']>({
+    readLogs: true,
+    modifyInventory: false,
+    approveBudgets: false,
+    overrideFirewalls: true,
+    decryptData: true,
+  });
+
+  // Helper to change form defaults based on role select
+  const handleRoleSelectPreset = (role: AdminAccount['assignedRole']) => {
+    setNewAdminRole(role);
+    if (role === 'Inventory Manager') {
+      setNewAdminPerms({ readLogs: true, modifyInventory: true, approveBudgets: false, overrideFirewalls: false, decryptData: false });
+    } else if (role === 'Financial Auditor') {
+      setNewAdminPerms({ readLogs: true, modifyInventory: false, approveBudgets: true, overrideFirewalls: false, decryptData: false });
+    } else if (role === 'Security Officer') {
+      setNewAdminPerms({ readLogs: true, modifyInventory: false, approveBudgets: false, overrideFirewalls: true, decryptData: true });
+    } else if (role === 'L5 Operations Chief' || role === 'Super Admin') {
+      setNewAdminPerms({ readLogs: true, modifyInventory: true, approveBudgets: true, overrideFirewalls: true, decryptData: true });
+    }
+  };
+
+  // Create Admin
+  const handleCreateAdmin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAdminUser.trim() || !newAdminEmail.trim()) return;
+
+    const idNum = Math.floor(1000 + Math.random() * 9000);
+    const newId = `ADM-${idNum}`;
+    const newAccount: AdminAccount = {
+      id: newId,
+      username: newAdminUser.trim().toLowerCase(),
+      email: newAdminEmail.trim(),
+      assignedRole: newAdminRole,
+      permissions: { ...newAdminPerms },
+      status: 'Active',
+      createdAt: new Date().toISOString()
+    };
+
+    setAdmins([...admins, newAccount]);
+
+    // Track active permissions
+    const bounds = Object.entries(newAdminPerms)
+      .filter(([_, active]) => active)
+      .map(([k]) => k.replace(/([A-Z])/g, ' $1').trim());
+
+    // Privilege log history entry
+    const newLogId = `PRV-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newHistoryRecord: PrivilegeChange = {
+      id: newLogId,
+      timestamp: new Date().toISOString(),
+      adminName: newAccount.username,
+      actionBy: 'Sovereign Super Admin',
+      changeType: 'ACCOUNT_CREATED',
+      description: `Provisioned new admin account (${newAccount.username}) with role [${newAccount.assignedRole}].`,
+      affectedPermissions: bounds
+    };
+
+    setPrivilegeHistory([newHistoryRecord, ...privilegeHistory]);
+
+    // External System audit log link
+    addAuditLog(
+      'ADMIN_ACCOUNT_PROVISIONED',
+      `Super Admin created account: ${newAccount.username} with role: ${newAccount.assignedRole} & discrete permissions: [${bounds.join(', ')}].`,
+      'AUTHORIZED',
+      'SUPER_ADMIN'
+    );
+
+    // Reset form
+    setNewAdminUser('');
+    setNewAdminEmail('');
+    handleRoleSelectPreset('Security Officer');
+
+    confetti({ particleCount: 40, spread: 60, colors: ['#c19a6b', '#1e293b'] });
+  };
+
+  // Toggle Admin Domain Permission Checkbox
+  const handleToggleAdminPermission = (adminId: string, permKey: keyof AdminAccount['permissions']) => {
+    setAdmins(prevAdmins => prevAdmins.map(admin => {
+      if (admin.id === adminId) {
+        const revisedVal = !admin.permissions[permKey];
+        const updatedPerms = { ...admin.permissions, [permKey]: revisedVal };
+
+        const label = permKey.replace(/([A-Z])/g, ' $1').trim();
+        const changeType = revisedVal ? 'PERMISSION_GRANTED' : 'PERMISSION_REVOKED';
+        const description = revisedVal
+          ? `Granted standalone domain scope [${label}] to admin user: ${admin.username}.`
+          : `Revoked domain scope [${label}] from admin user: ${admin.username}.`;
+
+        const newLogId = `PRV-${Math.floor(1000 + Math.random() * 9000)}`;
+        const newHistoryRecord: PrivilegeChange = {
+          id: newLogId,
+          timestamp: new Date().toISOString(),
+          adminName: admin.username,
+          actionBy: 'Sovereign Super Admin',
+          changeType,
+          description,
+          affectedPermissions: [label]
+        };
+
+        setPrivilegeHistory(prev => [newHistoryRecord, ...prev]);
+
+        addAuditLog(
+          revisedVal ? 'PRIVILEGE_ELEVATED' : 'PRIVILEGE_DEGRADED',
+          `Super Admin changed ${admin.username} bounds: ${revisedVal ? 'GRANTED' : 'REVOKED'} [${label}] scope.`,
+          'AUTHORIZED',
+          'SUPER_ADMIN'
+        );
+
+        return { ...admin, permissions: updatedPerms };
+      }
+      return admin;
+    }));
+  };
+
+  // Update Admin Role
+  const handleUpdateAdminRole = (adminId: string, role: AdminAccount['assignedRole']) => {
+    setAdmins(prevAdmins => prevAdmins.map(admin => {
+      if (admin.id === adminId) {
+        const previousRole = admin.assignedRole;
+        
+        // Auto-apply standard presets for convenience
+        let updatedPerms = { ...admin.permissions };
+        if (role === 'Inventory Manager') {
+          updatedPerms = { readLogs: true, modifyInventory: true, approveBudgets: false, overrideFirewalls: false, decryptData: false };
+        } else if (role === 'Financial Auditor') {
+          updatedPerms = { readLogs: true, modifyInventory: false, approveBudgets: true, overrideFirewalls: false, decryptData: false };
+        } else if (role === 'Security Officer') {
+          updatedPerms = { readLogs: true, modifyInventory: false, approveBudgets: false, overrideFirewalls: true, decryptData: true };
+        } else if (role === 'L5 Operations Chief' || role === 'Super Admin') {
+          updatedPerms = { readLogs: true, modifyInventory: true, approveBudgets: true, overrideFirewalls: true, decryptData: true };
+        }
+
+        const newLogId = `PRV-${Math.floor(1000 + Math.random() * 9000)}`;
+        const newHistoryRecord: PrivilegeChange = {
+          id: newLogId,
+          timestamp: new Date().toISOString(),
+          adminName: admin.username,
+          actionBy: 'Sovereign Super Admin',
+          changeType: 'ROLE_UPGRADED',
+          description: `Transferred admin track from [${previousRole}] to [${role}]. Preset permission templates applied.`,
+          affectedPermissions: Object.keys(updatedPerms).filter(k => updatedPerms[k as keyof AdminAccount['permissions']])
+        };
+
+        setPrivilegeHistory(prev => [newHistoryRecord, ...prev]);
+
+        addAuditLog(
+          'ADMIN_ROLE_UPDATED',
+          `Super Admin changed ${admin.username} role from ${previousRole} to ${role} (and synchronised matching permission presets).`,
+          'AUTHORIZED',
+          'SUPER_ADMIN'
+        );
+
+        return { ...admin, assignedRole: role, permissions: updatedPerms };
+      }
+      return admin;
+    }));
+  };
+
+  // Switch Admin Status Check
+  const handleToggleAdminStatus = (adminId: string) => {
+    setAdmins(prevAdmins => prevAdmins.map(admin => {
+      if (admin.id === adminId) {
+        let revisedStatus: AdminAccount['status'] = 'Active';
+        if (admin.status === 'Active') revisedStatus = 'Locked';
+        else if (admin.status === 'Locked') revisedStatus = 'Awaiting Activation';
+
+        const changeType = revisedStatus === 'Locked' ? 'ACCOUNT_LOCKED' : 'ACCOUNT_UNLOCKED';
+        const newLogId = `PRV-${Math.floor(1000 + Math.random() * 9000)}`;
+        const newHistoryRecord: PrivilegeChange = {
+          id: newLogId,
+          timestamp: new Date().toISOString(),
+          adminName: admin.username,
+          actionBy: 'Sovereign Super Admin',
+          changeType,
+          description: `Changed account status for admin ${admin.username} to [${revisedStatus}].`,
+          affectedPermissions: []
+        };
+
+        setPrivilegeHistory(prev => [newHistoryRecord, ...prev]);
+
+        addAuditLog(
+          revisedStatus === 'Locked' ? 'ADMIN_ACCOUNT_SUSPENDED' : 'ADMIN_ACCOUNT_ACTIVATED',
+          `Super Admin modified ${admin.username} access state to [${revisedStatus}].`,
+          'AUTHORIZED',
+          'SUPER_ADMIN'
+        );
+
+        return { ...admin, status: revisedStatus };
+      }
+      return admin;
+    }));
+  };
+
+  // Remove Admin Account
+  const handleDeleteAdmin = (adminId: string, username: string) => {
+    setAdmins(admins.filter(a => a.id !== adminId));
+
+    const newLogId = `PRV-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newHistoryRecord: PrivilegeChange = {
+      id: newLogId,
+      timestamp: new Date().toISOString(),
+      adminName: username,
+      actionBy: 'Sovereign Super Admin',
+      changeType: 'ACCOUNT_LOCKED',
+      description: `Irrevocably deleted admin security profile from the directory. Keys recycled.`,
+      affectedPermissions: []
+    };
+
+    setPrivilegeHistory(prev => [newHistoryRecord, ...prev]);
+
+    addAuditLog(
+      'ADMIN_ACCOUNT_DELETED',
+      `Super Admin deleted admin profile: ${username} (ADM-ID: ${adminId}). Security credentials cancelled.`,
+      'AUTHORIZED',
+      'SUPER_ADMIN'
+    );
+
+    confetti({ particleCount: 20, colors: ['#ff0333', '#000000'] });
+  };
 
   // Add staff
   const handleAddStaff = (e: React.FormEvent) => {
@@ -374,7 +771,7 @@ export const ManagementTab: React.FC = () => {
   const filteredLogs = auditLogs.filter(log => {
     const matchesSearch = 
       log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.details.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.reason.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.role.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus = 
@@ -432,7 +829,382 @@ export const ManagementTab: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Dynamic Segmented Switcher for Operations vs Super Admin RBAC */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-2.5 bg-stone-900 border border-stone-800 rounded-3xl shadow-lg relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#c19a6b]/5 to-transparent pointer-events-none" />
+        
+        <div className="flex items-center gap-2.5 px-3">
+          <ShieldAlert className="w-4 h-4 text-[#c19a6b] animate-pulse" />
+          <div className="font-mono text-left">
+            <p className="text-[10px] text-[#c19a6b] font-bold tracking-widest uppercase">GOUVERNANCE SECURITY SHIELD</p>
+            <p className="text-[9px] text-stone-400">AUTHORIZED ACCESS MODE ONLY</p>
+          </div>
+        </div>
+
+        <div className="flex p-1 bg-black/80 rounded-2xl border border-stone-800 w-full sm:w-auto font-mono text-xs">
+          <button
+            onClick={() => setViewMode('standard')}
+            className={`flex-1 sm:flex-none px-5 py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 font-bold ${
+              viewMode === 'standard'
+                ? 'bg-[#c19a6b] text-stone-950 shadow-md shadow-[#c19a6b]/25 font-sans-luxury'
+                : 'text-stone-300 hover:text-stone-100'
+            }`}
+          >
+            <Terminal className="w-3.5 h-3.5" />
+            <span>{language === 'FR' ? "Personnel & Simulateur" : language === 'RU' ? "Персонал и Имитатор" : "Operations & Simulator"}</span>
+          </button>
+          
+          <button
+            onClick={() => setViewMode('rbac')}
+            className={`flex-1 sm:flex-none px-5 py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 font-bold ${
+              viewMode === 'rbac'
+                ? 'bg-gradient-to-r from-[#c19a6b] to-[#dcba92] text-stone-950 shadow-md shadow-[#c19a6b]/35 font-sans-luxury'
+                : 'text-stone-300 hover:text-stone-100'
+            }`}
+          >
+            <UserCog className="w-3.5 h-3.5" />
+            <span>⚔️ {language === 'FR' ? "Super Admin (RBAC)" : language === 'RU' ? "Супер Администратор" : "Super Admin (RBAC)"}</span>
+          </button>
+        </div>
+      </div>
+
+      {viewMode === 'rbac' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in">
+          
+          {/* LEFT PANEL: ADMINS LIST & STATUS + CREATION FORM */}
+          <div className="lg:col-span-12 xl:col-span-7 space-y-6">
+            
+            {/* ADMIN REGISTERED NODES CHASSIS */}
+            <div className="glass-panel p-6 rounded-3xl bg-white/40 border border-white/60 shadow-xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-[#c19a6b]/5 opacity-30 pointer-events-none" />
+              
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-black/5">
+                <div>
+                  <h3 className="text-xl font-serif-luxury text-slate-800 font-bold flex items-center gap-2">
+                    🛡️ {trans.adminAccounts}
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-1">{trans.superAdminDesc}</p>
+                </div>
+              </div>
+
+              {/* Grid of Admin Accounts */}
+              <div className="grid grid-cols-1 gap-4">
+                {admins.map((adm) => (
+                  <div
+                    key={adm.id}
+                    className={`p-5 rounded-2xl border transition-all duration-300 shadow-sm ${
+                      adm.status === 'Locked'
+                        ? 'bg-red-50/70 border-red-200 opacity-80'
+                        : adm.status === 'Awaiting Activation'
+                          ? 'bg-amber-50/70 border-amber-200'
+                          : 'bg-white/60 border-white/80 hover:border-[#c19a6b]/60 hover:shadow-md'
+                    }`}
+                  >
+                    {/* Header Row */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/5 pb-3.5 mb-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-slate-900 border border-[#c19a6b]/40 flex items-center justify-center text-[#c19a6b] font-mono text-sm font-bold shadow-inner">
+                          {adm.username.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-bold text-slate-800">{adm.username}</h4>
+                            <span className="text-[9px] font-mono text-slate-400 font-bold">({adm.id})</span>
+                          </div>
+                          <p className="text-xs text-slate-500 font-mono">{adm.email}</p>
+                        </div>
+                      </div>
+
+                      {/* Active Actions: Role selector and Status toggle */}
+                      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <div className="flex items-center gap-1 bg-white/80 px-2 py-1 rounded-xl border border-slate-200">
+                          <span className="text-[9px] font-mono uppercase text-slate-400 font-bold px-1">{language === 'FR' ? "RÔLE" : language === 'RU' ? "РОЛЬ" : "ROLE"}:</span>
+                          <select
+                            value={adm.assignedRole}
+                            onChange={(e) => handleUpdateAdminRole(adm.id, e.target.value as any)}
+                            className="bg-transparent border-0 font-sans-luxury font-bold text-xs text-[#7c5a30] focus:ring-0 p-0 pr-6 select-clean cursor-pointer"
+                          >
+                            <option value="Inventory Manager">📦 {trans.prmInventory}</option>
+                            <option value="Financial Auditor">📊 {trans.prmAuditor}</option>
+                            <option value="Security Officer">🛡️ {trans.prmSecurity}</option>
+                            <option value="L5 Operations Chief">👑 L5 Operations Chief</option>
+                            <option value="Super Admin">🔱 Super Admin</option>
+                          </select>
+                        </div>
+
+                        {/* Status Toggle Button */}
+                        <button
+                          onClick={() => handleToggleAdminStatus(adm.id)}
+                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-[9.5px] font-bold transition-all duration-200 ${
+                            adm.status === 'Active'
+                              ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20 hover:bg-emerald-500/15'
+                              : adm.status === 'Locked'
+                                ? 'bg-red-500/10 text-red-700 border-red-500/20 hover:bg-red-500/15'
+                                : 'bg-amber-500/10 text-amber-700 border-amber-500/20 hover:bg-amber-500/15'
+                          }`}
+                          title="Click to toggle account access state"
+                        >
+                          {adm.status === 'Active' ? (
+                            <>
+                              <Unlock className="w-3 h-3 text-emerald-600" />
+                              <span>{adm.status.toUpperCase()}</span>
+                            </>
+                          ) : adm.status === 'Locked' ? (
+                            <>
+                              <Lock className="w-3 h-3 text-red-600" />
+                              <span>{adm.status.toUpperCase()}</span>
+                            </>
+                          ) : (
+                            <>
+                              <RefreshCw className="w-3 h-3 text-amber-600 animate-spin" />
+                              <span>STANDBY</span>
+                            </>
+                          )}
+                        </button>
+
+                        {/* Irrevocable revoking of account */}
+                        <button
+                          onClick={() => handleDeleteAdmin(adm.id, adm.username)}
+                          className="p-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-all"
+                          title="Revoke Admin Access Permanently"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Checkboxes Row */}
+                    <div>
+                      <p className="text-[9px] font-mono uppercase tracking-wider text-slate-400 font-bold mb-2">
+                        🔑 {trans.adminPermissions} :
+                      </p>
+                      
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        {[
+                          { key: 'readLogs', label: language === 'FR' ? "Journaux" : language === 'RU' ? "Логи" : "Logs", icon: "📋" },
+                          { key: 'modifyInventory', label: language === 'FR' ? "Inventaire" : "Inventory", icon: "📦" },
+                          { key: 'approveBudgets', label: language === 'FR' ? "Budget" : "Budget", icon: "💰" },
+                          { key: 'overrideFirewalls', label: language === 'FR' ? "Sécurité" : "Bypass", icon: "🔥" },
+                          { key: 'decryptData', label: language === 'FR' ? "Fichiers" : "Decrypt", icon: "📂" },
+                        ].map((p) => (
+                          <label
+                            key={p.key}
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 border rounded-xl cursor-pointer select-none transition text-[11px] font-mono ${
+                              adm.permissions[p.key as keyof AdminAccount['permissions']]
+                                ? 'bg-[#c19a6b]/15 text-[#7c5a30] border-[#c19a6b]/35 font-bold shadow-sm'
+                                : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100/50'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={adm.permissions[p.key as keyof AdminAccount['permissions']]}
+                              onChange={() => handleToggleAdminPermission(adm.id, p.key as any)}
+                              className="w-3 h-3 text-[#c19a6b] focus:ring-0 border-slate-300 rounded cursor-pointer"
+                            />
+                            <span>{p.icon}</span>
+                            <span>{p.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* PROVISION NEW ADMIN BOX */}
+              <form onSubmit={handleCreateAdmin} className="mt-6 pt-6 border-t border-black/5 grid grid-cols-1 sm:grid-cols-12 gap-4 items-end bg-gradient-to-br from-stone-900 to-slate-950 p-6 rounded-2xl border border-stone-800 text-stone-100">
+                <div className="sm:col-span-12 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs uppercase font-mono tracking-widest text-[#c19a6b] font-bold">
+                      ⚜️ {trans.createAdminTitle}
+                    </h4>
+                    <p className="text-[10px] text-stone-400 font-mono">Provision secondary nodes with custom privileges.</p>
+                  </div>
+                  <ShieldCheck className="w-5 h-5 text-[#c19a6b] animate-pulse" />
+                </div>
+
+                <div className="sm:col-span-3 space-y-1">
+                  <label className="text-[9px] font-mono font-bold uppercase tracking-wider text-stone-400">{trans.adminName}</label>
+                  <input
+                    type="text"
+                    value={newAdminUser}
+                    required
+                    onChange={(e) => setNewAdminUser(e.target.value)}
+                    placeholder="e.g. adrian.audits"
+                    className="w-full p-2.5 text-xs text-stone-100 placeholder-stone-600 rounded-xl bg-black/60 border border-stone-800 focus:border-[#c19a6b] focus:ring-0 focus:outline-none font-mono"
+                  />
+                </div>
+
+                <div className="sm:col-span-4 space-y-1">
+                  <label className="text-[9px] font-mono font-bold uppercase tracking-wider text-stone-400">Agent Email Address</label>
+                  <input
+                    type="email"
+                    value={newAdminEmail}
+                    required
+                    onChange={(e) => setNewAdminEmail(e.target.value)}
+                    placeholder="agent@sapphir.academy"
+                    className="w-full p-2.5 text-xs text-stone-100 placeholder-stone-600 rounded-xl bg-black/60 border border-stone-800 focus:border-[#c19a6b] focus:ring-0 focus:outline-none font-mono"
+                  />
+                </div>
+
+                <div className="sm:col-span-3 space-y-1">
+                  <label className="text-[9px] font-mono font-bold uppercase tracking-wider text-stone-400">Standard Template Profile</label>
+                  <select
+                    value={newAdminRole}
+                    onChange={(e) => handleRoleSelectPreset(e.target.value as any)}
+                    className="w-full p-2.5 text-xs rounded-xl bg-black/60 border border-stone-800 text-[#c19a6b] font-mono font-semibold focus:border-[#c19a6b] focus:ring-0 cursor-pointer"
+                  >
+                    <option value="Security Officer">🛡️ {trans.prmSecurity}</option>
+                    <option value="Financial Auditor">📊 {trans.prmAuditor}</option>
+                    <option value="Inventory Manager">📦 {trans.prmInventory}</option>
+                    <option value="L5 Operations Chief">👑 L5 Operations Chief</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 bg-[#c19a6b] hover:bg-[#a68054] text-[#0d0d0d] font-bold text-xs uppercase tracking-wider font-mono rounded-xl flex items-center justify-center gap-1 transition shadow active:scale-95"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>CREATE</span>
+                  </button>
+                </div>
+
+                {/* Scope Preview in creation */}
+                <div className="sm:col-span-12 bg-black/40 p-3 rounded-xl border border-stone-800/80 mt-2">
+                  <p className="text-[9px] font-mono text-stone-400 uppercase font-bold mb-1.5 font-bold">INITIAL DOMAIN CLEARANCES:</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[10px]">
+                    {[
+                      { key: 'readLogs', label: 'Security Logs' },
+                      { key: 'modifyInventory', label: 'Inventory Access' },
+                      { key: 'approveBudgets', label: 'Budget Approval' },
+                      { key: 'overrideFirewalls', label: 'Firewall Bypass' },
+                      { key: 'decryptData', label: 'Data Decryption' },
+                    ].map((p) => (
+                      <div
+                        key={p.key}
+                        className={`px-2 py-1 rounded border flex items-center justify-between font-mono ${
+                          newAdminPerms[p.key as keyof AdminAccount['permissions']]
+                            ? 'bg-[#c19a6b]/10 text-[#c19a6b] border-[#c19a6b]/30'
+                            : 'bg-stone-900/50 text-stone-600 border-transparent'
+                        }`}
+                      >
+                        <span>{p.label}</span>
+                        {newAdminPerms[p.key as keyof AdminAccount['permissions']] ? (
+                          <span className="text-emerald-400 text-[8px] font-bold">▲ ON</span>
+                        ) : (
+                          <span className="text-stone-700 text-[8px]">▼ OFF</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </form>
+
+            </div>
+          </div>
+
+          {/* RIGHT PANEL: PRIVILEGE AUDITING TIMELINE */}
+          <div className="lg:col-span-12 xl:col-span-5 space-y-6">
+            
+            <div className="glass-panel p-6 rounded-3xl bg-white/40 border border-white/60 shadow-xl space-y-5">
+              <div className="space-y-1">
+                <span className="text-[8px] bg-[#c19a6b]/15 text-[#7c5a30] border border-[#c19a6b]/30 px-2.5 py-1 rounded font-mono font-bold uppercase tracking-widest leading-none">
+                  SECURE COMPLIANCE LEDGER
+                </span>
+                <h3 className="text-lg font-serif-luxury text-slate-800 font-bold leading-tight mt-1">
+                  {trans.historyTitle}
+                </h3>
+                <p className="text-xs text-slate-600">
+                  {trans.historyDesc}
+                </p>
+              </div>
+
+              {/* History Timeline */}
+              <div className="space-y-3.5 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
+                {privilegeHistory.map((h) => {
+                  const getColorsAndLabels = (type: PrivilegeChange['changeType']) => {
+                    switch (type) {
+                      case 'ACCOUNT_CREATED':
+                        return { bg: 'bg-emerald-500/10 text-emerald-800 border-emerald-500/25', label: trans.actCreateAccount };
+                      case 'ROLE_UPGRADED':
+                        return { bg: 'bg-[#c19a6b]/20 text-[#7c5a30] border-[#c19a6b]/30', label: trans.actUpdatePerms };
+                      case 'ACCOUNT_LOCKED':
+                        return { bg: 'bg-red-500/10 text-red-800 border-red-500/25', label: "LOCKED" };
+                      case 'ACCOUNT_UNLOCKED':
+                        return { bg: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/25', label: "UNLOCKED" };
+                      case 'PERMISSION_GRANTED':
+                        return { bg: 'bg-sky-500/10 text-sky-800 border-sky-500/25', label: "SCOPE ELEVATION" };
+                      case 'PERMISSION_REVOKED':
+                        return { bg: 'bg-amber-500/10 text-amber-800 border-amber-500/25', label: "SCOPE REVOCATION" };
+                      default:
+                        return { bg: 'bg-slate-500/10 text-slate-800 border-slate-500/25', label: "ALTERATION" };
+                    }
+                  };
+
+                  const meta = getColorsAndLabels(h.changeType);
+                  return (
+                    <div
+                      key={h.id}
+                      className="p-3 bg-white/45 border border-slate-200 rounded-xl space-y-2 relative transition hover:bg-white/60"
+                    >
+                      <div className="flex items-center justify-between gap-2.5">
+                        <span className={`text-[8.5px] font-mono font-bold px-2 py-0.5 rounded border uppercase shrink-0 ${meta.bg}`}>
+                          {meta.label}
+                        </span>
+                        <div className="flex items-center gap-1 text-[9.5px] font-mono text-slate-400">
+                          <Clock className="w-3 h-3 text-slate-400" />
+                          <span>{new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <p className="text-xs text-slate-800 leading-normal font-medium">
+                          {h.description}
+                        </p>
+                        <p className="text-[10px] text-slate-500 font-mono tracking-tight">
+                          Agent Subject: <span className="font-bold text-slate-700">@{h.adminName}</span> | Sovereign Verified: <span className="text-[#7c5a30] font-bold">YES</span>
+                        </p>
+                      </div>
+
+                      {h.affectedPermissions && h.affectedPermissions.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-1 border-t border-dashed border-black/5">
+                          <span className="text-[8.5px] font-mono text-slate-400 uppercase font-bold py-0.5 mr-1">{trans.assignedPerms}:</span>
+                          {h.affectedPermissions.map((item, idx) => (
+                            <span
+                              key={idx}
+                              className="text-[8px] font-mono font-semibold bg-slate-900 text-[#c19a6b] border border-stone-800 px-1.5 py-0.2 rounded"
+                            >
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Secure fingerprint anchor */}
+                      <span className="absolute bottom-2 right-3 text-[8px] font-mono text-slate-300 pointer-events-none select-none uppercase font-bold">
+                        {h.id} // SEC_BLOCK
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="p-3.5 bg-stone-900 border border-stone-800 rounded-2xl flex items-center gap-3">
+                <ShieldCheck className="w-5 h-5 text-[#c19a6b] shrink-0 animate-pulse" />
+                <div className="font-mono text-[9px] text-stone-400 leading-tight">
+                  <p className="text-stone-200 font-bold">MUTUAL CRYPTOGRAPHIC SIGNING ACTIVE</p>
+                  <p>Changes are securely linked to SHA-256 blocks and permanently anchor on-chain.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* LEFT COLUMN: STAFF DIRECTORY & REGISTER */}
         <div className="lg:col-span-12 xl:col-span-7 space-y-6">
@@ -742,9 +1514,11 @@ export const ManagementTab: React.FC = () => {
           </div>
 
         </div>
+      </div>
+    )}
 
         {/* FULL-WIDTH SECURITY FORENSIC CONSOLE LOGS */}
-        <div className="lg:col-span-12 premium-border-glow rounded-3xl p-6 bg-slate-950/90 border-2 border-stone-900 text-stone-100 shadow-[0_0_20px_rgba(193,154,107,0.4)] relative overflow-hidden">
+        <div className="w-full premium-border-glow rounded-3xl p-6 bg-slate-950/90 border-2 border-stone-900 text-stone-100 shadow-[0_0_20px_rgba(193,154,107,0.4)] relative overflow-hidden mt-6">
           
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-800 pb-4 mb-4">
             <div>
@@ -825,12 +1599,12 @@ export const ManagementTab: React.FC = () => {
                       </td>
                       <td className="p-3 font-semibold text-slate-100 uppercase tracking-wide">{log.action}</td>
                       <td className="p-3 font-semibold text-[#c19a6b] text-nowrap">{log.role}</td>
-                      <td className="p-3 text-slate-300 max-w-lg font-mono tracking-tight leading-normal" title={log.details}>
-                        {log.details}
-                        <span className="block text-[8px] text-slate-500 mt-0.5 font-mono">Timestamp: {new Date(log.timestamp).toLocaleString()}</span>
+                      <td className="p-3 text-slate-300 max-w-lg font-mono tracking-tight leading-normal" title={log.reason}>
+                        {log.reason}
+                        <span className="block text-[8px] text-slate-500 mt-0.5 font-mono">Timestamp: {log.timestamp}</span>
                       </td>
                       <td className="p-3 pr-4 text-right font-mono text-stone-500 text-[10px] select-all uppercase">
-                        {log.hash ? log.hash.slice(0, 20) : 'N/A'}...
+                        {log.hash.slice(0, 20)}...
                       </td>
                     </tr>
                   ))
@@ -851,7 +1625,6 @@ export const ManagementTab: React.FC = () => {
           </div>
         </div>
 
-      </div>
     </div>
   );
 };

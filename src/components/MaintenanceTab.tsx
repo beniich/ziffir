@@ -2,34 +2,35 @@ import React, { useState } from 'react';
 import { HardHat, Activity, AlertTriangle, CheckSquare, Square, Check, RefreshCw, Upload, Sparkles, Building } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-import { useAddAuditLog } from '../shared/store/auditStore';
+interface MaintenanceTabProps {
+  addAuditLog?: (action: string, reason: string, status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', role?: string) => void;
+}
 
-export const MaintenanceTab: React.FC = () => {
-  const addAuditLog = useAddAuditLog();
+interface RoomNode {
+  id: string;
+  name: string;
+  status: 'AVAILABLE' | 'OCCUPIED' | 'CLEANING' | 'MAINTENANCE' | 'OUT_OF_ORDER';
+  housekeepingNotes: string;
+  checkedList: {
+    linens: boolean;
+    clean: boolean;
+    minibar: boolean;
+    fragrance: boolean;
+  };
+  verificationPhoto: string | null;
+}
 
-  interface RoomNode {
-    id: string;
-    name: string;
-    status: 'AVAILABLE' | 'OCCUPIED' | 'CLEANING' | 'MAINTENANCE' | 'OUT_OF_ORDER';
-    housekeepingNotes: string;
-    checkedList: {
-      linens: boolean;
-      clean: boolean;
-      minibar: boolean;
-      fragrance: boolean;
-    };
-    verificationPhoto: string | null;
-  }
+interface MaintenanceIssue {
+  id: string;
+  room: string;
+  system: 'HVAC' | 'Electrical' | 'Plumbing' | 'Smart Controls';
+  priority: 'Low' | 'High' | 'Critical';
+  details: string;
+  timestamp: string;
+  resolved: boolean;
+}
 
-  interface MaintenanceIssue {
-    id: string;
-    room: string;
-    system: 'HVAC' | 'Electrical' | 'Plumbing' | 'Smart Controls';
-    priority: 'Low' | 'High' | 'Critical';
-    details: string;
-    timestamp: string;
-    resolved: boolean;
-  }
+export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ addAuditLog }) => {
   // state for rooms list
   const [rooms, setRooms] = useState<RoomNode[]>([
     { id: '101', name: 'Suite 101', status: 'AVAILABLE', housekeepingNotes: 'Prone to early arrivals.', checkedList: { linens: true, clean: true, minibar: true, fragrance: true }, verificationPhoto: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=400&q=80' },

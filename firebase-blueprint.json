@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "guest": {
+      "title": "Guest",
+      "description": "Premium hotel resident and room configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique guest ledger ID" },
+        "name": { "type": "string", "description": "Full name of the VIP guest" },
+        "suite": { "type": "string", "description": "Assigned suite number and category" },
+        "serviceLevel": { "type": "string", "enum": ["ROYAL", "VIP", "EXECUTIVE", "STANDARD"], "description": "Prestige tier of the service quality" },
+        "totalSpend": { "type": "number", "description": "Aggregated payment charges processed" },
+        "status": { "type": "string", "enum": ["Checked-In", "Arriving", "Checked-Out"], "description": "Current status in the lobby" },
+        "checkInDate": { "type": "string", "format": "date", "description": "Official check-in timestamp" }
+      },
+      "required": ["id", "name", "suite", "serviceLevel", "totalSpend", "status"]
+    },
+    "order": {
+      "title": "Room Service Order",
+      "description": "Active culinary and butler request orders",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique order tracker ID" },
+        "guest": { "type": "string", "description": "Name of the ordering guest" },
+        "room": { "type": "string", "description": "Target room or suite of delivery" },
+        "details": { "type": "string", "description": "Gastronomic and service specifications" },
+        "status": { "type": "string", "enum": ["Preparation", "Quality Check", "Out for Delivery", "Delivered"], "description": "Phase of the chef/butler flow" },
+        "imgUrl": { "type": "string", "description": "Holographic reference image of gastronomy item" }
+      },
+      "required": ["id", "guest", "room", "details", "status"]
+    },
+    "auditLog": {
+      "title": "Audit Log",
+      "description": "Immutable forensic action ledger logs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "System transaction reference ID" },
+        "timestamp": { "type": "string", "description": "Certified UTC timestamp" },
+        "action": { "type": "string", "description": "Sovereign sector action ID" },
+        "reason": { "type": "string", "description": "Forensic rationale detailing permission parameters" },
+        "status": { "type": "string", "enum": ["AUTHORIZED", "BYPASS", "RESTRICTED_ATTEMPT"], "description": "Authority clearance result state" },
+        "role": { "type": "string", "description": "Operator label or security clearance group" }
+      },
+      "required": ["id", "timestamp", "action", "reason", "status", "role"]
+    },
+    "configuration": {
+      "title": "Integration Settings",
+      "description": "Google Sheet spreadsheet mapping parameters",
+      "type": "object",
+      "properties": {
+        "sheetId": { "type": "string", "description": "The Google Spreadsheet ID" },
+        "sheetName": { "type": "string", "description": "Target spreadsheet tab" },
+        "liveSync": { "type": "boolean", "description": "Whether to sync live with Firestore" },
+        "updatedAt": { "type": "string", "description": "Last settings modifications" }
+      },
+      "required": ["sheetId", "sheetName"]
+    }
+  },
+  "firestore": {
+    "guests": {
+      "schema": "guest",
+      "description": "Collection of guest and suite placement details"
+    },
+    "orders": {
+      "schema": "order",
+      "description": "Collection of culinary and gastronomic room service operations"
+    },
+    "auditLogs": {
+      "schema": "auditLog",
+      "description": "Collection of digital forensics security control logs"
+    },
+    "settings": {
+      "schema": "configuration",
+      "description": "Google Sheet mapping parameters"
+    }
+  }
+}

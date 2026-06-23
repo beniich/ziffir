@@ -12,10 +12,10 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 
 const variantClasses: Record<CardVariant, string> = {
   default:       'bg-obsidian-900/60 border border-slate-700/50',
-  glass:         'glass',
-  'glass-strong':'glass-strong',
+  glass:         'glass-panel',
+  'glass-strong':'glass-panel',
   elevated:      'bg-gradient-to-br from-obsidian-800/80 to-obsidian-900/60 border border-slate-700/50 shadow-xl',
-  cyber:         'bg-obsidian-900 border border-cyber-cyan/30 shadow-cyber cyber-scan',
+  cyber:         'bg-obsidian-900 border border-cyber-cyan/30 shadow-cyber',
   gold:          'bg-gradient-to-br from-zaphir-500/10 to-obsidian-900/60 border border-zaphir-500/30 shadow-glow-gold',
 };
 
@@ -93,6 +93,8 @@ export const CardTitle = ({
 }) => (
   <Tag className={`text-lg font-bold text-slate-100 ${className}`}>{children}</Tag>
 );
+
+CardTitle.displayName = 'CardTitle';
 
 export const CardDescription = ({
   children,
