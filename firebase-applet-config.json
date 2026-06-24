@@ -1,10 +1,10 @@
 {
-  "projectId": "tonal-legacy-v07pf",
-  "appId": "1:1037154403107:web:2984f2dfd3b53580f24296",
-  "apiKey": "AIzaSyD7mgV3ypfuBdaTaCSPEZEEOgBG6Kxrb0I",
-  "authDomain": "tonal-legacy-v07pf.firebaseapp.com",
+  "projectId": "zaphir-auth",
+  "appId": "1:143662316165:web:d22c175adc75db65c687ec",
+  "apiKey": "AIzaSyCTvszTeSV_NkLZHyknDWJf0CUc4-7sanE",
+  "authDomain": "zaphir-auth.firebaseapp.com",
   "firestoreDatabaseId": "ai-studio-c03eed34-6b98-437a-b865-3de7e2a9ecd6",
-  "storageBucket": "tonal-legacy-v07pf.firebasestorage.app",
-  "messagingSenderId": "1037154403107",
-  "measurementId": ""
+  "storageBucket": "zaphir-auth.firebasestorage.app",
+  "messagingSenderId": "143662316165",
+  "measurementId": "G-Z472G490Q4"
 }
