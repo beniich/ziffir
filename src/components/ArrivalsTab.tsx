@@ -703,7 +703,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
               {/* Active Flight Schedule */}
               <div className="space-y-2 mt-4">
                 <span className="text-[10px] uppercase font-mono text-slate-600 font-bold tracking-widest block">Flight Schedule</span>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 xs:grid-cols-3 gap-3">
                   {flights.map(f => (
                     <div key={f.id} className="p-2.5 bg-white/30 border border-white/50 rounded-xl font-mono text-[10px] space-y-1 shadow-sm">
                       <div className="text-slate-800 font-bold flex justify-between items-center">

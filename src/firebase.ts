@@ -154,6 +154,19 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 
 // Helpers to read/write Firestore
 export const firestoreService = {
+  // Save demo requests from the marketing landing page
+  async saveDemoRequest(request: { name: string; email: string; hotel: string; notes: string; plan: string }) {
+    const path = `demo_requests/${request.email || 'anonymous'}`;
+    try {
+      await setDoc(doc(db, 'demo_requests', request.email || 'anonymous'), {
+        ...request,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, path);
+    }
+  },
+
   // Save/Update configuration parameters
   async saveConfig(config: { sheetId: string; sheetName: string; liveSync: boolean }) {
     const path = 'settings/config';

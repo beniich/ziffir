@@ -54,6 +54,7 @@ import { SettingsTab } from './components/SettingsTab';
 import { SaaSBillingTab } from './components/SaaSBillingTab';
 import { UserManagerSuite } from './components/UserManagerSuite';
 import { WineCellarTab } from './components/WineCellarTab';
+import { MarketingWebsite } from './components/MarketingWebsite';
 
 // Cryptographic Simulation Utilities for dynamic chain audit logging
 export interface AuditEntry {
@@ -294,6 +295,7 @@ const TAB_CLEARANCE: Record<string, ('administrateur' | 'client' | 'hotel')[]> =
 };
 
 export default function App() {
+  const [viewMode, setViewMode] = useState<'website' | 'dashboard'>('website');
   const [activeTab, setActiveTab ] = useState<'arrivals' | 'room-service' | 'controls' | 'channel-sync' | 'vault' | 'memberships' | 'maintenance' | 'omni-stream' | 'ledger' | 'management' | 'hospitality-manager' | 'wine-cellar' | 'profile' | 'prestige-portal' | 'design-showcase' | 'settings' | 'billing' | 'user-directory'>('prestige-portal');
   const [sessionRole, setSessionRole] = useState<'administrateur' | 'client' | 'hotel'>('administrateur');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -338,6 +340,19 @@ export default function App() {
       }
     );
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setSidebarCollapsed(true);
+      } else {
+        setSidebarCollapsed(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const [studentId] = useState<string>('ZCA-2024-9182');
@@ -1168,6 +1183,18 @@ export default function App() {
 
   const emailHasDigits = currentUser?.email ? /\d/.test(currentUser.email) : false;
 
+  if (viewMode === 'website') {
+    return (
+      <MarketingWebsite
+        language={language}
+        onEnterDashboard={() => {
+          setViewMode('dashboard');
+          addAuditLog('ENTERED_DASHBOARD', 'Navigated from public landing page to secure system dashboard cockpit.', 'AUTHORIZED');
+        }}
+      />
+    );
+  }
+
   return (
     <div 
       style={getDynamicStyles()}
@@ -1393,6 +1420,18 @@ export default function App() {
         {!sidebarCollapsed && (
           <aside className="w-full lg:w-64 flex flex-row lg:flex-col gap-1.5 shrink-0 overflow-x-auto pb-2 lg:pb-0 scrollbar-none glass-panel p-2.5 sm:p-4 h-fit sticky top-[62px] lg:top-24 z-30 shadow-md animate-fade-in">
           
+          <button
+            onClick={() => {
+              setViewMode('website');
+              addAuditLog('RETURNED_TO_WEBSITE', 'Navigated back to the public landing page from secure cockpit.', 'AUTHORIZED');
+            }}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left bg-gradient-to-r from-[#c19a6b]/15 to-transparent border border-[#c19a6b]/30 text-[#7c5a30] hover:bg-[#c19a6b]/10 font-bold shadow-sm"
+          >
+            <Globe className="w-4 h-4 text-amber-600 animate-pulse" />
+            <span className="text-xs font-semibold tracking-wider uppercase font-mono">{language === 'FR' ? 'Site Public' : 'Public Website'}</span>
+            <span className="ml-auto text-[10px] bg-[#c19a6b]/30 text-[#7c5a30] px-1.5 py-0.2 rounded font-bold">WEB</span>
+          </button>
+
           <button
             onClick={() => navigateToTab('prestige-portal')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
