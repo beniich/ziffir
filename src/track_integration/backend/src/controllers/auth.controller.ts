@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { AuthService } from '../services/auth.service';
+import { FirebaseAdminService } from '../services/firebase-admin.service';
 import type { UserRole } from '../../../../../types';
 
 // ── Role mapping depuis Firebase (Custom Claims ou email domain) ──────────────
@@ -37,8 +38,8 @@ export class AuthController {
     }
 
     try {
-      // Vérifier le token Firebase côté serveur (firebase-admin recommandé en prod)
-      const decoded = await AuthService.verifyFirebaseToken(idToken);
+      // Vérifier le token Firebase côté serveur avec firebase-admin (sécurisé)
+      const decoded = await FirebaseAdminService.verifyIdToken(idToken);
       const role = resolveRoleFromFirebase(decoded.email || '', decoded);
 
       const result = await AuthService.createOrUpdateFirebaseUser({

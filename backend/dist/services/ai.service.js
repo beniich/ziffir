@@ -9,8 +9,28 @@ const sdk_1 = __importDefault(require("@anthropic-ai/sdk"));
 const redis_1 = require("../config/redis");
 const database_1 = require("../config/database");
 const logger_1 = require("../utils/logger");
-const openai = new openai_1.default({ apiKey: process.env.OPENAI_API_KEY });
-const anthropic = new sdk_1.default({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Initialisation lazy pour éviter le crash si les clés sont absentes
+let _openai = null;
+let _anthropic = null;
+const getOpenAI = () => {
+    if (!_openai) {
+        const key = process.env.OPENAI_API_KEY;
+        if (!key || key.startsWith('sk-mock')) {
+            throw new Error('OPENAI_API_KEY non configurée.');
+        }
+        _openai = new openai_1.default({ apiKey: key });
+    }
+    return _openai;
+};
+const getAnthropic = () => {
+    if (!_anthropic) {
+        const key = process.env.ANTHROPIC_API_KEY;
+        if (!key) throw new Error('ANTHROPIC_API_KEY non configurée.');
+        _anthropic = new sdk_1.default({ apiKey: key });
+    }
+    return _anthropic;
+};
+
 const SYSTEM_PROMPTS = {
     client: `Tu es l'assistant Zaphir, spécialisé dans l'hôtellerie de luxe.
 Tu aides les clients avec :
@@ -104,7 +124,7 @@ class AIService {
         return messages;
     }
     static async callOpenAI(messages) {
-        const completion = await openai.chat.completions.create({
+        const completion = await getOpenAI().chat.completions.create({
             model: 'gpt-4o-mini',
             messages: messages,
             max_tokens: 500,
@@ -118,7 +138,7 @@ class AIService {
     static async callAnthropic(messages) {
         const systemMsg = messages.find((m) => m.role === 'system');
         const convMessages = messages.filter((m) => m.role !== 'system');
-        const response = await anthropic.messages.create({
+        const response = await getAnthropic().messages.create({
             model: 'claude-3-5-sonnet-20241022',
             max_tokens: 500,
             system: systemMsg?.content || '',
@@ -149,7 +169,7 @@ class AIService {
 ${JSON.stringify(orders.slice(0, 50), null, 2)}
 
 Réponds en français, format JSON: [{title, description, impact}]`;
-        const response = await openai.chat.completions.create({
+        const response = await getOpenAI().chat.completions.create({
             model: 'gpt-4o-mini',
             messages: [{ role: 'user', content: prompt }],
             max_tokens: 600,
@@ -157,7 +177,7 @@ Réponds en français, format JSON: [{title, description, impact}]`;
         return response.choices[0].message.content || '';
     }
     static async generateWelcomeMessage(guestName, hotelName) {
-        const response = await openai.chat.completions.create({
+        const response = await getOpenAI().chat.completions.create({
             model: 'gpt-4o-mini',
             messages: [{
                     role: 'user',
