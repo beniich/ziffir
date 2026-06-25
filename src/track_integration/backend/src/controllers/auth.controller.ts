@@ -1,107 +1,65 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { AuthService } from '../services/auth.service';
-import { FirebaseAdminService } from '../services/firebase-admin.service';
-import type { UserRole } from '../../../../../types';
 
-// ── Role mapping depuis Firebase (Custom Claims ou email domain) ──────────────
-function resolveRoleFromFirebase(email: string, customClaims?: Record<string, any>): UserRole {
-  if (customClaims?.role) return customClaims.role as UserRole;
-  // Logique de fallback par domaine email
-  if (email.endsWith('@zaphir-admin.com')) return 'SUPER_ADMIN';
-  if (email.endsWith('@hotel.zaphir.com')) return 'HOTEL';
-  return 'CLIENT';
-}
+// Mock DB handler interface
+const mockUsers = [
+  {
+    id: 'user-001',
+    name: 'Elena Petrova',
+    email: 'elena.petrova@zafir-academy.com',
+    passwordHash: '$2b$12$N9qo8uLOqpY3SgH2rLpUz.VfM3A0l6eIq4TfK5yV6z5o4WcZq321O', // bcrypt hash
+    role: 'OPERATOR' as const
+  }
+];
 
 export class AuthController {
-
-  // ── POST /auth/login — Email / Password ───────────────────────────────────
-  static async login(req: Request, res: Response) {
+  /**
+   * Log in user, returning signed authentication token
+   */
+  static async login(req: AuthenticatedRequest, res: Response) {
     const { email, password } = req.body;
+
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email et mot de passe requis.' });
+      return res.status(400).json({ error: 'Email and password are required credentials.' });
     }
 
-    try {
-      const result = await AuthService.loginWithPassword(email, password);
-      return res.json({ success: true, data: result });
-    } catch (err: any) {
-      return res.status(401).json({ error: err.message });
-    }
-  }
+    const user = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
 
-  // ── POST /auth/firebase-verify — Google OAuth via Firebase ────────────────
-  static async firebaseVerify(req: Request, res: Response) {
-    const { idToken } = req.body;
-    if (!idToken) {
-      return res.status(400).json({ error: 'idToken Firebase manquant.' });
+    if (!user) {
+      return res.status(401).json({ error: 'Authentication failed. Check security signature.' });
     }
 
-    try {
-      // Vérifier le token Firebase côté serveur avec firebase-admin (sécurisé)
-      const decoded = await FirebaseAdminService.verifyIdToken(idToken);
-      const role = resolveRoleFromFirebase(decoded.email || '', decoded);
-
-      const result = await AuthService.createOrUpdateFirebaseUser({
-        uid: decoded.uid,
-        email: decoded.email || '',
-        displayName: decoded.name || decoded.email || 'Utilisateur',
-        role,
-      });
-
-      return res.json({ success: true, data: result });
-    } catch (err: any) {
-      return res.status(401).json({ error: `Vérification Firebase échouée : ${err.message}` });
-    }
-  }
-
-  // ── POST /auth/register ────────────────────────────────────────────────────
-  static async register(req: Request, res: Response) {
-    const { email, username, password, role } = req.body;
-    if (!email || !username || !password) {
-      return res.status(400).json({ error: 'Email, username et mot de passe requis.' });
+    const match = await AuthService.verifyPassword(password, user.passwordHash);
+    if (!match) {
+      return res.status(401).json({ error: 'Key mismatch. Invalid password.' });
     }
 
-    try {
-      const result = await AuthService.register({ email, username, password, role: role || 'CLIENT' });
-      return res.status(201).json({ success: true, data: result });
-    } catch (err: any) {
-      return res.status(400).json({ error: err.message });
-    }
-  }
+    const token = AuthService.generateToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role
+    });
 
-  // ── POST /auth/logout ─────────────────────────────────────────────────────
-  static async logout(req: AuthenticatedRequest, res: Response) {
-    try {
-      if (req.user?.userId) {
-        await AuthService.revokeRefreshToken(req.user.userId);
+    return res.json({
+      message: 'Secure biometric/cryptographic credential match.',
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
       }
-      return res.json({ success: true, message: 'Session terminée.' });
-    } catch {
-      return res.json({ success: true });
-    }
+    });
   }
 
-  // ── POST /auth/refresh ────────────────────────────────────────────────────
-  static async refresh(req: Request, res: Response) {
-    const { refreshToken } = req.body;
-    if (!refreshToken) {
-      return res.status(400).json({ error: 'Refresh token manquant.' });
-    }
-
-    try {
-      const result = await AuthService.refreshTokens(refreshToken);
-      return res.json({ success: true, data: result });
-    } catch (err: any) {
-      return res.status(401).json({ error: 'Refresh token invalide ou expiré.' });
-    }
-  }
-
-  // ── GET /auth/me — Profil utilisateur connecté ────────────────────────────
+  /**
+   * Retrieve active user profile
+   */
   static getProfile(req: AuthenticatedRequest, res: Response) {
     if (!req.user) {
-      return res.status(401).json({ error: 'Non authentifié.' });
+      return res.status(400).json({ error: 'User payload context absent.' });
     }
-    return res.json({ success: true, data: req.user });
+    return res.json({ user: req.user });
   }
 }

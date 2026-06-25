@@ -1,26 +1,17 @@
-// Prisma Schema — Zaphir Luxury Command Center (PostgreSQL / Neon)
+// Prisma Schema for Zaphir Luxury Command Center backend DB (PostgreSQL)
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-// ════════════════════════════════════════════════════════════
-// ENUMS
-// ════════════════════════════════════════════════════════════
-
-enum UserRole {
-  SUPER_ADMIN
-  ADMIN
-  MANAGER
-  STAFF
-  CLIENT
-  VIEWER
+enum Role {
+  OPERATOR  // L4 Security Clearance
+  MANAGER   // L5 Sovereign Owner Clearance
 }
 
 enum AuditStatus {
@@ -29,27 +20,17 @@ enum AuditStatus {
   RESTRICTED_ATTEMPT
 }
 
-// ════════════════════════════════════════════════════════════
-// MODELES
-// ════════════════════════════════════════════════════════════
-
 model User {
-  id             String    @id @default(uuid())
-  email          String    @unique
-  username       String    @unique
-  passwordHash   String
-  role           UserRole  @default(CLIENT)
-  hotelId        String?
-  isActive       Boolean   @default(true)
-  refreshToken   String?
-  failedAttempts Int       @default(0)
-  lockedUntil    DateTime?
-  lastLogin      DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  // Relations
-  logs AuditLog[]
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role     @default(OPERATOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Link to Audit log entries created by this specific user
+  logs         AuditLog[]
 
   @@map("users")
 }
@@ -63,9 +44,10 @@ model AuditLog {
   previousHash String
   hash         String      @unique
   status       AuditStatus @default(AUTHORIZED)
-
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  // Optional linkage to User record
+  userId       String?
+  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@map("audit_logs")
@@ -76,7 +58,7 @@ model RoomServiceOrder {
   guestName String
   roomNo    String
   details   String
-  status    String   @default("Preparation")
+  status    String   @default("Preparation") // Preparation, Quality Check, Out for Delivery, Delivered
   price     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,8 +1,0 @@
-{
-  "name": "zaphir-backend",
-  "version": "1.0.0",
-  "type": "commonjs",
-  "dependencies": {
-    "@prisma/client": "^5.10.0"
-  }
-}
