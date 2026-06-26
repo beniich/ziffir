@@ -8,54 +8,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id             String     @id @default(uuid())
-  email          String     @unique
-  username       String     @unique
-  passwordHash   String
-  role           UserRole   @default(CLIENT)
-  hotelId        String?
-  isActive       Boolean    @default(true)
-  refreshToken   String?
-  failedAttempts Int        @default(0)
-  lockedUntil    DateTime?
-  lastLogin      DateTime?
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  logs           AuditLog[]
-
-  @@map("users")
-}
-
-model AuditLog {
-  id           String      @id @default(uuid())
-  timestamp    DateTime    @default(now())
-  action       String
-  role         String
-  reason       String
-  previousHash String
-  hash         String      @unique
-  status       AuditStatus @default(AUTHORIZED)
-  userId       String?
-  user         User?       @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@map("audit_logs")
-}
-
-model RoomServiceOrder {
-  id        String   @id @default(uuid())
-  guestName String
-  roomNo    String
-  details   String
-  status    String   @default("Preparation")
-  price     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("room_service_orders")
-}
-
 enum UserRole {
   SUPER_ADMIN
   ADMIN
@@ -69,4 +21,141 @@ enum AuditStatus {
   AUTHORIZED
   BYPASS
   RESTRICTED_ATTEMPT
+}
+
+enum OrderStatus {
+  PREPARATION
+  QUALITY_CHECK
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id                     String    @id @default(uuid())
+  email                  String    @unique
+  username               String    @unique
+  passwordHash           String
+  firstName              String    @default("")
+  lastName               String    @default("")
+  role                   UserRole  @default(CLIENT)
+  hotelId                String?
+  isActive               Boolean   @default(true)
+  refreshToken           String?
+  failedAttempts         Int       @default(0)
+  lockedUntil            DateTime?
+  lastLogin              DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  stripeCustomerId       String?   @unique
+  stripeSubscriptionId   String?   @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+  subscriptionStatus     String?
+
+  logs                   AuditLog[]
+
+  @@map("users")
+}
+
+model AuditLog {
+  id           String      @id @default(uuid())
+  timestamp    DateTime    @default(now())
+  action       String
+  role         String      @default("SYSTEM")
+  reason       String
+  previousHash String      @default("")
+  hash         String      @unique @default(uuid())
+  status       AuditStatus @default(AUTHORIZED)
+  userId       String?
+  user         User?       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+model RoomServiceOrder {
+  id        String      @id @default(uuid())
+  guestName String
+  roomNo    String
+  details   String
+  status    OrderStatus @default(PREPARATION)
+  price     Float
+  hotelId   String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([hotelId])
+  @@map("room_service_orders")
+}
+
+model StaffMember {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  username       String   @unique
+  passwordHash   String   @default("")
+  role           UserRole @default(STAFF)
+  department     String?
+  clearanceLevel Int      @default(1)
+  active         Boolean  @default(true)
+  hotelId        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([hotelId])
+  @@map("staff_members")
+}
+
+model VaultDocument {
+  id            String    @id @default(uuid())
+  docRef        String    @unique @default(uuid())
+  name          String
+  category      String    @default("General")
+  owner         String
+  room          String    @default("")
+  securityLevel String    @default("STANDARD")
+  fingerprint   Boolean   @default(false)
+  depositDate   DateTime  @default(now())
+  withdrawnAt   DateTime?
+  hotelId       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([hotelId])
+  @@map("vault_documents")
+}
+
+model SuiteControl {
+  id           String  @id @default(uuid())
+  roomId       String  @unique
+  lights       String  @default("OFF")
+  climate      Float   @default(22)
+  curtains     Int     @default(0)
+  music        String  @default("NONE")
+  musicVolume  Int     @default(30)
+  doNotDisturb Boolean @default(false)
+  hotelId      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([hotelId])
+  @@map("suite_controls")
+}
+
+model PricingRule {
+  id                 String    @id @default(uuid())
+  suite              String
+  basePrice          Float     @default(0)
+  channelMultipliers String?
+  status             String    @default("ACTIVE")
+  lastSync           DateTime?
+  hotelId            String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([hotelId])
+  @@map("pricing_rules")
 }

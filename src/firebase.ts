@@ -3,6 +3,9 @@
 // Firebase SDK conservé uniquement pour Firestore/Sheets config
 // ============================================================
 
+// ─── URL de l'API — dynamique en prod via VITE_API_URL ───────
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 // ─── JWT Auth Motelix (remplace Firebase Auth) ───────────────
 
 export const initAuth = (
@@ -11,21 +14,26 @@ export const initAuth = (
 ) => {
   const token = localStorage.getItem('zafir_auth_token');
   if (token) {
-    fetch('http://localhost:5000/api/auth/me', {
+    fetch(`${API_URL}/auth/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => res.json())
     .then(data => {
       if (data.user) {
         const user = { ...data.user, displayName: data.user.firstName, photoURL: null };
+        // Store user ID globally for Stripe
+        (window as any).__zaphirUserId = data.user.id;
+        localStorage.setItem('zafir_user_id', data.user.id);
         if (onAuthSuccess) onAuthSuccess(user, token);
       } else {
         localStorage.removeItem('zafir_auth_token');
+        localStorage.removeItem('zafir_user_id');
         if (onAuthFailure) onAuthFailure();
       }
     })
     .catch(() => {
       localStorage.removeItem('zafir_auth_token');
+      localStorage.removeItem('zafir_user_id');
       if (onAuthFailure) onAuthFailure();
     });
   } else {
@@ -36,7 +44,7 @@ export const initAuth = (
 
 export const registerWithEmail = async (email: string, password: string, displayName: string): Promise<any> => {
   const [firstName, ...lastNames] = displayName.split(' ');
-  const res = await fetch('http://localhost:5000/api/auth/register', {
+  const res = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -49,11 +57,15 @@ export const registerWithEmail = async (email: string, password: string, display
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || 'Registration failed');
   if (data.token) localStorage.setItem('zafir_auth_token', data.token);
+  if (data.user?.id) {
+    (window as any).__zaphirUserId = data.user.id;
+    localStorage.setItem('zafir_user_id', data.user.id);
+  }
   return { ...data.user, displayName: data.user?.firstName, photoURL: null };
 };
 
 export const loginWithEmail = async (email: string, password: string): Promise<any> => {
-  const res = await fetch('http://localhost:5000/api/auth/login', {
+  const res = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -65,6 +77,10 @@ export const loginWithEmail = async (email: string, password: string): Promise<a
   }
   const data = await res.json();
   if (data.token) localStorage.setItem('zafir_auth_token', data.token);
+  if (data.user?.id) {
+    (window as any).__zaphirUserId = data.user.id;
+    localStorage.setItem('zafir_user_id', data.user.id);
+  }
   return { ...data.user, displayName: data.user?.firstName, photoURL: null };
 };
 
@@ -74,7 +90,9 @@ export const googleSignIn = async (): Promise<any> => {
 
 export const logout = async () => {
   localStorage.removeItem('zafir_auth_token');
-  await fetch('http://localhost:5000/api/auth/logout', {
+  localStorage.removeItem('zafir_user_id');
+  delete (window as any).__zaphirUserId;
+  await fetch(`${API_URL}/auth/logout`, {
     method: 'POST',
     credentials: 'include'
   }).catch(() => {});

@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { firestoreService } from '../firebase';
 import confetti from 'canvas-confetti';
+import { PLANS } from '../config/plans';
 
 interface MarketingWebsiteProps {
   onEnterDashboard: () => void;
@@ -69,7 +70,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
     name: '',
     email: '',
     hotel: '',
-    plan: 'PRO',
+    plan: 'PROFESSIONAL',
     notes: ''
   });
   const [submitting, setSubmitting] = useState(false);
@@ -702,63 +703,60 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                     {/* PLAN 1: STARTER */}
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden">
                       <div className="bg-[#101e35] text-white p-5 text-center">
-                        <span className="font-mono text-xs uppercase tracking-widest font-extrabold">STARTER</span>
+                        <span className="font-mono text-xs uppercase tracking-widest font-extrabold">{PLANS.STARTER.name}</span>
                       </div>
                       <div className="p-6 space-y-6 flex-1 flex flex-col justify-between">
                         <div className="space-y-4 text-center">
                           <div className="text-4xl font-serif font-bold text-slate-900">
-                            €399<span className="text-xs font-mono font-normal text-slate-500">/month</span>
+                            €{PLANS.STARTER.monthlyPrice}<span className="text-xs font-mono font-normal text-slate-500">/mois</span>
                           </div>
                           <div className="h-[1px] bg-slate-100" />
                           <div className="space-y-3.5 text-left">
-                            <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider block">Basic features</span>
+                            <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider block">Fonctionnalités essentielles</span>
                             <div className="space-y-2.5 text-xs text-slate-600">
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> <span>5 User Accounts</span></div>
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> <span>Basic Live Analytics</span></div>
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> <span>Email support priority L1</span></div>
+                              {PLANS.STARTER.features.slice(0, 3).map((f, i) => (
+                                <div key={i} className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> <span>{f}</span></div>
+                              ))}
                             </div>
                           </div>
                         </div>
-
-                        <button 
-                          onClick={() => alert("Starter plan selected. Our operations team is initializing your cloud node.")}
+                        <button
+                          onClick={() => { setFormData(d => ({ ...d, plan: 'STARTER' })); setActiveSection('contact'); const el = document.getElementById('contact'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
                           className="w-full py-3 border border-[#101e35] text-[#101e35] font-mono text-[10px] uppercase font-bold tracking-wider rounded-xl hover:bg-[#101e35] hover:text-white transition"
                         >
-                          Initialize Starter
+                          Démarrer avec Starter
                         </button>
                       </div>
                     </div>
 
-                    {/* PLAN 2: PRO (RECOMMENDED - GOLD PLATED) */}
+                    {/* PLAN 2: PROFESSIONAL (RECOMMENDED) */}
                     <div className="bg-white rounded-2xl border-2 border-[#c19a6b] shadow-lg flex flex-col justify-between overflow-hidden relative scale-102">
                       <div className="absolute top-2 right-2 bg-[#c19a6b]/20 text-[#7c5a30] text-[8px] font-mono font-bold px-2 py-0.5 rounded border border-[#c19a6b]/30">
-                        RECOMMENDED
+                        RECOMMANDÉ
                       </div>
                       <div className="bg-gradient-to-r from-[#c19a6b] to-[#a37c4c] text-white p-5 text-center">
-                        <span className="font-mono text-xs uppercase tracking-widest font-extrabold">PRO SYSTEM</span>
+                        <span className="font-mono text-xs uppercase tracking-widest font-extrabold">{PLANS.PROFESSIONAL.name}</span>
                       </div>
                       <div className="p-6 space-y-6 flex-1 flex flex-col justify-between">
                         <div className="space-y-4 text-center">
                           <div className="text-4xl font-serif font-bold text-slate-900">
-                            €799<span className="text-xs font-mono font-normal text-slate-500">/month</span>
+                            €{PLANS.PROFESSIONAL.monthlyPrice}<span className="text-xs font-mono font-normal text-slate-500">/mois</span>
                           </div>
                           <div className="h-[1px] bg-slate-100" />
                           <div className="space-y-3.5 text-left">
-                            <span className="text-[10px] font-mono uppercase text-[#c19a6b] tracking-wider block">Advanced features</span>
+                            <span className="text-[10px] font-mono uppercase text-[#c19a6b] tracking-wider block">Fonctionnalités avancées</span>
                             <div className="space-y-2.5 text-xs text-slate-600">
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#c19a6b]" /> <span>Unlimited Users & Devices</span></div>
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#c19a6b]" /> <span>Real-time 3D Analytics Cockpit</span></div>
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#c19a6b]" /> <span>Dedicated Account Manager</span></div>
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#c19a6b]" /> <span>Full Core Integration API</span></div>
+                              {PLANS.PROFESSIONAL.features.slice(0, 4).map((f, i) => (
+                                <div key={i} className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#c19a6b]" /> <span>{f}</span></div>
+                              ))}
                             </div>
                           </div>
                         </div>
-
-                        <button 
-                          onClick={() => alert("Pro Plan requested. Opening secure node configuration.")}
+                        <button
+                          onClick={() => { setFormData(d => ({ ...d, plan: 'PROFESSIONAL' })); setActiveSection('contact'); const el = document.getElementById('contact'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
                           className="w-full py-3 bg-gradient-to-r from-[#c19a6b] to-[#a37c4c] text-white font-mono text-[10px] uppercase font-bold tracking-wider rounded-xl hover:brightness-110 transition shadow-md shadow-[#c19a6b]/20"
                         >
-                          Launch Pro Cockpit
+                          Démarrer avec Professional
                         </button>
                       </div>
                     </div>
@@ -766,34 +764,28 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                     {/* PLAN 3: ENTERPRISE */}
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden">
                       <div className="bg-[#101e35] text-white p-5 text-center">
-                        <span className="font-mono text-xs uppercase tracking-widest font-extrabold">ENTERPRISE</span>
+                        <span className="font-mono text-xs uppercase tracking-widest font-extrabold">{PLANS.ENTERPRISE.name}</span>
                       </div>
                       <div className="p-6 space-y-6 flex-1 flex flex-col justify-between">
                         <div className="space-y-4 text-center">
                           <div className="text-4xl font-serif font-bold text-slate-900">
-                            Custom
+                            €{PLANS.ENTERPRISE.monthlyPrice}<span className="text-xs font-mono font-normal text-slate-500">/mois</span>
                           </div>
                           <div className="h-[1px] bg-slate-100" />
                           <div className="space-y-3.5 text-left">
-                            <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider block">Exclusive features</span>
+                            <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider block">Fonctionnalités exclusives</span>
                             <div className="space-y-2.5 text-xs text-slate-600">
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#101e35]" /> <span>Custom Sovereign Cloud Relays</span></div>
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#101e35]" /> <span>Complete White Labeling Option</span></div>
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#101e35]" /> <span>24/7 Priority Emergency Steward</span></div>
-                              <div className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#101e35]" /> <span>On-site cryptographic training</span></div>
+                              {PLANS.ENTERPRISE.features.slice(0, 4).map((f, i) => (
+                                <div key={i} className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-[#101e35]" /> <span>{f}</span></div>
+                              ))}
                             </div>
                           </div>
                         </div>
-
-                        <button 
-                          onClick={() => {
-                            setActiveSection('contact');
-                            const el = document.getElementById('contact');
-                            if (el) el.scrollIntoView({ behavior: 'smooth' });
-                          }}
+                        <button
+                          onClick={() => { setActiveSection('contact'); const el = document.getElementById('contact'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
                           className="w-full py-3 bg-[#c19a6b] hover:bg-[#7c5a30] text-slate-950 font-mono text-[10px] uppercase font-extrabold tracking-wider rounded-xl transition"
                         >
-                          Contact Sales
+                          Contacter les ventes
                         </button>
                       </div>
                     </div>
@@ -889,321 +881,289 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
 
               {/* SCREEN 4: PRESTIGE CLIENT TESTIMONIALS (With elegant gold profiles and wave chart background) */}
               {activeCockpit === 'testimonials' && (
-                <div className="bg-[#04060c] p-8 md:p-12 space-y-10 relative overflow-hidden">
+                <div className="bg-[#04060c] p-8 md:p-12 space-y-8 relative overflow-hidden" style={{minHeight:'460px'}}>
                   
-                  {/* Glowing Bezier Grid representation */}
-                  <div className="absolute inset-0 opacity-15 pointer-events-none">
-                    <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                      {/* Grid Lines */}
-                      <line x1="0%" y1="30%" x2="100%" y2="30%" stroke="#c19a6b" strokeWidth="0.5" strokeDasharray="3,3" />
-                      <line x1="0%" y1="70%" x2="100%" y2="70%" stroke="#c19a6b" strokeWidth="0.5" strokeDasharray="3,3" />
-                      <line x1="33%" y1="0%" x2="33%" y2="100%" stroke="#c19a6b" strokeWidth="0.5" strokeDasharray="3,3" />
-                      <line x1="66%" y1="0%" x2="66%" y2="100%" stroke="#c19a6b" strokeWidth="0.5" strokeDasharray="3,3" />
-                      {/* Smooth wave representing guest retention */}
-                      <path d="M 0 250 C 150 100, 300 300, 450 150 C 600 50, 750 350, 1000 180" fill="none" stroke="#dfb175" strokeWidth="2.5" />
-                      <path d="M 0 300 C 180 200, 350 400, 550 100 C 750 20, 850 280, 1000 220" fill="none" stroke="#2563eb" strokeWidth="1.5" />
-                      
-                      {/* Glowing points */}
-                      <circle cx="330" cy="270" r="5" fill="#dfb175" />
-                      <circle cx="650" cy="90" r="5" fill="#dfb175" />
+                  {/* Animated wave SVG background */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <svg className="absolute bottom-0 w-full h-56" viewBox="0 0 1000 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M 0 150 C 150 80, 300 180, 450 100 C 600 30, 750 160, 1000 80 L 1000 200 L 0 200 Z" fill="rgba(193,154,107,0.06)" />
+                      <path d="M 0 150 C 150 80, 300 180, 450 100 C 600 30, 750 160, 1000 80" fill="none" stroke="#dfb175" strokeWidth="1.5" opacity="0.5"/>
+                      <path d="M 0 170 C 180 120, 350 190, 550 110 C 750 40, 850 150, 1000 120 L 1000 200 L 0 200 Z" fill="rgba(37,99,235,0.05)" />
+                      <path d="M 0 170 C 180 120, 350 190, 550 110 C 750 40, 850 150, 1000 120" fill="none" stroke="#3b82f6" strokeWidth="1" opacity="0.4"/>
+                      {/* Metric bubbles on wave peaks */}
+                      <g transform="translate(350,95)">
+                        <rect x="-60" y="-26" width="120" height="26" rx="6" fill="rgba(10,14,30,0.85)" stroke="#c19a6b" strokeWidth="0.8"/>
+                        <text x="0" y="-9" textAnchor="middle" fill="#c19a6b" fontSize="9" fontFamily="monospace" fontWeight="bold">+15% Revenue/Room</text>
+                      </g>
+                      <g transform="translate(560,100)">
+                        <rect x="-55" y="-26" width="110" height="26" rx="6" fill="rgba(10,14,30,0.85)" stroke="#c19a6b" strokeWidth="0.8"/>
+                        <text x="0" y="-9" textAnchor="middle" fill="#c19a6b" fontSize="9" fontFamily="monospace" fontWeight="bold">+22% Guest Retention</text>
+                      </g>
+                      <g transform="translate(820,75)">
+                        <rect x="-55" y="-26" width="110" height="26" rx="6" fill="rgba(10,14,30,0.85)" stroke="#c19a6b" strokeWidth="0.8"/>
+                        <text x="0" y="-9" textAnchor="middle" fill="#c19a6b" fontSize="9" fontFamily="monospace" fontWeight="bold">+22% Guest Retention</text>
+                      </g>
                     </svg>
                   </div>
 
-                  <div className="text-center space-y-3 relative z-10">
-                    <span className="text-[#c19a6b] font-mono text-[10px] tracking-widest uppercase font-bold block">
-                      ORCHESTRATING SUPREME COMFORT
-                    </span>
-                    <h3 className="text-3xl font-serif font-bold text-slate-100 tracking-tight">
-                      Prestige Client Testimonials
-                    </h3>
-                    <p className="text-xs text-slate-400 font-light max-w-xl mx-auto">
-                      Zaphir: High-end SaaS Command Center for Luxury Hotels and Private Clubs
-                    </p>
+                  <div className="text-center space-y-2 relative z-10">
+                    <h3 className="text-3xl font-serif font-bold text-slate-100 tracking-tight">Prestige Client Testimonials</h3>
+                    <p className="text-xs text-slate-400 font-light">Zaphir: High-end SaaS Command Center for Luxury Hotels and Private Clubs</p>
                   </div>
 
-                  {/* 3 Gold profile cards arranged in timeline format */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 max-w-5xl mx-auto relative z-10">
-                    
+                  {/* 3 large circular profile photos + quotes */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-5xl mx-auto relative z-10 pb-20">
                     {[
                       {
                         name: 'Alessandro Rossi',
-                        role: 'Palace Director, The Grand Venetian Hotel',
-                        quote: "Zaphir's seamless integration has revolutionized our guest experience, anticipating needs we never knew existed. It is truly indispensable for our operations.",
-                        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-                        stat: '+15% Revenue per Occupied Room'
+                        title: 'Palace Director',
+                        hotel: 'The Grand Venetian Hotel',
+                        quote: '"Zaphir\'s seamless integration has revolutionized our guest experience, anticipating needs we never knew existed. It is truly indispensable for our operations."',
+                        initials: 'AR',
+                        bg: 'from-slate-700 to-slate-900',
+                        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=85'
                       },
                       {
                         name: 'Sophia Chen',
-                        role: 'VIP Manager, The Peninsula Hong Kong',
-                        quote: "The efficiency gains in our staff coordination have been remarkable. We've seen a +28% increase in wine cellar sales thanks to personalized guest insights.",
-                        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80',
-                        stat: '+22% Guest Retention rate registered'
+                        title: 'VIP Manager',
+                        hotel: 'The Peninsula Hong Kong',
+                        quote: '"The efficiency gains in our staff coordination have been remarkable. We\'ve seen a +28% increase in wine cellar sales thanks to personalized guest insights."',
+                        initials: 'SC',
+                        bg: 'from-amber-900 to-slate-900',
+                        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=85'
                       },
                       {
                         name: 'Julian Croft',
-                        role: 'General Manager, The Mayfair Club, London',
-                        quote: "Our private club members expect the highest level of personalized service, and Zaphir delivers. The data-driven insights have enhanced our loyalty programs significantly.",
-                        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
-                        stat: 'Sovereign Clearance Status L5'
+                        title: 'General Manager',
+                        hotel: 'The Mayfair Club, London',
+                        quote: '"Our private club members expect the highest level of personalized service, and Zaphir delivers. The data-driven insights have enhanced our loyalty programs significantly."',
+                        initials: 'JC',
+                        bg: 'from-blue-900 to-slate-900',
+                        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=85'
                       }
-                    ].map((user, idx) => (
-                      <div key={idx} className="bg-[#0b0f19]/80 border border-[#c19a6b]/20 p-6 rounded-2xl space-y-4 relative flex flex-col justify-between">
-                        
-                        {/* Floating stat tag matching image */}
-                        <div className="absolute -top-3.5 left-6 bg-[#c19a6b]/20 text-[#dfb175] text-[9px] font-mono font-bold px-2.5 py-1 rounded-full border border-[#c19a6b]/30">
-                          {user.stat}
-                        </div>
-
-                        <div className="space-y-4 pt-2">
-                          <p className="text-xs text-slate-300 italic font-light leading-relaxed">
-                            "{user.quote}"
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-3 border-t border-white/5 pt-4">
-                          <div className="relative">
-                            <img 
-                              src={user.avatar} 
-                              alt={user.name} 
-                              className="w-10 h-10 rounded-full border-2 border-[#c19a6b] object-cover"
-                              referrerPolicy="no-referrer"
-                            />
-                            <div className="absolute -bottom-1 -right-1 bg-slate-950 p-0.5 rounded-full">
-                              <Crown className="w-2.5 h-2.5 text-[#c19a6b]" />
-                            </div>
+                    ].map((p, i) => (
+                      <div key={i} className="flex flex-col items-center text-center space-y-4">
+                        {/* Large circular avatar with gold double-ring */}
+                        <div className="relative">
+                          <div className="w-28 h-28 rounded-full border-4 border-[#c19a6b] shadow-[0_0_30px_rgba(193,154,107,0.4)] overflow-hidden bg-gradient-to-b from-slate-700 to-slate-900">
+                            <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                           </div>
-                          <div>
-                            <h4 className="text-xs font-bold text-[#c19a6b] font-mono">{user.name}</h4>
-                            <p className="text-[9px] text-slate-400 font-mono tracking-wide mt-0.5 uppercase">{user.role}</p>
-                          </div>
+                          <div className="absolute inset-0 rounded-full border-2 border-[#c19a6b]/30 scale-110 pointer-events-none" />
                         </div>
-
+                        {/* Quote */}
+                        <p className="text-sm text-slate-300 font-light leading-relaxed italic max-w-xs">{p.quote}</p>
+                        {/* Name + role */}
+                        <div>
+                          <span className="text-[#c19a6b] font-bold text-sm block">- {p.name}</span>
+                          <span className="text-[11px] text-slate-400 block">{p.title}</span>
+                          <span className="text-[11px] text-slate-500 block">{p.hotel}</span>
+                        </div>
                       </div>
                     ))}
-
                   </div>
                 </div>
               )}
 
               {/* SCREEN 5: GLOBAL BRAND & ATMOSPHERE CMS (Real-time layout customization) */}
               {activeCockpit === 'cms' && (
-                <div className="p-6 md:p-8 bg-gradient-to-b from-[#11131a] to-[#06080d] space-y-6">
-                  
-                  {/* Simulated real-time preview reflecting user choices! */}
-                  <div 
-                    className="p-6 rounded-2xl border transition-all duration-300 text-center space-y-4 relative overflow-hidden"
-                    style={{
-                      borderColor: cmsPalette === 'gold' ? '#c19a6b' : cmsPalette === 'navy' ? '#1e3a8a' : '#4b5563',
-                      backgroundColor: cmsPalette === 'gold' ? '#0a0b10' : cmsPalette === 'navy' ? '#050710' : '#0a0d14'
-                    }}
+                <div className="p-6 md:p-8 bg-gradient-to-b from-[#0e1018] to-[#06080d] space-y-5">
+                  {/* Title */}
+                  <div
+                    className="p-6 rounded-2xl border text-center space-y-1 transition-all duration-300"
+                    style={{ borderColor: cmsPalette === 'gold' ? '#c19a6b40' : '#1e3a8a40', backgroundColor: '#0b0d14' }}
                   >
-                    {/* Glowing brand watermark */}
-                    <div className="absolute top-0 right-0 p-4 opacity-5">
-                      <Crown className="w-32 h-32" style={{ color: cmsPalette === 'gold' ? '#c19a6b' : '#3b82f6' }} />
-                    </div>
-
-                    <div className="space-y-1 relative z-10">
-                      <span className="text-[10px] font-mono tracking-[0.2em] uppercase font-bold" style={{ color: cmsPalette === 'gold' ? '#c19a6b' : '#60a5fa' }}>
-                        LIVE CMS RENDER
-                      </span>
-                      <h4 
-                        className="text-2xl font-bold tracking-tight text-slate-100"
-                        style={{ fontFamily: cmsSerif ? 'Playfair Display, Georgia, serif' : 'Inter, sans-serif' }}
-                      >
-                        Global Brand & Atmosphere CMS
-                      </h4>
-                      <p className="text-xs text-slate-400 max-w-md mx-auto font-light">
-                        Customize colors, logo formats, and typography settings across all connected guest suites.
-                      </p>
-                    </div>
-
-                    {/* Logo Variation display */}
-                    <div className="flex gap-4 justify-center py-2 relative z-10">
-                      <span className="border border-white/5 bg-white/5 py-1 px-4 rounded-xl text-xs font-serif font-bold text-slate-300">
-                        ZAPHIR
-                      </span>
-                      <span className="border border-white/5 bg-white/5 py-1 px-4 rounded-xl text-xs font-sans font-extrabold text-slate-300 tracking-widest">
-                        ZAPHIR
-                      </span>
-                    </div>
+                    <h4 className="text-2xl font-bold text-slate-100" style={{ fontFamily: cmsSerif ? 'Georgia, serif' : 'Inter, sans-serif' }}>
+                      Global Brand &amp; Atmosphere CMS
+                    </h4>
+                    <p className="text-[11px] text-slate-400 font-light">Customise colours, imagery and typography live across all connected guest suites.</p>
                   </div>
 
-                  {/* CMS Control settings board */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    
-                    {/* Control 1: Color Palettes */}
-                    <div className="bg-black/30 border border-white/5 p-5 rounded-xl space-y-3">
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Color Palettes</span>
+                  {/* Row 1: Atmospheric Imagery + Logo Variations */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    {/* Atmospheric Imagery */}
+                    <div className="bg-black/30 border border-white/5 p-4 rounded-xl space-y-3">
+                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Atmospheric Imagery</span>
                       <div className="grid grid-cols-3 gap-2">
                         {[
-                          { id: 'gold', label: 'Gold Amber', code: '#c19a6b' },
-                          { id: 'navy', label: 'Navy Blue', code: '#1e3a8a' },
-                          { id: 'charcoal', label: 'Charcoal', code: '#4b5563' }
-                        ].map((pal) => (
-                          <button
-                            key={pal.id}
-                            onClick={() => setCmsPalette(pal.id as any)}
-                            className={`p-2.5 rounded-xl border text-center transition ${
-                              cmsPalette === pal.id ? 'border-[#c19a6b] bg-white/5' : 'border-white/5'
-                            }`}
-                          >
-                            <div className="w-5 h-5 rounded-full mx-auto mb-1.5" style={{ backgroundColor: pal.code }} />
-                            <span className="text-[9px] font-mono text-slate-300">{pal.label}</span>
-                          </button>
+                          'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=300&q=80',
+                          'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=300&q=80',
+                          'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=300&q=80'
+                        ].map((url, i) => (
+                          <div key={i} className={`h-20 rounded-lg overflow-hidden border-2 transition cursor-pointer ${ i === 2 ? 'border-[#c19a6b]' : 'border-transparent hover:border-[#c19a6b]/40'}`}>
+                            <img src={url} alt="hotel" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* Control 2: Typography */}
-                    <div className="bg-black/30 border border-white/5 p-5 rounded-xl space-y-4 flex flex-col justify-between">
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Custom Typography</span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setCmsSerif(true)}
-                          className={`flex-1 py-3 px-2 rounded-xl border text-center font-serif text-sm transition ${
-                            cmsSerif ? 'bg-[#c19a6b]/20 border-[#c19a6b] text-[#c19a6b]' : 'border-white/5 text-slate-400'
-                          }`}
-                        >
-                          Serif (Playfair)
-                        </button>
-                        <button
-                          onClick={() => setCmsSerif(false)}
-                          className={`flex-1 py-3 px-2 rounded-xl border text-center font-sans text-sm transition ${
-                            !cmsSerif ? 'bg-[#c19a6b]/20 border-[#c19a6b] text-[#c19a6b]' : 'border-white/5 text-slate-400'
-                          }`}
-                        >
-                          Sans-Serif (Inter)
-                        </button>
+                    {/* Logo Variations */}
+                    <div className="bg-black/30 border border-white/5 p-4 rounded-xl space-y-3">
+                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Logo Variations</span>
+                      <div className="flex gap-3 justify-center items-center py-2">
+                        {[
+                          { bg: 'from-[#c19a6b] to-[#8b6d48]', text: 'white' },
+                          { bg: 'from-slate-600 to-slate-800', text: 'white' },
+                          { bg: 'from-slate-200 to-slate-400', text: '#1a1a1a' }
+                        ].map((v, i) => (
+                          <div key={i} className={`w-16 h-16 rounded-full bg-gradient-to-b ${v.bg} flex flex-col items-center justify-center border-2 border-white/10 shadow-lg`}>
+                            <Crown className="w-4 h-4" style={{ color: v.text }} />
+                            <span className="text-[8px] font-bold mt-0.5" style={{ color: v.text }}>ZAPHIR</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
+                  </div>
 
-                    {/* Control 3: Sliders */}
-                    <div className="bg-black/30 border border-white/5 p-5 rounded-xl space-y-4">
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Atmosphere Settings</span>
-                      
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between text-[9px] font-mono text-slate-400">
-                          <span>AMBIENT DIMMING</span>
-                          <span>{cmsSliders}%</span>
+                  {/* Row 2: Atmosphere Settings */}
+                  <div className="bg-black/30 border border-white/5 p-5 rounded-xl">
+                    <span className="text-[10px] font-mono text-slate-400 block uppercase mb-4">Atmosphere Settings</span>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+                      {/* Color Palettes */}
+                      <div className="space-y-2">
+                        <span className="text-[9px] font-mono text-slate-500 block">Color Palettes</span>
+                        <div className="flex gap-2">
+                          {[
+                            { id: 'gold', code: '#c19a6b' },
+                            { id: 'navy', code: '#1e3a8a' },
+                            { id: 'amber', code: '#d4a843' },
+                            { id: 'cream', code: '#e8dcc8' }
+                          ].map((pal) => (
+                            <button
+                              key={pal.id}
+                              onClick={() => setCmsPalette(pal.id as any)}
+                              className={`w-10 h-10 rounded-lg border-2 transition ${ cmsPalette === pal.id ? 'border-white scale-110' : 'border-transparent hover:scale-105'}`}
+                              style={{ backgroundColor: pal.code }}
+                            />
+                          ))}
                         </div>
-                        <input 
-                          type="range" 
-                          min="10" 
-                          max="100" 
-                          value={cmsSliders}
-                          onChange={(e) => setCmsSliders(Number(e.target.value))}
-                          className="w-full accent-[#c19a6b] bg-slate-800 h-1 rounded"
-                        />
                       </div>
 
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between text-[9px] font-mono text-slate-400">
-                          <span>HELI-PAD BEACON INTENSITY</span>
-                          <span>{cmsUpendions}%</span>
+                      {/* Custom Typography */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[9px] font-mono text-slate-500">Custom Typography</span>
+                          <button onClick={() => setCmsSerif(!cmsSerif)} className={`relative w-9 h-5 rounded-full transition-all ${cmsSerif ? 'bg-[#c19a6b]' : 'bg-slate-700'}`}>
+                            <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${cmsSerif ? 'left-4' : 'left-0.5'}`} />
+                          </button>
                         </div>
-                        <input 
-                          type="range" 
-                          min="0" 
-                          max="100" 
-                          value={cmsUpendions}
-                          onChange={(e) => setCmsUpendions(Number(e.target.value))}
-                          className="w-full accent-[#c19a6b] bg-slate-800 h-1 rounded"
-                        />
+                        <p className="text-2xl font-serif text-slate-200">Serif</p>
+                        <p className="text-xl font-sans text-slate-400">Sans-Serif</p>
                       </div>
+
+                      {/* Sliders */}
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-[9px] font-mono text-slate-500">
+                            <span>Settings</span>
+                            <button className="relative w-8 h-4 rounded-full bg-[#c19a6b]"><span className="absolute right-0.5 top-0.5 w-3 h-3 rounded-full bg-white" /></button>
+                          </div>
+                          <input type="range" min="10" max="100" value={cmsSliders} onChange={(e) => setCmsSliders(Number(e.target.value))} className="w-full accent-[#c19a6b] bg-slate-700 h-1 rounded" />
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[9px] font-mono text-slate-500">Upendions</span>
+                          <input type="range" min="0" max="100" value={cmsUpendions} onChange={(e) => setCmsUpendions(Number(e.target.value))} className="w-full accent-[#c19a6b] bg-slate-700 h-1 rounded" />
+                        </div>
+                      </div>
+
                     </div>
-
                   </div>
                 </div>
               )}
 
               {/* SCREEN 6: EXECUTIVE REVENUE & RevPAR ANALYTICS (Pôle Business) */}
               {activeCockpit === 'business' && (
-                <div className="p-6 md:p-8 bg-[#0b0e14] space-y-6">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-serif text-lg font-bold text-slate-100">
-                        Executive Revenue & RevPAR Analytics (Pôle Business)
-                      </h3>
-                      <p className="text-[11px] text-slate-400 font-light mt-0.5">
-                        Operational intelligence, yield estimations, and live financial ledger graphs.
-                      </p>
-                    </div>
-                    <span className="bg-[#c19a6b]/20 text-[#c19a6b] font-mono text-[9px] font-bold px-2.5 py-1 rounded border border-[#c19a6b]/30">
-                      SECURE FIRESTORE SYNC
-                    </span>
+                <div className="p-5 md:p-7 bg-[#050810] space-y-5" style={{minHeight:'460px'}}>
+                  <div className="text-center space-y-1">
+                    <h3 className="font-serif text-2xl font-bold text-slate-100 tracking-tight">
+                      Executive Revenue &amp; RevPAR Analytics (Pôle Business)
+                    </h3>
                   </div>
 
-                  {/* Stat Cards */}
+                  {/* 3 KPI Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    
-                    {/* ADR Card */}
-                    <div className="bg-black/40 border border-white/5 rounded-2xl p-5 space-y-2">
-                      <div className="flex justify-between items-center text-[10px] font-mono text-slate-500">
+
+                    {/* ADR Card with sparkline */}
+                    <div className="bg-[#0b0f1a] border border-white/10 rounded-2xl p-5 space-y-2">
+                      <div className="flex justify-between text-[10px] font-mono text-slate-500">
                         <span>ADR (Average Daily Rate)</span>
-                        <span className="text-emerald-500">+5.2% YTD</span>
+                        <span className="text-emerald-400">+5.2% YTD</span>
                       </div>
-                      <div className="text-2xl font-mono font-extrabold text-slate-100">€950.50</div>
-                      <div className="h-10 relative overflow-hidden">
-                        {/* Static mini wave SVG representation */}
-                        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M 0 35 Q 25 15, 50 25 T 100 10 T 150 30 T 200 5 L 200 40 L 0 40 Z" fill="rgba(193,154,107,0.1)" stroke="#c19a6b" strokeWidth="1.5" />
+                      <div className="text-3xl font-mono font-extrabold text-slate-100">€950.50</div>
+                      <div className="h-14">
+                        <svg className="w-full h-full" viewBox="0 0 200 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                          <defs><linearGradient id="adrGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#c19a6b" stopOpacity="0.3"/><stop offset="100%" stopColor="#c19a6b" stopOpacity="0"/></linearGradient></defs>
+                          <path d="M0,40 C20,35 35,28 50,30 C65,32 80,20 100,18 C120,16 135,22 150,15 C165,8 180,5 200,3" fill="none" stroke="#c19a6b" strokeWidth="2"/>
+                          <path d="M0,40 C20,35 35,28 50,30 C65,32 80,20 100,18 C120,16 135,22 150,15 C165,8 180,5 200,3 L200,50 L0,50Z" fill="url(#adrGrad)"/>
+                          {['Jan','Feb','Mar','Apr','May','Jun'].map((m,i) => <text key={m} x={i*40} y="49" fontSize="6" fill="#4b5563" fontFamily="monospace">{m}</text>)}
                         </svg>
                       </div>
                     </div>
 
-                    {/* RevPAR Card */}
-                    <div className="bg-black/40 border border-white/5 rounded-2xl p-5 space-y-2">
-                      <div className="flex justify-between items-center text-[10px] font-mono text-slate-500">
+                    {/* RevPAR Card with capacity bar */}
+                    <div className="bg-[#0b0f1a] border border-white/10 rounded-2xl p-5 space-y-2">
+                      <div className="flex justify-between text-[10px] font-mono text-slate-500">
                         <span>RevPAR</span>
-                        <span className="text-emerald-500">+3.8% YTD</span>
+                        <span className="text-emerald-400">+3.8% YTD</span>
                       </div>
-                      <div className="text-2xl font-mono font-extrabold text-slate-100">€825.30</div>
-                      {/* Interactive yield estimator gauge */}
-                      <div className="pt-2">
-                        <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                          <div className="bg-gradient-to-r from-[#c19a6b] to-emerald-500 h-full w-[82%]" />
+                      <div className="text-3xl font-mono font-extrabold text-slate-100">€825.30</div>
+                      <div className="pt-3 space-y-2">
+                        <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full bg-gradient-to-r from-[#c19a6b] to-[#dfb175]" style={{width:'82%', transition:'width 1s ease'}} />
                         </div>
-                        <span className="text-[8px] font-mono text-slate-500 block text-right mt-1">CAPACITY INDEX: 82%</span>
+                        <span className="text-[9px] font-mono text-slate-500 block text-right">CAPACITY INDEX: 82%</span>
                       </div>
                     </div>
 
-                    {/* VIP Spend Velocity Card */}
-                    <div className="bg-black/40 border border-white/5 rounded-2xl p-5 space-y-2">
-                      <div className="flex justify-between items-center text-[10px] font-mono text-slate-500">
+                    {/* VIP Spend Card with donut */}
+                    <div className="bg-[#0b0f1a] border border-white/10 rounded-2xl p-5 space-y-2 flex flex-col">
+                      <div className="flex justify-between text-[10px] font-mono text-slate-500">
                         <span>VIP Spend Velocity</span>
-                        <span className="text-blue-400">Stable node</span>
+                        <span className="text-blue-400">Stable</span>
                       </div>
-                      <div className="text-2xl font-mono font-extrabold text-slate-100">€12,400 <span className="text-xs font-mono font-normal text-slate-500">/ Guest</span></div>
-                      <div className="text-[9px] text-slate-400 font-light pt-2 leading-relaxed">
-                        Strong dining, luxury cellars, and heli-service upsells are driving consistent premium margins.
+                      <div className="text-3xl font-mono font-extrabold text-slate-100">€12,400 <span className="text-xs font-normal text-slate-500">/Guest</span></div>
+                      <div className="flex justify-center pt-1">
+                        <svg width="60" height="60" viewBox="0 0 60 60">
+                          <circle cx="30" cy="30" r="24" fill="none" stroke="#1e2535" strokeWidth="8"/>
+                          <circle cx="30" cy="30" r="24" fill="none" stroke="#c19a6b" strokeWidth="8" strokeDasharray="113" strokeDashoffset="28" strokeLinecap="round" transform="rotate(-90 30 30)"/>
+                          <circle cx="30" cy="30" r="16" fill="none" stroke="#2a3550" strokeWidth="5"/>
+                          <circle cx="30" cy="30" r="16" fill="none" stroke="#dfb175" strokeWidth="5" strokeDasharray="75" strokeDashoffset="18" strokeLinecap="round" transform="rotate(-90 30 30)"/>
+                        </svg>
                       </div>
                     </div>
 
                   </div>
 
-                  {/* Big Forecast Chart placeholder */}
-                  <div className="bg-black/40 border border-white/5 rounded-2xl p-6 relative">
-                    <span className="text-[9px] font-mono text-slate-500 block mb-3 uppercase">Forecast: Upcoming High-Value Bookings</span>
-                    <div className="h-40 flex items-end justify-between gap-1 relative z-10">
-                      {[
-                        { label: 'Jan', val: '€1.2M' },
-                        { label: 'Feb', val: '€1.5M' },
-                        { label: 'Mar', val: '€2.3M' },
-                        { label: 'Apr', val: '€2.8M' },
-                        { label: 'May', val: '€4.2M' },
-                        { label: 'Jun', val: '€3.9M' }
-                      ].map((item, idx) => (
-                        <div key={idx} className="flex-1 flex flex-col items-center gap-1.5 group">
-                          <span className="text-[8px] font-mono text-[#c19a6b] opacity-0 group-hover:opacity-100 transition duration-200">
-                            {item.val}
-                          </span>
-                          <div 
-                            className="w-full bg-gradient-to-t from-[#c19a6b]/20 to-[#c19a6b]/70 hover:brightness-125 rounded-t transition-all duration-500" 
-                            style={{ height: `${(parseFloat(item.val.replace('€', '')) / 5) * 120}px` }}
-                          />
-                          <span className="text-[9px] font-mono text-slate-500">{item.label}</span>
-                        </div>
-                      ))}
+                  {/* Forecast Area Chart — golden */}
+                  <div className="bg-[#0b0f1a] border border-white/10 rounded-2xl p-5">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-[11px] font-mono text-slate-300 font-bold">Forecast: Upcoming High-Value Bookings</span>
+                    </div>
+                    <div className="relative h-44">
+                      <svg className="w-full h-full" viewBox="0 0 600 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                          <linearGradient id="goldFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#c19a6b" stopOpacity="0.3"/><stop offset="100%" stopColor="#c19a6b" stopOpacity="0"/></linearGradient>
+                          <linearGradient id="whiteFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ffffff" stopOpacity="0.12"/><stop offset="100%" stopColor="#ffffff" stopOpacity="0"/></linearGradient>
+                        </defs>
+                        {/* Grid lines */}
+                        {[0,40,80,120,160].map(y=><line key={y} x1="0" y1={y} x2="600" y2={y} stroke="#ffffff08" strokeWidth="1"/>)}
+                        {/* White line (secondary) */}
+                        <path d="M0,130 L100,110 L200,95 L300,80 L400,60 L500,30 L600,55" fill="none" stroke="#ffffff" strokeWidth="1.5" opacity="0.3"/>
+                        <path d="M0,130 L100,110 L200,95 L300,80 L400,60 L500,30 L600,55 L600,160 L0,160Z" fill="url(#whiteFill)"/>
+                        {/* Gold line (primary) */}
+                        <path d="M0,145 L100,135 L200,120 L300,100 L400,70 L500,25 L600,55" fill="none" stroke="#c19a6b" strokeWidth="2.5"/>
+                        <path d="M0,145 L100,135 L200,120 L300,100 L400,70 L500,25 L600,55 L600,160 L0,160Z" fill="url(#goldFill)"/>
+                        {/* Peak tooltip */}
+                        <g transform="translate(500,25)">
+                          <rect x="-28" y="-22" width="56" height="18" rx="4" fill="#1a2035" stroke="#c19a6b" strokeWidth="0.8"/>
+                          <text x="0" y="-8" textAnchor="middle" fill="#c19a6b" fontSize="9" fontFamily="monospace" fontWeight="bold">€4.2M</text>
+                        </g>
+                        {/* X labels */}
+                        {['Next month','','','','Next month',''].map((l,i)=><text key={i} x={i*100+50} y="158" textAnchor="middle" fill="#4b5563" fontSize="8" fontFamily="monospace">{l}</text>)}
+                        {/* Y labels */}
+                        {['€5.2M','€4.2M','€3.2M','€2.2M','€1.0M','0'].map((l,i)=><text key={i} x="4" y={i*32+10} fill="#4b5563" fontSize="8" fontFamily="monospace">{l}</text>)}
+                      </svg>
                     </div>
                   </div>
                 </div>
@@ -1211,87 +1171,81 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
 
               {/* SCREEN 7: YACHTING EDITION (L'art de la navigation de luxe) */}
               {activeCockpit === 'yachting' && (
-                <div className="p-6 md:p-8 bg-gradient-to-b from-[#0a1122] to-[#04060c] space-y-6">
-                  <div className="text-center space-y-2">
-                    <span className="text-[#c19a6b] font-mono text-[10px] tracking-[0.25em] uppercase font-bold block">
-                      ZAPHIR YACHTING SYSTEM
-                    </span>
-                    <h3 className="text-3xl font-serif text-slate-100 font-bold tracking-tight">
-                      L'art de la navigation de luxe, piloté en temps réel
-                    </h3>
-                    <p className="text-xs text-slate-400 font-light max-w-xl mx-auto">
-                      Zaphir: Le centre de commandement ultime pour les superyachts et navires privés d'exception.
-                    </p>
+                <div className="p-5 md:p-7 bg-gradient-to-b from-[#060d1a] to-[#020508] space-y-5">
+                  <div className="text-center space-y-1">
+                    <span className="text-[#c19a6b] font-mono text-[10px] tracking-[0.25em] uppercase font-bold block">ZAPHIR YACHTING SYSTEM</span>
+                    <h3 className="text-2xl font-serif text-slate-100 font-bold tracking-tight">L'art de la navigation de luxe, piloté en temps réel</h3>
+                    <p className="text-xs text-slate-400 font-light">Centre de commandement ultime pour les superyachts et navires privés d'exception.</p>
                   </div>
 
-                  {/* Superyacht custom blueprint mock */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    
-                    {/* On-board Inventory */}
-                    <div className="bg-black/40 border border-white/5 rounded-xl p-4 space-y-4 col-span-1">
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase border-b border-white/5 pb-1">
-                        ON-BOARD INVENTORY
-                      </span>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                    {/* ON-BOARD INVENTORY */}
+                    <div className="bg-[#080d18] border border-white/8 rounded-xl p-4 space-y-3 col-span-1">
+                      <span className="text-[9px] font-mono text-slate-400 block uppercase border-b border-white/5 pb-1.5">ON-BOARD INVENTORY</span>
                       {[
-                        { item: 'Caviar (Deetra)', qty: '24 tins', val: 'Optimal' },
-                        { item: 'Champagne (Vintage)', qty: '48 bottles', val: 'Refill requested' },
-                        { item: 'Truffles', qty: '2.5 kg', val: 'Optimal' },
-                        { item: 'Fine Wines (Margaux)', qty: '12 bottles', val: 'Critical alert' }
+                        { item: 'Caviar (Deetra)', qty: '24 tins', status: 'ok' },
+                        { item: 'Champagne (Vintage)', qty: '48 btl', status: 'warn' },
+                        { item: 'Truffles', qty: '2.5 kg', status: 'ok' },
+                        { item: 'Fine Wines (Margaux)', qty: '12 btl', status: 'alert' }
                       ].map((inv, idx) => (
-                        <div key={idx} className="space-y-1">
-                          <div className="flex justify-between text-[10px] font-mono text-slate-300">
-                            <span>{inv.item}</span>
-                            <span className="text-[#c19a6b] font-bold">{inv.qty}</span>
+                        <div key={idx} className="flex justify-between items-center">
+                          <div>
+                            <span className="text-[10px] font-mono text-slate-300 block">{inv.item}</span>
+                            <span className="text-[8px] font-mono text-slate-500">{inv.qty}</span>
                           </div>
-                          <span className="text-[8px] font-mono text-slate-500 block uppercase">{inv.val}</span>
+                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${ inv.status==='ok' ? 'bg-emerald-500' : inv.status==='warn' ? 'bg-amber-500' : 'bg-red-500'}`} />
                         </div>
                       ))}
                     </div>
 
-                    {/* Central 3D Map View */}
-                    <div className="bg-black/40 border border-white/5 rounded-xl p-4 col-span-2 relative flex flex-col justify-between min-h-[220px]">
-                      <span className="text-[9px] font-mono text-slate-500 block uppercase">Superyacht Path & Nautical Chart</span>
-                      
-                      {/* World map stylized coordinates */}
-                      <div className="my-auto relative h-28 border border-white/5 bg-slate-950/60 rounded-lg flex items-center justify-center overflow-hidden">
-                        <div className="absolute inset-0 bg-[radial-gradient(#2563eb_1px,transparent_1px)] [background-size:16px_16px] opacity-10" />
-                        <div className="absolute font-mono text-[8px] text-slate-600 top-2 left-2">LAT: 43.7034° N</div>
-                        <div className="absolute font-mono text-[8px] text-slate-600 bottom-2 right-2">LON: 7.2661° E (Nice Port)</div>
-                        
-                        {/* Stylized Superyacht Line */}
-                        <svg className="w-4/5 h-3/4" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M 10 70 C 50 20, 120 10, 220 50" fill="none" stroke="#2563eb" strokeWidth="2" strokeDasharray="4,4" />
-                          <polygon points="220,50 210,45 215,55" fill="#2563eb" />
-                          <circle cx="10" cy="70" r="4" fill="#c19a6b" />
-                          <circle cx="220" cy="50" r="4" fill="#10b981" />
-                        </svg>
-                      </div>
-
-                      <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 pt-2 border-t border-white/5">
-                        <span>Speed: 18.4 Knots</span>
+                    {/* NAUTICAL MAP */}
+                    <div className="bg-[#050c1a] border border-blue-900/40 rounded-xl p-4 col-span-2 relative overflow-hidden" style={{minHeight:'220px'}}>
+                      <span className="text-[9px] font-mono text-slate-500 block uppercase mb-2">Superyacht Path &amp; Nautical Chart</span>
+                      {/* Grid ocean dots */}
+                      <div className="absolute inset-0 bg-[radial-gradient(#1d4ed860_1px,transparent_1px)] [background-size:20px_20px] opacity-20 pointer-events-none" />
+                      {/* Continent outlines + yacht track SVG */}
+                      <svg className="w-full h-36" viewBox="0 0 400 140" xmlns="http://www.w3.org/2000/svg">
+                        {/* Simplified Mediterranean outline */}
+                        <path d="M20,60 Q80,40 140,55 Q160,58 180,50 Q220,35 270,45 Q310,52 340,40 Q370,30 390,45" fill="none" stroke="#1e3a8a" strokeWidth="8" strokeLinecap="round" opacity="0.5"/>
+                        <path d="M20,60 Q80,40 140,55 Q160,58 180,50 Q220,35 270,45 Q310,52 340,40 Q370,30 390,45" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" opacity="0.3"/>
+                        {/* Yacht trajectory — glowing dashed white curve */}
+                        <path d="M40,95 C100,60 160,80 220,55 C280,30 330,50 370,30" fill="none" stroke="white" strokeWidth="2" strokeDasharray="6,4" opacity="0.7"/>
+                        {/* Arrow head */}
+                        <polygon points="370,30 360,24 362,35" fill="white" opacity="0.7"/>
+                        {/* Start / end circles */}
+                        <circle cx="40" cy="95" r="5" fill="#c19a6b"/>
+                        <circle cx="370" cy="30" r="5" fill="#10b981"/>
+                        {/* Yacht icon approx position */}
+                        <ellipse cx="210" cy="58" rx="14" ry="5" fill="#c19a6b" opacity="0.9"/>
+                        <path d="M210,53 L216,35 L210,38 L204,35 Z" fill="white" opacity="0.8"/>
+                        {/* Location labels */}
+                        <text x="28" y="110" fill="#6b7280" fontSize="7" fontFamily="monospace">Monaco</text>
+                        <text x="355" y="25" fill="#6b7280" fontSize="7" fontFamily="monospace">Mykonos</text>
+                        {/* Speed/position */}
+                        <text x="175" y="72" fill="#c19a6b" fontSize="7" fontFamily="monospace">18.4 kn</text>
+                      </svg>
+                      <div className="flex justify-between text-[8px] font-mono text-slate-500 border-t border-white/5 pt-2 mt-1">
+                        <span>LAT: 43.7034° N · LON: 7.2661° E</span>
                         <span>Sea Temp: 22.8°C</span>
                       </div>
                     </div>
 
-                    {/* Crew Assignment */}
-                    <div className="bg-black/40 border border-white/5 rounded-xl p-4 space-y-4 col-span-1">
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase border-b border-white/5 pb-1">
-                        CREW ASSIGNMENTS
-                      </span>
+                    {/* CREW ASSIGNMENTS */}
+                    <div className="bg-[#080d18] border border-white/8 rounded-xl p-4 space-y-3 col-span-1">
+                      <span className="text-[9px] font-mono text-slate-400 block uppercase border-b border-white/5 pb-1.5">CREW ASSIGNMENTS</span>
                       {[
-                        { role: 'Captain', name: 'Jean-Marc', status: 'On Duty' },
-                        { role: 'Chef', name: 'Greta', status: 'Kitchen Node' },
-                        { role: 'Steward', name: 'Lars', status: 'Assigned to Suite 1' },
-                        { role: 'Sommelier', name: 'Alexandre', status: 'Private Cellar' }
+                        { role: 'Captain', name: 'Jean-Marc B.', status: 'On Duty' },
+                        { role: 'Chef', name: 'Greta L.', status: 'Kitchen' },
+                        { role: 'Steward', name: 'Lars V.', status: 'Suite 1' },
+                        { role: 'Steward', name: 'Marie D.', status: 'Suite 3' }
                       ].map((crew, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-[10px] font-mono">
+                        <div key={idx} className="flex justify-between items-center">
                           <div>
-                            <span className="text-[#c19a6b] font-bold block">{crew.role}</span>
-                            <span className="text-slate-400 font-light">{crew.name}</span>
+                            <span className="text-[10px] text-[#c19a6b] font-mono font-bold block">{crew.role}</span>
+                            <span className="text-[9px] text-slate-400">{crew.name}</span>
                           </div>
-                          <span className="text-[9px] bg-[#c19a6b]/10 text-[#c19a6b] border border-[#c19a6b]/20 px-1.5 py-0.5 rounded uppercase">
-                            {crew.status}
-                          </span>
+                          <span className="text-[8px] bg-[#c19a6b]/10 text-[#c19a6b] border border-[#c19a6b]/20 px-1.5 py-0.5 rounded font-mono">{crew.status}</span>
                         </div>
                       ))}
                     </div>
@@ -1300,96 +1254,147 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                 </div>
               )}
 
-              {/* SCREEN 8: STAFF MOVEMENT HEATMAP & LOGISTICS */}
+                            {/* SCREEN 8: STAFF MOVEMENT HEATMAP & LOGISTICS */}
               {activeCockpit === 'heatmap' && (
-                <div className="p-6 md:p-8 bg-[#04060c] space-y-6">
-                  <div className="text-center space-y-2">
-                    <h3 className="font-serif text-2xl text-slate-100 font-bold">
+                <div className="p-6 md:p-8 bg-[#0a0d14] space-y-6">
+                  <div className="text-center space-y-1">
+                    <h3 className="font-serif text-3xl text-[#dfb175] font-bold">
                       Optimisation en Temps Réel des Flux et de la Logistique du Personnel
                     </h3>
-                    <p className="text-xs text-slate-400 font-light">
+                    <p className="text-xs text-slate-400 font-light tracking-wide">
                       Zaphir: Command Center - Heatmap des Mouvements et Tâches
                     </p>
                   </div>
 
-                  {/* Grid showing heatmap statistics */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch max-w-7xl mx-auto pt-2">
                     
-                    {/* Efficiency Score widget */}
-                    <div className="bg-gradient-to-b from-[#e5c59e]/15 to-[#c19a6b]/5 border border-[#c19a6b]/30 p-5 rounded-2xl text-center space-y-2 shadow-sm">
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Efficiency Score</span>
-                      <div className="text-3xl font-mono font-extrabold text-[#c19a6b]">94%</div>
-                      <p className="text-[9px] text-slate-500 font-light">Staff allocation optimized according to guest requests.</p>
+                    {/* Left Column */}
+                    <div className="lg:col-span-3 flex flex-col gap-6">
+                      <div className="bg-gradient-to-br from-[#fde68a] via-[#dfb175] to-[#b48648] p-5 rounded-xl shadow-[0_0_20px_rgba(223,177,117,0.25)] relative overflow-hidden">
+                        <div className="absolute top-2 right-3 text-stone-900 opacity-60">◷</div>
+                        <span className="text-[10px] font-mono text-stone-900 block font-bold">Efficiency Score</span>
+                        <div className="text-4xl font-sans font-bold text-stone-950 mt-1">94%</div>
+                      </div>
+                      
+                      <div className="bg-[#11131a]/80 p-5 rounded-xl border border-white/5 flex-grow flex flex-col justify-between shadow-lg">
+                        <span className="text-[10px] font-mono text-slate-400 block mb-2">Tâches en progress</span>
+                        <svg viewBox="0 0 100 50" className="w-full h-24 mt-auto drop-shadow-[0_0_5px_rgba(223,177,117,0.5)]">
+                           <path d="M0 40 Q 10 35 20 45 T 40 30 T 60 25 T 80 40 T 100 15 L 100 50 L 0 50 Z" fill="url(#goldGradient)" opacity="0.15"/>
+                           <path d="M0 40 Q 10 35 20 45 T 40 30 T 60 25 T 80 40 T 100 15" fill="none" stroke="#dfb175" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-[#fde68a] via-[#dfb175] to-[#b48648] p-5 rounded-xl shadow-[0_0_20px_rgba(223,177,117,0.25)] relative overflow-hidden">
+                        <span className="text-[10px] font-mono text-stone-900 block font-bold">Temps moyen de réponse</span>
+                        <div className="text-3xl font-sans font-bold text-stone-950 mt-1">2.5 min</div>
+                      </div>
                     </div>
 
-                    <div className="bg-black/40 border border-white/5 p-5 rounded-2xl text-center space-y-1">
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Tâches en cours</span>
-                      <div className="text-2xl font-mono font-bold text-slate-100">124</div>
-                      <span className="text-[8px] font-mono text-emerald-500">Normal workload</span>
-                    </div>
-
-                    <div className="bg-black/40 border border-white/5 p-5 rounded-2xl text-center space-y-1">
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Tâches clôturées</span>
-                      <div className="text-2xl font-mono font-bold text-slate-100">135</div>
-                      <span className="text-[8px] font-mono text-slate-500">Last 24h</span>
-                    </div>
-
-                    <div className="bg-black/40 border border-white/5 p-5 rounded-2xl text-center space-y-1">
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Temps moyen de réponse</span>
-                      <div className="text-2xl font-mono font-bold text-slate-100">2.5 min</div>
-                      <span className="text-[8px] font-mono text-emerald-500">Perfect range</span>
-                    </div>
-
-                  </div>
-
-                  {/* Map grid simulation */}
-                  <div className="bg-black/50 border border-white/15 p-4 rounded-2xl relative h-56 flex items-center justify-center overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px] opacity-10" />
-                    <div className="absolute top-2 left-2 text-[8px] font-mono text-slate-500">FLOOR 2 - ACTIVE STAFF HEATMAP TRACKING</div>
-                    
-                    {/* Active blueprint path representation */}
-                    <div className="relative w-5/6 h-5/6 border border-white/5 bg-slate-950/80 rounded-xl p-4 flex flex-col justify-between font-mono text-[10px]">
-                      <div className="flex justify-between">
-                        <div className={`p-2 border rounded-lg transition-all ${selectedHeatmapZone === 'suite' ? 'border-[#c19a6b] bg-[#c19a6b]/10' : 'border-white/5'}`}>
-                          <span>Suites Node 👑</span>
-                          <span className="text-[8px] block text-emerald-400">4 Staff Active</span>
+                    {/* Middle Column */}
+                    <div className="lg:col-span-6 flex flex-col gap-6">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="bg-[#11131a]/80 p-4 rounded-xl border border-[#dfb175]/20 shadow-inner relative">
+                          <span className="text-[9px] font-mono text-slate-400 block mb-1">Tâches en cours</span>
+                          <div className="text-3xl font-sans text-slate-100">124</div>
+                          <div className="absolute top-2 right-3 text-[#dfb175]">△</div>
                         </div>
-                        <div className={`p-2 border rounded-lg transition-all ${selectedHeatmapZone === 'lobby' ? 'border-[#c19a6b] bg-[#c19a6b]/10' : 'border-white/5'}`}>
-                          <span>Grand Lobby 🏛️</span>
-                          <span className="text-[8px] block text-amber-500">2 Staff Active</span>
+                        <div className="bg-[#11131a]/80 p-4 rounded-xl border border-[#dfb175]/20 shadow-inner relative">
+                          <span className="text-[9px] font-mono text-slate-400 block mb-1">Tâches en attente</span>
+                          <div className="text-3xl font-sans text-slate-100">135</div>
+                          <div className="absolute top-2 right-3 text-[#dfb175]">⇌</div>
+                        </div>
+                        <div className="bg-[#11131a]/80 p-4 rounded-xl border border-[#dfb175]/20 shadow-inner relative">
+                          <span className="text-[9px] font-mono text-slate-400 block mb-1">Temps moyen de réponse</span>
+                          <div className="text-3xl font-sans text-slate-100">2.5 min</div>
+                          <div className="absolute top-2 right-3 text-[#dfb175]">◷</div>
                         </div>
                       </div>
 
-                      {/* Interactive selector */}
-                      <div className="flex gap-2 justify-center py-2">
-                        {(['suite', 'lobby', 'spa'] as const).map((zone) => (
-                          <button
-                            key={zone}
-                            onClick={() => setSelectedHeatmapZone(zone)}
-                            className={`px-3 py-1 text-[9px] rounded-lg transition ${
-                              selectedHeatmapZone === zone ? 'bg-[#c19a6b] text-slate-950 font-bold' : 'bg-white/5 text-slate-400'
-                            }`}
-                          >
-                            Select {zone.toUpperCase()}
-                          </button>
-                        ))}
+                      {/* 3D Map */}
+                      <div className="bg-[#0b0c10] border-2 border-stone-800 rounded-2xl flex-grow relative overflow-hidden flex items-center justify-center p-8 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)]">
+                        <div className="absolute top-4 left-6">
+                           <Crown className="w-5 h-5 text-stone-600" />
+                        </div>
+                        
+                        <div className="w-full h-full relative transform rotate-x-12 -rotate-y-6 flex items-center justify-center">
+                           <div className="w-[110%] h-64 border border-[#dfb175]/30 rounded-xl relative overflow-hidden p-4 bg-slate-950/80 shadow-[0_20px_50px_rgba(0,0,0,0.7)] flex flex-col justify-between">
+                              <div className="absolute inset-0 bg-[linear-gradient(rgba(223,177,117,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(223,177,117,0.05)_1px,transparent_1px)] bg-[size:20px_20px]" />
+                              <div className="flex justify-between items-start z-10">
+                                 <div className="bg-black/60 border border-[#dfb175]/20 p-2 rounded text-[8px] font-mono text-slate-300">
+                                    <span className="text-emerald-400 font-bold block mb-1">Evacuation Hub</span>
+                                    Staff: 4 Active
+                                 </div>
+                                 <div className="bg-black/60 border border-[#dfb175]/20 p-2 rounded text-[8px] font-mono text-slate-300">
+                                    <span className="text-amber-400 font-bold block mb-1">VIP Suite 101</span>
+                                    Staff: 2 Active
+                                 </div>
+                              </div>
+                              
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <svg className="w-full h-full">
+                                  <path d="M 50 100 Q 150 50 250 150 T 400 100" fill="none" stroke="#34d399" strokeWidth="2" strokeDasharray="4 4" className="animate-[dash_5s_linear_infinite]" opacity="0.7"/>
+                                  <circle cx="50" cy="100" r="5" fill="#34d399" className="animate-pulse" />
+                                  <circle cx="250" cy="150" r="6" fill="#34d399" className="animate-pulse" />
+                                  <circle cx="400" cy="100" r="5" fill="#34d399" className="animate-pulse" />
+                                </svg>
+                              </div>
+                              
+                              <div className="flex justify-center z-10">
+                                <div className="bg-black/80 border border-slate-700 p-2 text-[7px] text-slate-400 font-mono flex gap-4 rounded-md">
+                                  <span>Designation: MAIN</span>
+                                  <span>Nodes: 3 ACTIVE</span>
+                                </div>
+                              </div>
+                           </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="lg:col-span-3 flex flex-col gap-6">
+                      <div className="bg-[#11131a]/80 p-5 rounded-xl border border-white/5 shadow-lg">
+                        <span className="text-[10px] font-mono text-slate-400 block mb-4">Distribution des Tâches</span>
+                        <div className="flex flex-col items-center gap-4 pt-2">
+                          <svg viewBox="0 0 100 100" className="w-24 h-24 transform -rotate-90">
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#222" strokeWidth="15"/>
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#dfb175" strokeWidth="15" strokeDasharray="160 250"/>
+                          </svg>
+                          <div className="w-full">
+                             <ul className="text-[9px] font-mono space-y-1.5 text-slate-400">
+                               <li className="flex items-center gap-2"><span className="w-2 h-2 bg-[#dfb175] rounded-full"/> Annulation</li>
+                               <li className="flex items-center gap-2"><span className="w-2 h-2 bg-stone-500 rounded-full"/> Designées</li>
+                               <li className="flex items-center gap-2"><span className="w-2 h-2 bg-stone-600 rounded-full"/> Services</li>
+                               <li className="flex items-center gap-2"><span className="w-2 h-2 bg-stone-700 rounded-full"/> Réservés</li>
+                             </ul>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex justify-between text-[8px] text-slate-500">
-                        <span>Liaisons: HELIPORT_SYNC</span>
-                        <span>Secure Ledger Active</span>
+                      <div className="bg-[#11131a]/80 p-5 rounded-xl border border-white/5 flex-grow flex flex-col shadow-lg">
+                        <span className="text-[10px] font-mono text-slate-400 block mb-4">Activités par Zone</span>
+                        <div className="mt-auto flex items-end justify-between gap-3 h-28 px-2">
+                           <div className="w-full bg-gradient-to-t from-[#c19a6b]/20 to-[#dfb175] h-[80%] rounded-sm shadow-[0_0_10px_rgba(223,177,117,0.3)]" />
+                           <div className="w-full bg-gradient-to-t from-[#c19a6b]/20 to-[#dfb175] h-[40%] rounded-sm shadow-[0_0_10px_rgba(223,177,117,0.3)]" />
+                           <div className="w-full bg-gradient-to-t from-[#c19a6b]/20 to-[#dfb175] h-[90%] rounded-sm shadow-[0_0_10px_rgba(223,177,117,0.3)]" />
+                           <div className="w-full bg-gradient-to-t from-[#c19a6b]/20 to-[#dfb175] h-[30%] rounded-sm shadow-[0_0_10px_rgba(223,177,117,0.3)]" />
+                           <div className="w-full bg-gradient-to-t from-[#c19a6b]/20 to-[#dfb175] h-[60%] rounded-sm shadow-[0_0_10px_rgba(223,177,117,0.3)]" />
+                        </div>
+                        <div className="flex justify-between text-[7px] text-slate-500 font-mono mt-2 px-1">
+                          <span>Zone</span><span>Rest</span><span>Design</span><span>VIP</span><span>Suite</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-
                 </div>
               )}
 
               {/* SCREEN 9: PREMIUM MEMBERSHIP CONFIGURATOR (Platinum, Gold, Onyx physical card models) */}
               {activeCockpit === 'cards' && (
-                <div className="p-6 md:p-8 bg-[#0a0d14] space-y-6">
-                  <div className="text-center space-y-2">
-                    <h3 className="font-serif text-2xl text-slate-100 font-bold">
+                <div className="p-6 md:p-8 bg-[#04060b] space-y-8 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.03)_0%,transparent_80%)]" />
+                  
+                  <div className="text-center space-y-2 relative z-10">
+                    <h3 className="font-serif text-3xl text-[#dfb175] font-bold">
                       Outil de Configuration des Adhésions Premium
                     </h3>
                     <p className="text-xs text-slate-400 font-light">
@@ -1397,603 +1402,387 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                     </p>
                   </div>
 
-                  {/* Vertical metal cards layout */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto pt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto pt-4 relative z-10">
                     
                     {/* CARD 1: PLATINUM */}
-                    <div className="bg-gradient-to-b from-[#e5e7eb] via-[#9ca3af] to-[#374151] p-6 rounded-2xl border border-slate-300 text-slate-950 space-y-6 shadow-xl flex flex-col justify-between">
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-start">
-                          <Crown className="w-6 h-6 text-slate-900" />
-                          <span className="font-mono text-[9px] font-bold uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded border border-white/50">
-                            PLATINUM CARD
-                          </span>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="font-serif text-xl font-extrabold tracking-wider">ZAPHIR</div>
-                          <div className="font-mono text-[9px] uppercase tracking-widest text-slate-700">EXCLUSIVE MEMBERSHIP</div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3.5 border-t border-slate-900/10 pt-4 text-xs">
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-[10px]">Concierge Privée</span>
-                          <input 
-                            type="checkbox" 
-                            checked={platinumConcierge}
-                            onChange={(e) => setPlatinumConcierge(e.target.checked)}
-                            className="accent-slate-950 cursor-pointer"
-                          />
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-[10px]">Accès SPA Illimité</span>
-                          <input 
-                            type="checkbox" 
-                            checked={platinumSpa}
-                            onChange={(e) => setPlatinumSpa(e.target.checked)}
-                            className="accent-slate-950 cursor-pointer"
-                          />
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-[10px]">Accès Hôte Hautement</span>
-                          <input 
-                            type="checkbox" 
-                            checked={platinumHost}
-                            onChange={(e) => setPlatinumHost(e.target.checked)}
-                            className="accent-slate-950 cursor-pointer"
-                          />
+                    <div className="bg-[#11131a] p-1 rounded-3xl shadow-2xl transition hover:scale-105">
+                      <div className="bg-gradient-to-br from-[#e5e7eb] via-[#9ca3af] to-[#4b5563] p-6 rounded-[22px] text-slate-950 space-y-6 h-full flex flex-col justify-between relative overflow-hidden shadow-[inset_0_0_30px_rgba(255,255,255,0.3)]">
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/20 blur-2xl rounded-full" />
+                        <div className="space-y-4 relative z-10 text-center border-b border-black/10 pb-6">
+                          <Crown className="w-8 h-8 text-slate-900 mx-auto" />
+                          <div className="space-y-1 mt-2">
+                            <div className="font-serif text-2xl font-extrabold tracking-widest text-slate-900 drop-shadow-sm">ZAPHIR</div>
+                            <div className="font-serif italic text-[11px] text-slate-800 tracking-wide">Platinum</div>
+                          </div>
                         </div>
 
-                        {/* Annual fee selector */}
-                        <div className="pt-2">
-                          <label className="text-[9px] font-mono text-slate-800 uppercase block mb-1">FRAIS ANNUELS</label>
-                          <select 
-                            value={platinumFee}
-                            onChange={(e) => setPlatinumFee(e.target.value)}
-                            className="w-full bg-white/60 border border-slate-400 rounded p-1 text-[10px] font-mono focus:outline-none"
-                          >
-                            <option value="50000">€50,000</option>
-                            <option value="75000">€75,000</option>
-                            <option value="100000">€100,000</option>
-                          </select>
+                        <div className="space-y-4 pt-2 text-xs relative z-10">
+                          <div className="text-[10px] font-bold text-slate-900 uppercase">Avantages Exclusifs</div>
+                          
+                          <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
+                            <span className="font-sans font-medium text-slate-800">Conciergerie privée</span>
+                            <div className={`w-8 h-4 rounded-full transition-colors cursor-pointer relative ${platinumConcierge ? 'bg-slate-900' : 'bg-slate-400'}`} onClick={() => setPlatinumConcierge(!platinumConcierge)}>
+                              <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${platinumConcierge ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
+                            <span className="font-sans font-medium text-slate-800">Accès SPA Illimité</span>
+                            <div className={`w-8 h-4 rounded-full transition-colors cursor-pointer relative ${platinumSpa ? 'bg-slate-900' : 'bg-slate-400'}`} onClick={() => setPlatinumSpa(!platinumSpa)}>
+                              <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${platinumSpa ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center bg-black/5 p-2 rounded-lg">
+                            <span className="font-sans font-medium text-slate-800">Accès hôte prioritaire</span>
+                            <div className={`w-8 h-4 rounded-full transition-colors cursor-pointer relative ${platinumHost ? 'bg-slate-900' : 'bg-slate-400'}`} onClick={() => setPlatinumHost(!platinumHost)}>
+                              <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${platinumHost ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </div>
+                          </div>
+
+                          <div className="pt-2">
+                            <label className="text-[10px] font-bold text-slate-900 uppercase block mb-1">Frais Annuels</label>
+                            <select 
+                              value={platinumFee}
+                              onChange={(e) => setPlatinumFee(e.target.value)}
+                              className="w-full bg-black/10 border border-transparent rounded-lg p-2 text-xs font-sans text-slate-900 font-bold focus:outline-none"
+                            >
+                              <option value="50000">€50,000</option>
+                              <option value="75000">€75,000</option>
+                            </select>
+                          </div>
+                          
+                          <div className="pt-2">
+                            <label className="text-[10px] font-bold text-slate-900 uppercase block mb-1">Permissions d'Accès</label>
+                            <select className="w-full bg-black/10 border border-transparent rounded-lg p-2 text-xs font-sans text-slate-900 font-bold focus:outline-none mb-2">
+                              <option>Suites royales</option>
+                            </select>
+                            <select className="w-full bg-black/10 border border-transparent rounded-lg p-2 text-xs font-sans text-slate-900 font-bold focus:outline-none">
+                              <option>Événements privés</option>
+                            </select>
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     {/* CARD 2: GOLD */}
-                    <div className="bg-gradient-to-b from-[#fcd34d] via-[#d97706] to-[#78350f] p-6 rounded-2xl border border-amber-500 text-slate-950 space-y-6 shadow-xl flex flex-col justify-between scale-102">
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-start">
-                          <Crown className="w-6 h-6 text-slate-900" />
-                          <span className="font-mono text-[9px] font-bold uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded border border-white/50">
-                            GOLD CARD
-                          </span>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="font-serif text-xl font-extrabold tracking-wider">ZAPHIR</div>
-                          <div className="font-mono text-[9px] uppercase tracking-widest text-amber-950">EXCLUSIVE MEMBERSHIP</div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3.5 border-t border-amber-950/10 pt-4 text-xs">
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-[10px]">Concierge Privée</span>
-                          <input 
-                            type="checkbox" 
-                            checked={goldConcierge}
-                            onChange={(e) => setGoldConcierge(e.target.checked)}
-                            className="accent-amber-950 cursor-pointer"
-                          />
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-[10px]">Accès SPA Illimité</span>
-                          <input 
-                            type="checkbox" 
-                            checked={goldSpa}
-                            onChange={(e) => setGoldSpa(e.target.checked)}
-                            className="accent-amber-950 cursor-pointer"
-                          />
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-[10px]">Accès Hôte Hautement</span>
-                          <input 
-                            type="checkbox" 
-                            checked={goldHost}
-                            onChange={(e) => setGoldHost(e.target.checked)}
-                            className="accent-amber-950 cursor-pointer"
-                          />
+                    <div className="bg-[#11131a] p-1 rounded-3xl shadow-2xl transform md:-translate-y-2 transition hover:scale-105">
+                      <div className="bg-gradient-to-br from-[#fde68a] via-[#dfb175] to-[#926019] p-6 rounded-[22px] text-slate-950 space-y-6 h-full flex flex-col justify-between relative overflow-hidden shadow-[inset_0_0_40px_rgba(255,255,255,0.4)] ring-1 ring-[#fde68a]">
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/30 blur-2xl rounded-full" />
+                        <div className="space-y-4 relative z-10 text-center border-b border-amber-900/10 pb-6">
+                          <Crown className="w-8 h-8 text-amber-950 mx-auto" />
+                          <div className="space-y-1 mt-2">
+                            <div className="font-serif text-2xl font-extrabold tracking-widest text-amber-950 drop-shadow-sm">ZAPHIR</div>
+                            <div className="font-serif italic text-[11px] text-amber-900 tracking-wide">Gold</div>
+                          </div>
                         </div>
 
-                        {/* Annual fee selector */}
-                        <div className="pt-2">
-                          <label className="text-[9px] font-mono text-amber-900 uppercase block mb-1">FRAIS ANNUELS</label>
-                          <select 
-                            value={goldFee}
-                            onChange={(e) => setGoldFee(e.target.value)}
-                            className="w-full bg-white/60 border border-amber-600 rounded p-1 text-[10px] font-mono focus:outline-none"
-                          >
-                            <option value="25000">€25,000</option>
-                            <option value="35000">€35,000</option>
-                            <option value="45000">€45,000</option>
-                          </select>
+                        <div className="space-y-4 pt-2 text-xs relative z-10">
+                          <div className="text-[10px] font-bold text-amber-950 uppercase">Avantages Exclusifs</div>
+                          
+                          <div className="flex justify-between items-center bg-amber-950/5 p-2 rounded-lg">
+                            <span className="font-sans font-medium text-amber-950">Conciergerie privée</span>
+                            <div className={`w-8 h-4 rounded-full transition-colors cursor-pointer relative ${goldConcierge ? 'bg-amber-950' : 'bg-amber-700/40'}`} onClick={() => setGoldConcierge(!goldConcierge)}>
+                              <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${goldConcierge ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center bg-amber-950/5 p-2 rounded-lg">
+                            <span className="font-sans font-medium text-amber-950">Accès SPA Illimité</span>
+                            <div className={`w-8 h-4 rounded-full transition-colors cursor-pointer relative ${goldSpa ? 'bg-amber-950' : 'bg-amber-700/40'}`} onClick={() => setGoldSpa(!goldSpa)}>
+                              <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${goldSpa ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center bg-amber-950/5 p-2 rounded-lg">
+                            <span className="font-sans font-medium text-amber-950">Accès hôte prioritaire</span>
+                            <div className={`w-8 h-4 rounded-full transition-colors cursor-pointer relative ${goldHost ? 'bg-amber-950' : 'bg-amber-700/40'}`} onClick={() => setGoldHost(!goldHost)}>
+                              <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${goldHost ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </div>
+                          </div>
+
+                          <div className="pt-2">
+                            <label className="text-[10px] font-bold text-amber-950 uppercase block mb-1">Frais Annuels</label>
+                            <select 
+                              value={goldFee}
+                              onChange={(e) => setGoldFee(e.target.value)}
+                              className="w-full bg-amber-950/10 border border-transparent rounded-lg p-2 text-xs font-sans text-amber-950 font-bold focus:outline-none"
+                            >
+                              <option value="25000">€25,000</option>
+                              <option value="35000">€35,000</option>
+                            </select>
+                          </div>
+                          
+                          <div className="pt-2">
+                            <label className="text-[10px] font-bold text-amber-950 uppercase block mb-1">Permissions d'Accès</label>
+                            <select className="w-full bg-amber-950/10 border border-transparent rounded-lg p-2 text-xs font-sans text-amber-950 font-bold focus:outline-none mb-2">
+                              <option>Suites royales</option>
+                            </select>
+                            <select className="w-full bg-amber-950/10 border border-transparent rounded-lg p-2 text-xs font-sans text-amber-950 font-bold focus:outline-none">
+                              <option>Événements privés</option>
+                            </select>
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     {/* CARD 3: ONYX */}
-                    <div className="bg-gradient-to-b from-[#1e293b] via-[#0f172a] to-[#020617] p-6 rounded-2xl border border-slate-700 text-slate-100 space-y-6 shadow-xl flex flex-col justify-between">
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-start">
-                          <Crown className="w-6 h-6 text-[#c19a6b]" />
-                          <span className="font-mono text-[9px] font-bold uppercase tracking-widest bg-white/10 px-2 py-0.5 rounded border border-white/20">
-                            ONYX CARD
-                          </span>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="font-serif text-xl font-extrabold tracking-wider text-[#c19a6b]">ZAPHIR</div>
-                          <div className="font-mono text-[9px] uppercase tracking-widest text-[#c19a6b]">EXCLUSIVE MEMBERSHIP</div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3.5 border-t border-white/5 pt-4 text-xs">
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-[10px]">Concierge Privée</span>
-                          <input 
-                            type="checkbox" 
-                            checked={onyxConcierge}
-                            onChange={(e) => setOnyxConcierge(e.target.checked)}
-                            className="accent-[#c19a6b] cursor-pointer"
-                          />
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-[10px]">Accès SPA Illimité</span>
-                          <input 
-                            type="checkbox" 
-                            checked={onyxSpa}
-                            onChange={(e) => setOnyxSpa(e.target.checked)}
-                            className="accent-[#c19a6b] cursor-pointer"
-                          />
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-[10px]">Accès Hôte Hautement</span>
-                          <input 
-                            type="checkbox" 
-                            checked={onyxHost}
-                            onChange={(e) => setOnyxHost(e.target.checked)}
-                            className="accent-[#c19a6b] cursor-pointer"
-                          />
+                    <div className="bg-[#11131a] p-1 rounded-3xl shadow-2xl transition hover:scale-105">
+                      <div className="bg-gradient-to-br from-[#374151] via-[#111827] to-[#000000] p-6 rounded-[22px] text-slate-100 space-y-6 h-full flex flex-col justify-between relative overflow-hidden shadow-[inset_0_0_30px_rgba(255,255,255,0.05)]">
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 blur-2xl rounded-full" />
+                        <div className="space-y-4 relative z-10 text-center border-b border-white/10 pb-6">
+                          <Crown className="w-8 h-8 text-[#dfb175] mx-auto" />
+                          <div className="space-y-1 mt-2">
+                            <div className="font-serif text-2xl font-extrabold tracking-widest text-[#dfb175] drop-shadow-sm">ZAPHIR</div>
+                            <div className="font-serif italic text-[11px] text-slate-400 tracking-wide">Onyx</div>
+                          </div>
                         </div>
 
-                        {/* Annual fee selector */}
-                        <div className="pt-2">
-                          <label className="text-[9px] font-mono text-slate-400 uppercase block mb-1">FRAIS ANNUELS</label>
-                          <select 
-                            value={onyxFee}
-                            onChange={(e) => setOnyxFee(e.target.value)}
-                            className="w-full bg-slate-900 border border-white/10 rounded p-1 text-[10px] font-mono focus:outline-none"
-                          >
-                            <option value="10000">€10,000</option>
-                            <option value="15000">€15,000</option>
-                            <option value="20000">€20,000</option>
-                          </select>
+                        <div className="space-y-4 pt-2 text-xs relative z-10">
+                          <div className="text-[10px] font-bold text-slate-300 uppercase">Avantages Exclusifs</div>
+                          
+                          <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5">
+                            <span className="font-sans font-medium text-slate-200">Conciergerie privée</span>
+                            <div className={`w-8 h-4 rounded-full transition-colors cursor-pointer relative ${onyxConcierge ? 'bg-[#dfb175]' : 'bg-slate-700'}`} onClick={() => setOnyxConcierge(!onyxConcierge)}>
+                              <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${onyxConcierge ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5">
+                            <span className="font-sans font-medium text-slate-200">Accès SPA Illimité</span>
+                            <div className={`w-8 h-4 rounded-full transition-colors cursor-pointer relative ${onyxSpa ? 'bg-[#dfb175]' : 'bg-slate-700'}`} onClick={() => setOnyxSpa(!onyxSpa)}>
+                              <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${onyxSpa ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5">
+                            <span className="font-sans font-medium text-slate-200">Accès hôte prioritaire</span>
+                            <div className={`w-8 h-4 rounded-full transition-colors cursor-pointer relative ${onyxHost ? 'bg-[#dfb175]' : 'bg-slate-700'}`} onClick={() => setOnyxHost(!onyxHost)}>
+                              <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${onyxHost ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </div>
+                          </div>
+
+                          <div className="pt-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Frais Annuels</label>
+                            <select 
+                              value={onyxFee}
+                              onChange={(e) => setOnyxFee(e.target.value)}
+                              className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs font-sans text-slate-200 focus:outline-none"
+                            >
+                              <option value="10000">€10,000</option>
+                              <option value="15000">€15,000</option>
+                            </select>
+                          </div>
+                          
+                          <div className="pt-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Permissions d'Accès</label>
+                            <select className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs font-sans text-slate-200 focus:outline-none mb-2">
+                              <option>Suites royales</option>
+                            </select>
+                            <select className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs font-sans text-slate-200 focus:outline-none">
+                              <option>Événements privés</option>
+                            </select>
+                          </div>
                         </div>
                       </div>
                     </div>
 
                   </div>
 
-                  {/* Save button matching image */}
-                  <div className="text-center pt-4">
+                  {/* Glowing Save button */}
+                  <div className="text-center pt-8 pb-4 relative z-10">
                     <button 
                       onClick={() => {
-                        confetti({ particleCount: 60, spread: 50 });
-                        alert("Configuration saved securely! Active memberships updated in physical card production ledger.");
+                        confetti({ particleCount: 60, spread: 50, colors: ['#dfb175', '#ffffff'] });
+                        alert("Configuration sauvegardée !");
                       }}
-                      className="bg-gradient-to-r from-[#c19a6b] via-[#dfb175] to-[#c19a6b] text-slate-950 font-mono text-xs uppercase font-extrabold tracking-widest py-3.5 px-8 rounded-xl hover:shadow-[0_0_20px_rgba(193,154,107,0.3)] transition"
+                      className="bg-gradient-to-r from-[#e3b87d] via-[#dfb175] to-[#c79854] text-stone-950 font-sans text-xs font-bold py-4 px-12 rounded-full shadow-[0_0_40px_rgba(223,177,117,0.6)] hover:shadow-[0_0_60px_rgba(223,177,117,0.8)] transition-all hover:scale-105"
                     >
                       Sauvegarder la Configuration
                     </button>
                   </div>
                 </div>
               )}
-
               {/* SCREEN 10: SMART BUILDING ENERGY MONITOR */}
               {activeCockpit === 'energy' && (
                 <div className="p-6 md:p-8 bg-[#04060d] space-y-8 relative overflow-hidden">
                   <div className="text-center space-y-2">
-                    <h3 className="font-serif text-2xl text-slate-100 font-bold tracking-tight">
+                    <h3 className="font-serif text-3xl text-[#dfb175] font-bold tracking-tight">
                       Smart Building Energy Monitor
                     </h3>
-                    <p className="text-xs text-emerald-500 font-mono">
+                    <p className="text-xs text-[#dfb175] font-mono">
                       Sustainability Dashboard: Real-time efficiency & carbon footprint.
                     </p>
                   </div>
 
                   {/* 3 GAUGES BAR */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto pt-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto pt-4">
                     
                     {/* GAUGE 1: HVAC Load */}
-                    <div className="bg-[#0b0e14]/90 border border-white/5 p-6 rounded-2xl flex flex-col items-center text-center space-y-3 shadow-lg">
-                      <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">HVAC Load</span>
-                      <div className="relative w-32 h-20 flex items-end justify-center overflow-hidden">
-                        {/* Semi-circle Gauge */}
+                    <div className="flex flex-col items-center text-center space-y-3 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                      <div className="relative w-40 h-24 flex items-end justify-center overflow-hidden">
                         <svg className="w-full h-full" viewBox="0 0 100 50">
-                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1e293b" strokeWidth="12" strokeLinecap="round" />
+                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#102a20" strokeWidth="12" strokeLinecap="round" />
                           <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${(energyHvacLoad / 100) * 125} 125`} />
-                          {/* Needle */}
-                          <line x1="50" y1="50" x2={50 + 35 * Math.cos((Math.PI * (energyHvacLoad - 100)) / 100)} y2={50 + 35 * Math.sin((Math.PI * (energyHvacLoad - 100)) / 100)} stroke="#fcd34d" strokeWidth="3" strokeLinecap="round" />
-                          <circle cx="50" cy="50" r="5" fill="#fcd34d" />
+                          <line x1="50" y1="50" x2={50 + 35 * Math.cos((Math.PI * (energyHvacLoad - 100)) / 100)} y2={50 + 35 * Math.sin((Math.PI * (energyHvacLoad - 100)) / 100)} stroke="#dfb175" strokeWidth="3" strokeLinecap="round" />
+                          <circle cx="50" cy="50" r="4" fill="#dfb175" />
                         </svg>
-                        <div className="absolute bottom-0 text-center">
-                          <span className="text-xl font-mono font-bold text-slate-100">{energyHvacLoad}%</span>
-                        </div>
                       </div>
-                      <span className="text-[9px] font-mono text-emerald-400">High Efficiency Mode Active</span>
-                      <input 
-                        type="range" 
-                        min="20" 
-                        max="100" 
-                        value={energyHvacLoad} 
-                        onChange={(e) => setEnergyHvacLoad(Number(e.target.value))} 
-                        className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#10b981] mt-2"
-                      />
+                      <span className="text-[12px] font-sans font-bold text-slate-200">HVAC Load</span>
+                      <span className="text-[10px] font-mono text-emerald-400">(75% - High Efficiency)</span>
                     </div>
 
                     {/* GAUGE 2: Water Usage */}
-                    <div className="bg-[#0b0e14]/90 border border-white/5 p-6 rounded-2xl flex flex-col items-center text-center space-y-3 shadow-lg">
-                      <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Water Usage</span>
-                      <div className="relative w-32 h-20 flex items-end justify-center overflow-hidden">
+                    <div className="flex flex-col items-center text-center space-y-3 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                      <div className="relative w-40 h-24 flex items-end justify-center overflow-hidden">
                         <svg className="w-full h-full" viewBox="0 0 100 50">
-                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1e293b" strokeWidth="12" strokeLinecap="round" />
-                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#06b6d4" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${(energyWaterUsage / 2000) * 125} 125`} />
-                          <line x1="50" y1="50" x2={50 + 35 * Math.cos((Math.PI * ((energyWaterUsage/20) - 100)) / 100)} y2={50 + 35 * Math.sin((Math.PI * ((energyWaterUsage/20) - 100)) / 100)} stroke="#fcd34d" strokeWidth="3" strokeLinecap="round" />
-                          <circle cx="50" cy="50" r="5" fill="#fcd34d" />
+                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#102a20" strokeWidth="12" strokeLinecap="round" />
+                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${(energyWaterUsage / 2000) * 125} 125`} />
+                          <line x1="50" y1="50" x2={50 + 35 * Math.cos((Math.PI * ((energyWaterUsage/20) - 100)) / 100)} y2={50 + 35 * Math.sin((Math.PI * ((energyWaterUsage/20) - 100)) / 100)} stroke="#dfb175" strokeWidth="3" strokeLinecap="round" />
+                          <circle cx="50" cy="50" r="4" fill="#dfb175" />
                         </svg>
-                        <div className="absolute bottom-0 text-center">
-                          <span className="text-xl font-mono font-bold text-slate-100">{energyWaterUsage}L</span>
-                        </div>
                       </div>
-                      <span className="text-[9px] font-mono text-cyan-400">Below Target (-15%)</span>
-                      <input 
-                        type="range" 
-                        min="300" 
-                        max="2000" 
-                        value={energyWaterUsage} 
-                        onChange={(e) => setEnergyWaterUsage(Number(e.target.value))} 
-                        className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#06b6d4] mt-2"
-                      />
+                      <span className="text-[12px] font-sans font-bold text-slate-200">Water Usage</span>
+                      <span className="text-[10px] font-mono text-emerald-400">(1200L - Below Target)</span>
                     </div>
 
                     {/* GAUGE 3: Renewable Production */}
-                    <div className="bg-[#0b0e14]/90 border border-white/5 p-6 rounded-2xl flex flex-col items-center text-center space-y-3 shadow-lg">
-                      <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Renewable Production</span>
-                      <div className="relative w-32 h-20 flex items-end justify-center overflow-hidden">
+                    <div className="flex flex-col items-center text-center space-y-3 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                      <div className="relative w-40 h-24 flex items-end justify-center overflow-hidden">
                         <svg className="w-full h-full" viewBox="0 0 100 50">
-                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1e293b" strokeWidth="12" strokeLinecap="round" />
-                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#fbbf24" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${(energyProduction / 8000) * 125} 125`} />
-                          <line x1="50" y1="50" x2={50 + 35 * Math.cos((Math.PI * ((energyProduction/80) - 100)) / 100)} y2={50 + 35 * Math.sin((Math.PI * ((energyProduction/80) - 100)) / 100)} stroke="#fcd34d" strokeWidth="3" strokeLinecap="round" />
-                          <circle cx="50" cy="50" r="5" fill="#fcd34d" />
+                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#102a20" strokeWidth="12" strokeLinecap="round" />
+                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${(energyProduction / 8000) * 125} 125`} />
+                          <line x1="50" y1="50" x2={50 + 35 * Math.cos((Math.PI * ((energyProduction/80) - 100)) / 100)} y2={50 + 35 * Math.sin((Math.PI * ((energyProduction/80) - 100)) / 100)} stroke="#dfb175" strokeWidth="3" strokeLinecap="round" />
+                          <circle cx="50" cy="50" r="4" fill="#dfb175" />
                         </svg>
-                        <div className="absolute bottom-0 text-center">
-                          <span className="text-xl font-mono font-bold text-slate-100">{energyProduction} kWh</span>
-                        </div>
                       </div>
-                      <span className="text-[9px] font-mono text-amber-400">Above Average (+24%)</span>
-                      <input 
-                        type="range" 
-                        min="1000" 
-                        max="8000" 
-                        value={energyProduction} 
-                        onChange={(e) => setEnergyProduction(Number(e.target.value))} 
-                        className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#fbbf24] mt-2"
-                      />
+                      <span className="text-[12px] font-sans font-bold text-slate-200">Renewable Production</span>
+                      <span className="text-[10px] font-mono text-emerald-400">(4500 kWh - Above Average)</span>
                     </div>
-
                   </div>
 
-                  {/* TABLET VIEW SECTION */}
-                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center pt-2 max-w-5xl mx-auto">
-                    
-                    {/* Left stats */}
-                    <div className="space-y-4">
-                      <div className="bg-[#0b0e14] border border-white/5 p-4 rounded-xl space-y-1">
-                        <span className="text-[10px] font-mono text-slate-400 block uppercase">Carbon Offset</span>
-                        <div className="text-2xl font-mono font-bold text-emerald-400">
-                          {Math.round(120 + (energyProduction - 4500)/80 - (energyHvacLoad - 75)/4)} tons
+                  {/* TABLET MAP */}
+                  <div className="max-w-4xl mx-auto relative h-80 flex items-center justify-center pt-8">
+                     {/* Floating Stats */}
+                     <div className="absolute left-0 top-1/4 bg-black/60 border border-white/10 p-3 rounded-lg shadow-lg z-20 backdrop-blur-sm">
+                       <span className="text-[10px] font-mono text-slate-400 block mb-1">Carbon Offset</span>
+                       <div className="text-xl font-sans font-bold text-slate-100">120 tons</div>
+                     </div>
+                     <div className="absolute left-0 bottom-1/4 bg-black/60 border border-white/10 p-3 rounded-lg shadow-lg z-20 backdrop-blur-sm">
+                       <span className="text-[10px] font-mono text-slate-400 block mb-1">Energy Savings</span>
+                       <div className="text-xl font-sans font-bold text-emerald-400">$5,000</div>
+                     </div>
+                     <div className="absolute right-0 top-1/4 bg-black/60 border border-white/10 p-3 rounded-lg shadow-lg z-20 backdrop-blur-sm">
+                       <span className="text-[10px] font-mono text-slate-400 block mb-1">Solar Output</span>
+                       <div className="text-xl font-sans font-bold text-slate-100">15%</div>
+                     </div>
+
+                     <div className="w-[85%] h-full bg-[#0b0c10] border-2 border-[#dfb175]/30 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+                        <div className="absolute top-3 left-4"><Crown className="w-4 h-4 text-[#dfb175]" /></div>
+                        
+                        <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/10 to-transparent" />
+                        
+                        <div className="w-full h-full transform rotate-x-[15deg] scale-[1.2] flex items-center justify-center p-8 mt-4">
+                           <div className="w-full h-48 border border-emerald-500/20 rounded-xl relative shadow-[inset_0_0_30px_rgba(16,185,129,0.1)] bg-slate-900/50">
+                              <div className="absolute inset-0 border border-emerald-500/50 rounded-xl pointer-events-none animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <svg className="w-full h-full">
+                                  <path d="M 30% 50% L 50% 70% L 70% 40%" fill="none" stroke="#10b981" strokeWidth="2" strokeDasharray="3 3" className="animate-[dash_6s_linear_infinite]" opacity="0.8"/>
+                                  <circle cx="30%" cy="50%" r="4" fill="#10b981" className="animate-ping" />
+                                  <circle cx="50%" cy="70%" r="4" fill="#10b981" className="animate-ping" />
+                                  <circle cx="70%" cy="40%" r="4" fill="#10b981" className="animate-ping" />
+                                </svg>
+                              </div>
+                           </div>
                         </div>
-                        <span className="text-[8px] font-mono text-slate-500">Optimized via solar grid</span>
-                      </div>
-
-                      <div className="bg-[#0b0e14] border border-white/5 p-4 rounded-xl space-y-1">
-                        <span className="text-[10px] font-mono text-slate-400 block uppercase">Energy Savings</span>
-                        <div className="text-2xl font-mono font-bold text-slate-100">
-                          ${(5000 + (energyProduction - 4500)*0.85 + (75 - energyHvacLoad)*65).toLocaleString('en-US', {maximumFractionDigits:0})}
-                        </div>
-                        <span className="text-[8px] font-mono text-emerald-500">Daily dynamic savings yield</span>
-                      </div>
-                    </div>
-
-                    {/* Central Tablet with 3D floorplan representation */}
-                    <div className="lg:col-span-2 bg-[#090b10] border border-emerald-500/20 rounded-2xl p-4 relative h-72 overflow-hidden flex flex-col justify-between shadow-inner">
-                      <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px] opacity-5" />
-                      <div className="flex justify-between items-center z-10">
-                        <span className="text-[8px] font-mono text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                          FLOORPLAN ENERGY DISSIPATION
-                        </span>
-                        <span className="text-[8px] font-mono text-slate-400">ACTIVE CONTROLS</span>
-                      </div>
-
-                      {/* Perspective grid drawing the floorplan */}
-                      <div className="relative w-full h-44 flex items-center justify-center">
-                        <div className="w-5/6 h-5/6 border border-emerald-500/10 bg-slate-950/90 rounded-xl p-3 flex flex-col justify-between font-mono text-[9px] relative [transform:rotateX(20deg)_rotateY(-10deg)] shadow-2xl">
-                          <div className="absolute inset-0 border border-emerald-500/20 rounded-xl pointer-events-none animate-pulse" />
-                          <div className="flex justify-between items-start">
-                            <div className="border border-emerald-500/30 bg-emerald-950/30 p-2 rounded-lg text-left">
-                              <span className="text-[8px] block text-slate-400 uppercase font-bold">VIP Suite Room 101</span>
-                              <span className="text-emerald-400 font-mono">HVAC: Active (21.5°C)</span>
-                            </div>
-                            <div className="border border-emerald-500/10 bg-slate-900/60 p-2 rounded-lg text-left">
-                              <span className="text-[8px] block text-slate-400 uppercase font-bold">Wellness Spa Lounge</span>
-                              <span className="text-emerald-500 font-mono">Humidity: 55% (Targeted)</span>
-                            </div>
-                          </div>
-                          
-                          {/* Pulsing connections */}
-                          <div className="flex justify-center my-1">
-                            <svg className="w-32 h-12" viewBox="0 0 100 30">
-                              <path d="M 10 15 Q 50 -10 90 15" fill="none" stroke="#10b981" strokeWidth="1.5" strokeDasharray="4,4" className="animate-[dash_10s_linear_infinite]" />
-                              <circle cx="10" cy="15" r="3" fill="#10b981" />
-                              <circle cx="90" cy="15" r="3" fill="#10b981" />
-                              <circle cx="50" cy="3" r="4" fill="#fbbf24" className="animate-ping" />
-                            </svg>
-                          </div>
-
-                          <div className="flex justify-between items-end text-slate-500 text-[8px]">
-                            <span>Solar Battery Status: 85%</span>
-                            <span className="text-emerald-400">Z-Grid Node Sync</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 z-10">
-                        <span>Liaisons: SOLAR_CELL_V4</span>
-                        <span>Grid Status: Sovereign Autonomous</span>
-                      </div>
-                    </div>
-
-                    {/* Right stats */}
-                    <div className="space-y-4">
-                      <div className="bg-[#0b0e14] border border-white/5 p-4 rounded-xl space-y-1">
-                        <span className="text-[10px] font-mono text-slate-400 block uppercase">Solar Output</span>
-                        <div className="text-2xl font-mono font-bold text-amber-400">
-                          {Math.round(energyProduction / 300)}%
-                        </div>
-                        <span className="text-[8px] font-mono text-slate-500">Active solar radiation index</span>
-                      </div>
-
-                      <button
-                        onClick={() => setEnergyReportOpen(!energyReportOpen)}
-                        className="w-full bg-gradient-to-r from-emerald-500/10 to-teal-500/5 hover:from-emerald-500/20 hover:to-teal-500/10 text-emerald-400 border border-emerald-500/20 font-mono text-[10px] uppercase font-bold tracking-widest py-3.5 px-4 rounded-xl transition"
-                      >
-                        {energyReportOpen ? "Hide Sustainability Report" : "View Full Report"}
-                      </button>
-                    </div>
-
+                     </div>
                   </div>
 
-                  {/* REPORT LIGHTBOX / EXPANSION MODAL */}
-                  {energyReportOpen && (
-                    <div className="mt-6 bg-[#090b11] border border-emerald-500/30 p-6 rounded-2xl space-y-4 max-w-4xl mx-auto text-left animate-fade-in">
-                      <div className="flex justify-between items-center pb-2 border-b border-white/5">
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-emerald-500" />
-                          <h4 className="font-serif text-sm font-bold text-slate-100">SOVEREIGN TECH SENSORS DETAILED METRICS</h4>
-                        </div>
-                        <span className="text-[8px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">
-                          ENCRYPTED LEDGER #EN-8849
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono">
-                        <div className="bg-black/30 p-3 rounded-lg border border-white/5">
-                          <span className="text-[8px] text-slate-500 block">GRID AUTONOMY LEVEL</span>
-                          <span className="text-slate-200 font-bold">98.4% (Sovereign)</span>
-                        </div>
-                        <div className="bg-black/30 p-3 rounded-lg border border-white/5">
-                          <span className="text-[8px] text-slate-500 block">PEAK DEMAND CAP</span>
-                          <span className="text-slate-200 font-bold">210 kW (Below Cap)</span>
-                        </div>
-                        <div className="bg-black/30 p-3 rounded-lg border border-white/5">
-                          <span className="text-[8px] text-slate-500 block">WIND TURBINES SPEED</span>
-                          <span className="text-slate-200 font-bold">12.4 knots (Normal)</span>
-                        </div>
-                        <div className="bg-black/30 p-3 rounded-lg border border-white/5">
-                          <span className="text-[8px] text-slate-500 block">THERMAL EXCHANGE RATIO</span>
-                          <span className="text-slate-200 font-bold">1:4.2 (Highly Efficient)</span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] text-slate-400 leading-relaxed font-light">
-                        Notice: Water sensor node reports average daily consumption has dropped by 15% due to automatic greywater recovery protocols on the east-wing garden sprinkler system. HVAC loads are automatically managed based on active room check-ins.
-                      </p>
-                    </div>
-                  )}
-
+                  <div className="text-center pt-6 relative z-20">
+                     <button className="bg-transparent text-emerald-400 border border-emerald-500/40 font-mono text-[10px] uppercase font-bold tracking-widest py-2 px-6 rounded-full hover:bg-emerald-500/10 transition">
+                        View Full Report
+                     </button>
+                  </div>
                 </div>
               )}
-
               {/* SCREEN 11: CRISIS CENTER & EMERGENCY PROTOCOL */}
               {activeCockpit === 'emergency' && (
-                <div className={`p-6 md:p-8 space-y-8 relative overflow-hidden transition-all duration-700 ${emergencyActive ? 'bg-[#180303] border-red-900' : 'bg-[#0d0303]'}`}>
+                <div className="p-6 md:p-8 bg-[#0a0000] space-y-8 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,0,0,0.15)_0%,transparent_80%)] mix-blend-screen" />
                   
-                  {/* Flashing ambient effect if active */}
-                  {emergencyActive && (
-                    <div className="absolute inset-0 bg-red-950/10 pointer-events-none animate-[pulse_1.5s_infinite]" />
-                  )}
-
                   <div className="text-center space-y-3 relative z-10">
-                    <span className="bg-red-500/10 text-red-500 font-mono text-[9px] font-bold px-3 py-1 rounded-full border border-red-500/30 uppercase tracking-widest inline-flex items-center gap-1.5 animate-pulse">
-                      <ShieldAlert className="w-3.5 h-3.5 text-red-500" />
-                      CRISIS CENTER & EMERGENCY PROTOCOL
+                    <span className="text-white font-sans text-xl font-bold tracking-wider">
+                      CRISIS CENTER & <span className="text-red-500">EMERGENCY</span> PROTOCOL
                     </span>
-                    <h3 className="font-serif text-3xl text-slate-100 font-extrabold tracking-wide uppercase">
-                      LOCKDOWN IMMINENT: <span className="font-mono text-red-500 tracking-widest">{lockdownTimer}</span>
+                    <h3 className="font-mono text-4xl text-red-600 font-extrabold tracking-widest uppercase drop-shadow-[0_0_15px_rgba(255,0,0,0.8)] animate-pulse">
+                      LOCKDOWN IMMINENT: 00:02:30
                     </h3>
-                    <p className="text-xs text-slate-400 max-w-xl mx-auto font-light">
-                      Zaphir: Le centre de commandement ultime pour les hôtels et clubs privés d'exception.
+                    <p className="text-[11px] text-slate-400 font-sans mt-2">
+                      Zaphir: Le centre de commandement ultime pour les hôtels et clubs privés d'exception
                     </p>
                   </div>
 
-                  {/* ACTIVE EMERGENCY TOGGLE BUTTON */}
-                  <div className="text-center relative z-10">
-                    <button
-                      onClick={() => {
-                        setEmergencyActive(!emergencyActive);
-                        if (!emergencyActive) {
-                          confetti({ particleCount: 30, colors: ['#ff0000', '#7f0000'], spread: 30 });
-                        }
-                      }}
-                      className={`py-4 px-10 rounded-full font-mono text-xs uppercase font-extrabold tracking-widest transition-all duration-300 shadow-[0_0_30px_rgba(239,68,68,0.2)] hover:scale-105 ${
-                        emergencyActive 
-                          ? 'bg-slate-200 text-red-950 border-2 border-red-500 animate-pulse hover:bg-white'
-                          : 'bg-gradient-to-r from-red-600 to-red-900 text-white border border-red-500/30 hover:brightness-110'
-                      }`}
-                    >
-                      {emergencyActive ? "DEACTIVATE SECURITY PROTOCOL (RESET)" : "ACTIVATE SECURITY PROTOCOL"}
+                  <div className="text-center relative z-10 pt-4">
+                    <button className="bg-red-600 hover:bg-red-700 text-white font-sans text-xs uppercase font-bold tracking-widest py-3 px-8 rounded-full shadow-[0_0_30px_rgba(220,38,38,0.6)] hover:shadow-[0_0_50px_rgba(220,38,38,0.9)] transition-all">
+                      ACTIVATE SECURITY PROTOCOL
                     </button>
                   </div>
 
-                  {/* EMERGENCY WORKSPACE GRID */}
-                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch max-w-5xl mx-auto relative z-10 pt-2">
+                  <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-8 relative z-10">
                     
-                    {/* First Responders lists */}
-                    <div className="lg:col-span-3 space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {[
-                          { id: 'police', title: 'Police / Gendarmerie', phone: '+32 236 3770', type: 'POLICE' },
-                          { id: 'fire', title: 'Fire Dept / Sapeurs', phone: '+32 285 3760', type: 'FIRE_DEPT' },
-                          { id: 'medical', title: 'Medical / Ambulances', phone: '+32 255 5720', type: 'MEDICAL' }
-                        ].map((responder) => {
-                          const isConnected = connectedResponders.includes(responder.id);
-                          return (
-                            <div key={responder.id} className="bg-black/60 border border-red-500/10 p-5 rounded-2xl flex flex-col justify-between space-y-4 relative overflow-hidden">
-                              <div className="space-y-1 text-left">
-                                <span className="text-[8px] font-mono text-red-400 block uppercase">FIRST RESPONDER</span>
-                                <h4 className="font-serif text-sm font-bold text-slate-100">{responder.title}</h4>
-                                <span className="text-[10px] font-mono text-slate-400 block">{responder.phone}</span>
-                              </div>
-
-                              <button
-                                onClick={() => {
-                                  if (isConnected) {
-                                    setConnectedResponders(connectedResponders.filter(id => id !== responder.id));
-                                  } else {
-                                    setConnectedResponders([...connectedResponders, responder.id]);
-                                  }
-                                }}
-                                className={`w-full py-2 rounded-lg font-mono text-[9px] uppercase font-bold tracking-widest transition flex items-center justify-center gap-1.5 ${
-                                  isConnected 
-                                    ? 'bg-red-500/20 text-red-400 border border-red-500/40' 
-                                    : 'bg-red-950/40 text-slate-200 border border-red-800/30 hover:bg-red-900/30'
-                                }`}
-                              >
-                                {isConnected ? (
-                                  <>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
-                                    <span>CONNECTED</span>
-                                  </>
-                                ) : (
-                                  <span>CONNECT</span>
-                                )}
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {/* Tablet floorplan view showing emergency evacuation routes */}
-                      <div className="bg-black/80 border border-red-500/20 rounded-2xl p-5 relative h-64 overflow-hidden flex flex-col justify-between">
-                        <div className="absolute inset-0 bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:20px_20px] opacity-10 pointer-events-none" />
-                        <div className="flex justify-between items-center">
-                          <span className="text-[8px] font-mono text-red-500 uppercase tracking-widest">
-                            CRITICAL SECURE ROUTE BLUEPRINTS
-                          </span>
-                          <span className="text-[8px] font-mono text-slate-500">BIOMETRIC ENGAGEMENTS ACTIVE</span>
-                        </div>
-
-                        {/* Interactive Blueprint Vector Routes */}
-                        <div className="relative w-full h-40 flex items-center justify-center">
-                          <div className="w-11/12 h-5/6 border border-red-500/30 bg-black/90 rounded-xl p-4 flex flex-col justify-between font-mono text-[9px] relative shadow-lg">
-                            <div className="absolute inset-0 bg-red-950/10 rounded-xl pointer-events-none animate-pulse" />
-                            <div className="flex justify-between items-center">
-                              <span className="font-serif font-bold text-[#c19a6b]">ZAPHIR PENTHOUSE EMERGENCY NODE</span>
-                              <span className="text-red-500 animate-pulse font-mono uppercase text-[8px] tracking-widest bg-red-950/30 border border-red-800/40 px-2 py-0.5 rounded">
-                                EVACUATION ROAD ACTIVE
-                              </span>
-                            </div>
-
-                            {/* Red path drawing */}
-                            <div className="flex justify-center my-1">
-                              <svg className="w-full h-16" viewBox="0 0 200 40">
-                                <path d="M 10 30 Q 80 -10 120 30 T 190 10" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeDasharray="5,5" className="animate-[dash_8s_linear_infinite]" />
-                                <circle cx="10" cy="30" r="4" fill="#ef4444" />
-                                <circle cx="190" cy="10" r="4" fill="#ef4444" />
-                                <path d="M 60 20 L 70 20 L 65 10 Z" fill="#fbbf24" className="animate-bounce" />
-                                <text x="75" y="15" fill="#fcd34d" fontSize="6">EVACUATION HUB B</text>
-                              </svg>
-                            </div>
-
-                            <div className="flex justify-between text-slate-500 text-[8px]">
-                              <span>Bio-Locks status: FORCED SECURE CLOSURE</span>
-                              <span className="text-red-400">Halon Extinguishers: READY</span>
-                            </div>
-                          </div>
-                        </div>
-
+                    <div className="lg:col-span-8 relative">
+                      <div className="w-full h-[400px] bg-[#0a0a0a] border-2 border-[#dfb175] rounded-[2rem] p-4 flex flex-col justify-between shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden">
+                         <div className="absolute top-4 left-6"><Crown className="w-5 h-5 text-[#dfb175]" /></div>
+                         <div className="w-full h-full transform rotate-x-[15deg] flex items-center justify-center p-8 mt-4 relative">
+                           <div className="w-[110%] h-[90%] border border-red-500/40 rounded-xl bg-[#0a0a0a] shadow-[inset_0_0_30px_rgba(255,0,0,0.2)]">
+                             <svg className="w-full h-full absolute inset-0">
+                               <path d="M 20% 30% L 40% 50% L 60% 30% L 80% 60%" fill="none" stroke="#ef4444" strokeWidth="3" strokeDasharray="6 6" className="animate-[dash_4s_linear_infinite]" opacity="0.9"/>
+                               <circle cx="20%" cy="30%" r="6" fill="#ef4444" className="animate-ping" />
+                               <circle cx="80%" cy="60%" r="6" fill="#ef4444" className="animate-ping" />
+                             </svg>
+                           </div>
+                           
+                           {/* Floating Red Alert Icons */}
+                           <div className="absolute bottom-[20%] left-[15%] bg-red-950/80 border border-red-600 rounded-lg p-3 text-center shadow-[0_0_20px_rgba(255,0,0,0.6)]">
+                              <span className="text-2xl text-red-500 block mb-1">🔥</span>
+                              <span className="text-white font-bold font-mono text-[10px]">FIRE</span>
+                           </div>
+                           <div className="absolute top-[30%] right-[30%] bg-red-950/80 border border-red-600 rounded-lg p-3 text-center shadow-[0_0_20px_rgba(255,0,0,0.6)]">
+                              <span className="text-2xl text-red-500 block mb-1">⚕️</span>
+                              <span className="text-white font-bold font-mono text-[10px]">MEDICAL</span>
+                           </div>
+                         </div>
                       </div>
                     </div>
 
-                    {/* Alarm triggers on the right */}
-                    <div className="bg-black/60 border border-red-500/10 p-5 rounded-2xl flex flex-col justify-between space-y-4 text-left">
-                      <div className="space-y-4">
-                        <span className="text-[8px] font-mono text-red-400 block uppercase">SECURE PANIC BUTTONS</span>
-                        
-                        <div className="space-y-2">
-                          <button
-                            onClick={() => {
-                              alert("FIRE ALARM DISPATCHED! Smart bio-locks opened in fire escape corridor node.");
-                            }}
-                            className="w-full p-4 bg-gradient-to-r from-red-950/50 to-red-900/40 hover:from-red-900 hover:to-red-700 text-red-200 border border-red-500/30 rounded-xl font-mono text-[10px] uppercase font-bold tracking-widest transition flex items-center justify-center gap-2"
-                          >
-                            <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-                            FIRE EMERGENCY
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              alert("MEDICAL EMERGENCY BROADCAST! Executive Helicopter dispatch node alerted.");
-                            }}
-                            className="w-full p-4 bg-gradient-to-r from-red-950/50 to-red-900/40 hover:from-red-900 hover:to-red-700 text-red-200 border border-red-500/30 rounded-xl font-mono text-[10px] uppercase font-bold tracking-widest transition flex items-center justify-center gap-2"
-                          >
-                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-                            MEDICAL CRISIS
+                    <div className="lg:col-span-4 flex flex-col gap-4">
+                      {[{ title: 'Police', phone: '+32 236 3770' }, { title: 'Fire Dept', phone: '+32 285 3760' }, { title: 'Medical', phone: '+32 255 5720' }].map((resp, i) => (
+                        <div key={i} className="bg-[#110505] border border-red-900/50 p-5 rounded-2xl flex flex-col justify-between shadow-[0_0_15px_rgba(255,0,0,0.15)]">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <span className="text-[9px] font-mono text-slate-400 block mb-1">First Responder</span>
+                              <h4 className="font-sans text-base font-bold text-slate-100">{resp.title}</h4>
+                            </div>
+                            <span className="text-[9px] text-slate-400">⋮</span>
+                          </div>
+                          <span className="text-xs font-mono text-slate-300 mb-4 block">{resp.phone}</span>
+                          <button className="w-full py-2.5 bg-red-950/40 hover:bg-red-900/60 text-red-500 border border-red-900/50 rounded-lg font-mono text-[10px] uppercase font-bold tracking-widest transition">
+                            CONNECT
                           </button>
                         </div>
-                      </div>
-
-                      <div className="space-y-2 pt-4 border-t border-red-950">
-                        <span className="text-[7px] font-mono text-slate-500 uppercase block">ACTIVE SIREN NODE</span>
-                        <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                          <span className={`w-2.5 h-2.5 rounded-full ${emergencyActive ? 'bg-red-500 animate-ping' : 'bg-slate-700'}`} />
-                          <span>Outer Perimeter Locked</span>
-                        </div>
-                      </div>
+                      ))}
                     </div>
 
                   </div>
-
+                  
+                  <div className="text-center pt-6 opacity-60">
+                    <span className="text-[10px] font-mono text-white inline-flex items-center gap-2">
+                      <span className="w-3 h-4 rounded-full border border-white" /> Découvrir Zaphir
+                    </span>
+                  </div>
                 </div>
               )}
-
-              {/* SCREEN 12: SPA & WELLNESS SCHEDULER */}
+{/* SCREEN 12: SPA & WELLNESS SCHEDULER */}
               {activeCockpit === 'wellness' && (
                 <div className="p-6 md:p-8 bg-[#0a0c10] space-y-6 text-left">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-2">
@@ -3276,9 +3065,9 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                         onChange={(e) => setFormData({...formData, plan: e.target.value})}
                         className="w-full bg-slate-950 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-xs text-slate-300 focus:outline-none focus:border-[#c19a6b] font-mono transition"
                       >
-                        <option value="STARTER">Starter Plan (399€/m)</option>
-                        <option value="PRO">Professional Plan (799€/m)</option>
-                        <option value="ENTERPRISE">Enterprise Sovereign Plan</option>
+                        <option value="STARTER">{PLANS.STARTER.name} Plan ({PLANS.STARTER.monthlyPrice}€/m)</option>
+                        <option value="PROFESSIONAL">{PLANS.PROFESSIONAL.name} Plan ({PLANS.PROFESSIONAL.monthlyPrice}€/m)</option>
+                        <option value="ENTERPRISE">{PLANS.ENTERPRISE.name} Sovereign Plan</option>
                       </select>
                     </div>
                   </div>
