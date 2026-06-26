@@ -29,10 +29,11 @@ import {
   Wine
 } from 'lucide-react';
 import { initAuth, logout } from './firebase';
-import { User as FirebaseUser } from 'firebase/auth';
+
 import QRCode from 'qrcode';
 import confetti from 'canvas-confetti';
 import { jsPDF } from 'jspdf';
+import { api } from './api';
 
 // Shared types and tab subcomponents
 import { Course, RoomServiceOrder, VaultDocument } from './types';
@@ -295,7 +296,6 @@ const TAB_CLEARANCE: Record<string, ('administrateur' | 'client' | 'hotel')[]> =
 };
 
 export default function App() {
-  const [viewMode, setViewMode] = useState<'website' | 'dashboard'>('website');
   const [activeTab, setActiveTab ] = useState<'arrivals' | 'room-service' | 'controls' | 'channel-sync' | 'vault' | 'memberships' | 'maintenance' | 'omni-stream' | 'ledger' | 'management' | 'hospitality-manager' | 'wine-cellar' | 'profile' | 'prestige-portal' | 'design-showcase' | 'settings' | 'billing' | 'user-directory'>('prestige-portal');
   const [sessionRole, setSessionRole] = useState<'administrateur' | 'client' | 'hotel'>('administrateur');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -313,6 +313,28 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [auditLogs, setAuditLogs] = useState<AuditEntry[]>(INITIAL_AUDITS);
 
+  // Landing page gate — show MarketingWebsite before the dashboard
+  const [showLanding, setShowLanding] = useState<boolean>(true);
+
+  // Load audit logs from backend on mount
+  useEffect(() => {
+    api.audits.list(50).then((res: { success: boolean; data: import('./api').BackendAudit[] }) => {
+      if (res.success && res.data.length > 0) {
+        const mapped: AuditEntry[] = res.data.map((a: import('./api').BackendAudit) => ({
+          id: a.logId || a.id,
+          timestamp: new Date(a.timestamp).toLocaleString('en-US'),
+          action: a.action,
+          role: a.userName || 'SYSTEM',
+          reason: a.reason,
+          previousHash: a.previousHash,
+          hash: a.hash,
+          status: a.status,
+        }));
+        setAuditLogs(mapped);
+      }
+    }).catch(() => {});
+  }, []);
+
   // Elevation sequence overlay/countdown state
   const [showOverrideModal, setShowOverrideModal] = useState(false);
   const [overrideReason, setOverrideReason] = useState('');
@@ -325,14 +347,14 @@ export default function App() {
 
   // Student details
   const [studentName, setStudentName] = useState<string>('Elena Petrova');
-  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ email?: string; displayName?: string; photoURL?: string } | null>(null);
 
   useEffect(() => {
     const unsubscribe = initAuth(
       (user) => {
-        setCurrentUser(user);
+        setCurrentUser(user as any);
         if (user) {
-          setStudentName(user.displayName || user.email || 'Elena Petrova');
+          setStudentName((user as any).displayName || (user as any).email || 'Elena Petrova');
         }
       },
       () => {
@@ -340,19 +362,6 @@ export default function App() {
       }
     );
     return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) {
-        setSidebarCollapsed(true);
-      } else {
-        setSidebarCollapsed(false);
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const [studentId] = useState<string>('ZCA-2024-9182');
@@ -363,10 +372,10 @@ export default function App() {
 
   // Tab State Handlers
   
-  // Helper to add audit logs dynamically
+  // Helper to add audit logs dynamically (local + backend)
   const addAuditLog = (action: string, reason: string, status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', roleStr: string = userRole.toUpperCase()) => {
     const lastEntry = auditLogs[auditLogs.length - 1] || INITIAL_AUDITS[INITIAL_AUDITS.length - 1];
-    const prevHash = lastEntry ? lastEntry.hash : '0000000000000000000000000000000000000000000000000000000000000000';
+    const prevHash = lastEntry ? lastEntry.hash : '0'.repeat(64);
     const timestampStr = new Date().toLocaleString('en-US', {
       year: 'numeric', month: '2-digit', day: '2-digit',
       hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
@@ -388,6 +397,8 @@ export default function App() {
     };
 
     setAuditLogs(prev => [...prev, newEntry]);
+    // Also persist to backend (best-effort, non-blocking)
+    api.audits.create({ action, reason, status }).catch(() => {});
   };
 
   // Trigger role elevation countdown
@@ -462,14 +473,32 @@ export default function App() {
   ];
 
   // 2. ROOM SERVICE ORDERS
-  const [roomOrders, setRoomOrders] = useState<RoomServiceOrder[]>([
+  const MOCK_ORDERS: RoomServiceOrder[] = [
     { id: 'order-1', guest: 'Mr. Chen & Family', room: 'Suite 201', details: 'Gourmet French Breakfast platter, freshly pressed organic orange juice', status: 'Quality Check', imgUrl: '' },
     { id: 'order-2', guest: 'Ms. Al-Fayed', room: 'Suite 202', details: 'Chef Selection Premium Sushi platter, Wagyu Beef skewers', status: 'Quality Check', imgUrl: '' },
     { id: 'order-3', guest: 'Dr. Rossi', room: 'Suite 203', details: 'Dry Standard Ribeye Steak, Truffle fries, Barolo Reserve wine', status: 'Quality Check', imgUrl: '' },
     { id: 'order-4', guest: 'Al Gtore', room: 'Villa 1', details: 'Gourmet Buttermilk Pancakes, Canadian maple syrup, hot espresso', status: 'Preparation', imgUrl: '' },
     { id: 'order-5', guest: 'Contarah', room: 'Villa 2', details: 'Traditional Premium Angus Beef burger, gold leaf garnish', status: 'Quality Check', imgUrl: '' },
     { id: 'order-6', guest: 'Fonuhery', room: 'Suite 304', details: 'Fettuccine Vongole with fresh Mediterranean clams, Pinot Grigio', status: 'Quality Check', imgUrl: '' }
-  ]);
+  ];
+
+  const [roomOrders, setRoomOrders] = useState<RoomServiceOrder[]>(MOCK_ORDERS);
+
+  useEffect(() => {
+    if (activeTab !== 'room-service') return;
+    api.roomOrders.list().then((res) => {
+      if (res.success && res.data && res.data.length > 0) {
+        setRoomOrders(res.data.map((o) => ({
+          id: o.id,
+          guest: o.guestName || 'Guest',
+          room: o.roomNo || 'Room',
+          details: o.details || '',
+          status: (o.status as RoomServiceOrder['status']) || 'Preparation',
+          imgUrl: ''
+        })));
+      }
+    }).catch(() => {});
+  }, [activeTab]);
 
   const advanceOrderStatus = (id: string) => {
     setRoomOrders(prev => prev.map(order => {
@@ -491,46 +520,118 @@ export default function App() {
   const [targetTemp, setTargetTemp] = useState(23);
   const [glassOpacity, setGlassOpacity] = useState(65);
   const [glowingRooms, setGlowingRooms] = useState<Record<string, boolean>>({
-    '201': true,
-    '202': false,
-    '203': true,
-    'corridor': true,
-    'meeting': false
+    '201': true, '202': false, '203': true, 'corridor': true, 'meeting': false
   });
+  const [suiteControlIds, setSuiteControlIds] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (activeTab !== 'controls') return;
+    api.controls.list().then((res: { success: boolean; data: import('./api').BackendSuiteControl[] }) => {
+      if (res.success && res.data.length > 0) {
+        const first = res.data[0];
+        setLightScene((first.lights as 'ambient' | 'bright' | 'relax' | 'night') || 'ambient');
+        setCurrentTemp(first.climate || 22);
+        setTargetTemp(first.climate || 23);
+        setGlassOpacity(first.curtains || 65);
+        const ids: Record<string, string> = {};
+        res.data.forEach((c: import('./api').BackendSuiteControl) => {
+          if (c.room?.number) ids[c.room.number] = c.id;
+        });
+        setSuiteControlIds(ids);
+      }
+    }).catch(() => {});
+  }, [activeTab]);
 
   const toggleRoomGlow = (room: string) => {
     setGlowingRooms(prev => ({ ...prev, [room]: !prev[room] }));
+    const controlId = suiteControlIds[room];
+    if (controlId) {
+      api.controls.update(controlId, { doNotDisturb: !glowingRooms[room] }).catch(() => {});
+    }
   };
 
   // 4. CHANNEL MANAGER PRICE SYNCHRONIZER
-  const channels = [
+  const [channels, setChannels] = useState([
     { name: 'Booking.com', status: 'Synced', iconColor: 'bg-emerald-500' },
     { name: 'Expedia.com', status: 'Synced', iconColor: 'bg-emerald-500' },
     { name: 'Airbnb Luxury', status: 'Pending', iconColor: 'bg-amber-400 animate-pulse' },
     { name: 'Direct Zafir', status: 'Synced', iconColor: 'bg-emerald-500' }
-  ];
-  const syncLogs = [
+  ]);
+  const [syncLogs, setSyncLogs] = useState([
     '01:59 AM - Channel Booking.com price parity audit completed',
     '01:59 AM - Expedia price update distributed successfully',
     '01:53 AM - Airbnb API availability handshake verified',
     '01:53 AM - Direct portal local server cache sync updated'
-  ];
+  ]);
+
+  useEffect(() => {
+    if (activeTab !== 'channel-sync') return;
+    api.pricing.list().then((res) => {
+      if (res.success && res.data && res.data.length > 0) {
+        // Map backend pricing rules to channel display format
+        const mapped = res.data.map((rule) => ({
+          name: rule.suite || 'Channel',
+          status: rule.status === 'active' ? 'Synced' : 'Pending',
+          iconColor: rule.status === 'active' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'
+        }));
+        setChannels(mapped);
+        // Build sync logs from pricing data
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        setSyncLogs(res.data.map((rule) =>
+          `${timeStr} - ${rule.suite}: base rate €${rule.basePrice} — status ${rule.status?.toUpperCase() || 'ACTIVE'}${
+            rule.lastSync ? ` (last sync: ${new Date(rule.lastSync).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })})` : ''
+          }`
+        ));
+      }
+    }).catch(() => {});
+  }, [activeTab]);
 
   // 5. SECURE VAULT ACCESS CONTROL
-  const [vaultDocs, setVaultDocs] = useState<VaultDocument[]>([
+  const MOCK_VAULT: VaultDocument[] = [
     { id: '1', name: 'Zafir_Acquisition_Contract_2024.pdf', encrypted: true, decrypting: false, progress: 0, securityLevel: 'VIP Elite Class V' },
     { id: '2', name: 'Global_Merger_Sovereign_Agreement_X89.docx', encrypted: true, decrypting: false, progress: 0, securityLevel: 'Presidential Clearance' },
     { id: '3', name: 'Strategic_Sovereign_Financial_Report_Q3.xlsx', encrypted: true, decrypting: false, progress: 0, securityLevel: 'Secretariat Level IV' }
-  ]);
+  ];
+  const [vaultDocs, setVaultDocs] = useState<VaultDocument[]>(MOCK_VAULT);
+
+  useEffect(() => {
+    if (activeTab !== 'vault') return;
+    api.vault.list().then((res) => {
+      if (res.success && res.data && res.data.length > 0) {
+        setVaultDocs(res.data.map((d) => ({
+          id: d.id,
+          name: d.name,
+          encrypted: !d.withdrawnAt,
+          decrypting: false,
+          progress: 0,
+          securityLevel: d.category || 'Classified'
+        })));
+      }
+    }).catch(() => {});
+  }, [activeTab]);
 
   const handleDecrypt = (id: string) => {
-    setVaultDocs(prev => prev.map(doc => {
-      if (doc.id === id) {
-        return { ...doc, decrypting: true };
+    // Mark as decrypting immediately for responsive UI
+    setVaultDocs(prev => prev.map(doc => doc.id === id ? { ...doc, decrypting: true } : doc));
+    // Call backend withdraw endpoint (id goes in URL path)
+    api.vault.withdraw(id).then(res => {
+      if (res.success) {
+        setVaultDocs(prev => prev.map(doc => doc.id === id ? { ...doc, encrypted: false, decrypting: false, progress: 100 } : doc));
+        addAuditLog(
+          'VAULT_DOCUMENT_WITHDRAW',
+          `Secure vault document ID ${id} decrypted and withdrawn successfully.`,
+          'AUTHORIZED'
+        );
+      } else {
+        setVaultDocs(prev => prev.map(doc => doc.id === id ? { ...doc, decrypting: false } : doc));
       }
-      return doc;
-    }));
+    }).catch(() => {
+      // Backend unavailable — let the local progress animation handle it
+      // (the useEffect below will complete the decryption visually)
+    });
   };
+
 
   useEffect(() => {
     const activeDecrypting = vaultDocs.find(d => d.decrypting);
@@ -1183,14 +1284,12 @@ export default function App() {
 
   const emailHasDigits = currentUser?.email ? /\d/.test(currentUser.email) : false;
 
-  if (viewMode === 'website') {
+  // Show the marketing landing page first
+  if (showLanding) {
     return (
       <MarketingWebsite
         language={language}
-        onEnterDashboard={() => {
-          setViewMode('dashboard');
-          addAuditLog('ENTERED_DASHBOARD', 'Navigated from public landing page to secure system dashboard cockpit.', 'AUTHORIZED');
-        }}
+        onEnterDashboard={() => setShowLanding(false)}
       />
     );
   }
@@ -1420,18 +1519,6 @@ export default function App() {
         {!sidebarCollapsed && (
           <aside className="w-full lg:w-64 flex flex-row lg:flex-col gap-1.5 shrink-0 overflow-x-auto pb-2 lg:pb-0 scrollbar-none glass-panel p-2.5 sm:p-4 h-fit sticky top-[62px] lg:top-24 z-30 shadow-md animate-fade-in">
           
-          <button
-            onClick={() => {
-              setViewMode('website');
-              addAuditLog('RETURNED_TO_WEBSITE', 'Navigated back to the public landing page from secure cockpit.', 'AUTHORIZED');
-            }}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left bg-gradient-to-r from-[#c19a6b]/15 to-transparent border border-[#c19a6b]/30 text-[#7c5a30] hover:bg-[#c19a6b]/10 font-bold shadow-sm"
-          >
-            <Globe className="w-4 h-4 text-amber-600 animate-pulse" />
-            <span className="text-xs font-semibold tracking-wider uppercase font-mono">{language === 'FR' ? 'Site Public' : 'Public Website'}</span>
-            <span className="ml-auto text-[10px] bg-[#c19a6b]/30 text-[#7c5a30] px-1.5 py-0.2 rounded font-bold">WEB</span>
-          </button>
-
           <button
             onClick={() => navigateToTab('prestige-portal')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${

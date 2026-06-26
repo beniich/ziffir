@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import { RoomFloorplanController } from './RoomFloorplanController';
+import { api } from '../api';
 
 interface ControlsTabProps {
   lightScene: 'ambient' | 'bright' | 'relax' | 'night';
@@ -31,6 +32,46 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
   language,
   fontStyle
 }) => {
+  // Load initial control state on mount
+  useEffect(() => {
+    api.controls.list().then(res => {
+      if (res && res.data && res.data.length > 0) {
+        const ctrl = res.data[0];
+        setCurrentTemp(ctrl.climate);
+        setTargetTemp(ctrl.climate);
+        setGlassOpacity(ctrl.curtains);
+      }
+    }).catch(console.error);
+  }, []);
+
+  // Helper to update backend suite control
+  const updateSuiteControl = (updates: Partial<any>) => {
+    // Assuming first control ID for demo
+    api.controls.update('suite-1', updates).catch(err => console.error('Failed to update control', err));
+  };
+
+  // Temperature adjust handlers
+  const decreaseTemp = () => {
+    const newTemp = Math.max(16, targetTemp - 1);
+    setTargetTemp(newTemp);
+    setCurrentTemp(newTemp);
+    updateSuiteControl({ climate: newTemp });
+  };
+
+  const increaseTemp = () => {
+    const newTemp = Math.min(30, targetTemp + 1);
+    setTargetTemp(newTemp);
+    setCurrentTemp(newTemp);
+    updateSuiteControl({ climate: newTemp });
+  };
+
+  // Glass opacity handler
+  const handleGlassOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Number(e.target.value);
+    setGlassOpacity(val);
+    updateSuiteControl({ curtains: val });
+  };
+
   return (
     <div className="space-y-6 animate-fade-in" id="controls-tab">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -108,13 +149,13 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
                   
                   <div className="flex gap-1.5 justify-center sm:justify-start">
                     <button 
-                      onClick={() => { setTargetTemp(Math.max(16, targetTemp - 1)); setCurrentTemp(Math.max(16, currentTemp - 1)); }}
+                      onClick={decreaseTemp}
                       className="p-1 px-3 bg-white/60 hover:bg-[#c19a6b]/20 border border-slate-300 rounded-lg text-slate-800 shadow-sm active:scale-95 duration-150"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
                     <button 
-                      onClick={() => { setTargetTemp(Math.min(30, targetTemp + 1)); setCurrentTemp(Math.min(30, currentTemp + 1)); }}
+                      onClick={increaseTemp}
                       className="p-1 px-3 bg-white/60 hover:bg-[#c19a6b]/20 border border-slate-300 rounded-lg text-slate-800 shadow-sm active:scale-95 duration-150"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -138,7 +179,7 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
                 min="0" 
                 max="100" 
                 value={glassOpacity} 
-                onChange={(e) => setGlassOpacity(Number(e.target.value))}
+                onChange={handleGlassOpacityChange}
                 className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#c19a6b]" 
               />
               <div className="flex justify-between text-[9px] font-mono text-slate-500">

@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id             String     @id @default(uuid())
+  email          String     @unique
+  username       String     @unique
+  passwordHash   String
+  role           UserRole   @default(CLIENT)
+  hotelId        String?
+  isActive       Boolean    @default(true)
+  refreshToken   String?
+  failedAttempts Int        @default(0)
+  lockedUntil    DateTime?
+  lastLogin      DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  logs           AuditLog[]
+
+  @@map("users")
+}
+
+model AuditLog {
+  id           String      @id @default(uuid())
+  timestamp    DateTime    @default(now())
+  action       String
+  role         String
+  reason       String
+  previousHash String
+  hash         String      @unique
+  status       AuditStatus @default(AUTHORIZED)
+  userId       String?
+  user         User?       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+model RoomServiceOrder {
+  id        String   @id @default(uuid())
+  guestName String
+  roomNo    String
+  details   String
+  status    String   @default("Preparation")
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("room_service_orders")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  STAFF
+  CLIENT
+  VIEWER
+}
+
+enum AuditStatus {
+  AUTHORIZED
+  BYPASS
+  RESTRICTED_ATTEMPT
+}
