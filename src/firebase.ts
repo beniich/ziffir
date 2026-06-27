@@ -40,6 +40,12 @@ interface ApiError {
   code?: string;
 }
 
+function mapBackendRole(role: string): 'administrateur' | 'client' | 'hotel' {
+  if (role === 'SUPER_ADMIN' || role === 'ADMIN' || role === 'administrateur') return 'administrateur';
+  if (role === 'MANAGER' || role === 'STAFF' || role === 'hotel') return 'hotel';
+  return 'client';
+}
+
 function getAccessToken(): string | null {
   return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 }
@@ -155,6 +161,7 @@ export async function registerWithEmail(
   }
 
   const data = (await res.json()) as AuthResponse;
+  if (data.user) data.user.role = mapBackendRole(data.user.role);
   persistSession(data);
   return data.user;
 }
@@ -176,6 +183,7 @@ export async function loginWithEmail(
   }
 
   const data = (await res.json()) as AuthResponse;
+  if (data.user) data.user.role = mapBackendRole(data.user.role);
   persistSession(data);
   return data.user;
 }
@@ -220,6 +228,7 @@ export async function initAuth(): Promise<InitAuthResult | null> {
     }
 
     const data = await res.json();
+    if (data.user) data.user.role = mapBackendRole(data.user.role);
     return {
       user: data.user as AuthUser,
       memberships: data.memberships || [],
