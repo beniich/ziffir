@@ -305,3 +305,5 @@ export const firestoreService = {
     }
   }
 };
+
+export const googleSignIn = async () => null;
