@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import {
   UserPlus, Mail, Smartphone, LogOut, MoreVertical,

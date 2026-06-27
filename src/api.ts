@@ -2,35 +2,33 @@
 // api.ts — Point central d'accès à toutes les routes backend
 // ============================================================
 
+import { authFetch, getCurrentUserId } from './firebase';
+
 const BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api';
 
-function getToken(): string | null {
-  return localStorage.getItem('zafir_auth_token');
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  error?: { message: string; code?: string };
 }
 
 async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = getToken();
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string> || {}),
-  };
-  // Fallback if token is in localstorage
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-
-  // Use credentials to send HTTP-Only cookies
-  const fetchOptions: RequestInit = {
+  const res = await authFetch(path, {
     ...options,
-    headers,
-    credentials: 'include'
-  };
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string> || {}),
+      'X-User-Id': getCurrentUserId() || '',
+    },
+  });
 
-  const res = await fetch(`${BASE_URL}${path}`, fetchOptions);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `HTTP ${res.status}`);
+    const message = err?.error?.message || err?.message || `HTTP ${res.status}`;
+    throw new Error(message);
   }
   return res.json();
 }
@@ -217,33 +215,7 @@ export const api = {
       ),
   },
 
-  // ── 8. Invoices ──────────────────────────────────────────
-  invoices: {
-    list: () =>
-      apiFetch<{ success: boolean; data: unknown[] }>('/invoices'),
-    getByOrderId: (orderId: string) =>
-      apiFetch<{ success: boolean; data: unknown }>(`/invoices?orderId=${orderId}`),
-  },
-
-  // ── 9. Notifications ─────────────────────────────────────
-  notifications: {
-    list: () =>
-      apiFetch<{ success: boolean; data: unknown[] }>('/notifications'),
-    markRead: (id: string) =>
-      apiFetch<{ success: boolean }>(`/notifications/${id}/read`, { method: 'PUT', body: JSON.stringify({}) }),
-  },
-
-  // ── 10. AI / ML ──────────────────────────────────────────
-  ai: {
-    recommend: (prompt: string) =>
-      apiFetch<{ success: boolean; data: { recommendation: string } }>(
-        '/ai/recommend', { method: 'POST', body: JSON.stringify({ prompt }) }
-      ),
-    wineSuggestion: (profile: { guest?: string; dish?: string; occasion?: string }) =>
-      apiFetch<{ success: boolean; data: { suggestion: string; wine: string } }>(
-        '/ai/wine', { method: 'POST', body: JSON.stringify(profile) }
-      ),
-  },
+  // ── 8. API mortes supprimées (invoices, notifications, ai) ──────
 
   // ── 11. Team / Multi-Hotel ───────────────────────────────
   team: {
@@ -273,14 +245,14 @@ export const api = {
 
   // ── 12. Billing / Stripe ─────────────────────────────────
   billing: {
-    createCheckout: (priceId: string) =>
-      apiFetch<{ url: string }>('/billing/create-checkout', { method: 'POST', body: JSON.stringify({ priceId }) }),
+    createCheckout: (plan: 'FREE' | 'PREMIUM' | 'PLATINIUM' | 'GOLDEN') =>
+      apiFetch<{ success: boolean; data: { url: string; sessionId: string } }>('/billing/create-checkout', { method: 'POST', body: JSON.stringify({ plan }) }),
     createPortal: () =>
-      apiFetch<{ url: string }>('/billing/create-portal', { method: 'POST', body: JSON.stringify({}) }),
+      apiFetch<{ success: boolean; data: { url: string } }>('/billing/portal', { method: 'POST', body: JSON.stringify({}) }),
     verifySession: (sessionId: string) =>
-      apiFetch<{ success: boolean; plan: string; status: string }>(`/billing/verify-session?session_id=${sessionId}`),
+      apiFetch<{ success: boolean; data: { paid: boolean; plan: string } }>(`/billing/verify-session?session_id=${sessionId}`),
     getSubscription: () =>
-      apiFetch<{ plan: string; status: string; currentPeriodEnd: string; cancelAtPeriodEnd: boolean } | null>('/billing/subscription'),
+      apiFetch<{ success: boolean; data: any }>('/billing/subscription'),
   },
 
 };

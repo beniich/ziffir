@@ -126,7 +126,9 @@ router.get('/me', requireAuth, async (req: Request, res: Response, next: NextFun
 // POST /api/auth/refresh
 router.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { refreshToken } = req.body;
+    const authHeader = req.headers.authorization;
+    const refreshToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : req.body.refreshToken;
+
     if (!refreshToken) return res.status(400).json({ message: 'Refresh token required' });
     
     const tokens = await AuthV2Service.refresh(refreshToken);
