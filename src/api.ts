@@ -245,6 +245,44 @@ export const api = {
       ),
   },
 
+  // ── 11. Team / Multi-Hotel ───────────────────────────────
+  team: {
+    listMembers: () =>
+      apiFetch<{ id: string; hotelRole: string; department: string; position: string; lastActiveAt: string; user: { id: string; firstName: string; lastName: string; email: string } }[]>('/team/members'),
+    updateMember: (id: string, updates: { hotelRole?: string; department?: string; position?: string }) =>
+      apiFetch<unknown>(`/team/members/${id}`, { method: 'PATCH', body: JSON.stringify(updates) }),
+    removeMember: (id: string) =>
+      apiFetch<unknown>(`/team/members/${id}`, { method: 'DELETE' }),
+    listInvitations: () =>
+      apiFetch<{ id: string; email: string; proposedRole: string; status: string; expiresAt: string; invitedBy: { firstName: string; lastName: string } }[]>('/team/invitations'),
+    createInvitation: (body: { email: string; proposedRole: string; department?: string; position?: string; personalMessage?: string }) =>
+      apiFetch<unknown>('/team/invitations', { method: 'POST', body: JSON.stringify(body) }),
+    revokeInvitation: (id: string) =>
+      apiFetch<unknown>(`/team/invitations/${id}`, { method: 'DELETE' }),
+    listSessions: () =>
+      apiFetch<{ id: string; deviceName: string; location: string; ipAddress: string; lastUsedAt: string }[]>('/team/sessions'),
+    revokeSession: (id: string) =>
+      apiFetch<unknown>(`/team/sessions/${id}`, { method: 'DELETE' }),
+    revokeAllSessions: () =>
+      apiFetch<unknown>('/team/sessions', { method: 'DELETE' }),
+    listAccessibleHotels: () =>
+      apiFetch<{ hotelId: string; hotelRole: string; hotel: { id: string; name: string; slug: string; logoUrl?: string } }[]>('/team/hotels'),
+    switchHotel: (hotelId: string) =>
+      apiFetch<{ activeHotel: { id: string; name: string; slug: string; role: string } }>(`/team/hotels/${hotelId}/switch`, { method: 'POST' }),
+  },
+
+  // ── 12. Billing / Stripe ─────────────────────────────────
+  billing: {
+    createCheckout: (priceId: string) =>
+      apiFetch<{ url: string }>('/billing/create-checkout', { method: 'POST', body: JSON.stringify({ priceId }) }),
+    createPortal: () =>
+      apiFetch<{ url: string }>('/billing/create-portal', { method: 'POST', body: JSON.stringify({}) }),
+    verifySession: (sessionId: string) =>
+      apiFetch<{ success: boolean; plan: string; status: string }>(`/billing/verify-session?session_id=${sessionId}`),
+    getSubscription: () =>
+      apiFetch<{ plan: string; status: string; currentPeriodEnd: string; cancelAtPeriodEnd: boolean } | null>('/billing/subscription'),
+  },
+
 };
 
 
