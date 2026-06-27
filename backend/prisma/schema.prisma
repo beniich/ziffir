@@ -8,13 +8,35 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// ════════════════════════════════════════════════════════════
+// ENUMS
+// ════════════════════════════════════════════════════════════
+
 enum UserRole {
-  SUPER_ADMIN
-  ADMIN
-  MANAGER
-  STAFF
-  CLIENT
-  VIEWER
+  SUPER_ADMIN    // Plateforme Zaphir (vous)
+  HOTEL_OWNER    // Propriétaire d'un hôtel
+  HOTEL_MANAGER  // Manager opérationnel
+  HOTEL_STAFF    // Personnel
+  CLIENT         // Client final (séjour)
+  VIEWER         // Legacy / Lecture seule
+  ADMIN          // Legacy
+  MANAGER        // Legacy
+  STAFF          // Legacy
+}
+
+enum HotelRole {
+  OWNER       // Accès total à l'hôtel
+  ADMIN       // Gestion équipe + config
+  MANAGER     // Gestion opérationnelle
+  STAFF       // Opérations quotidiennes
+  VIEWER      // Lecture seule
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
 }
 
 enum AuditStatus {
@@ -31,33 +53,266 @@ enum OrderStatus {
   CANCELLED
 }
 
+// ════════════════════════════════════════════════════════════
+// USER (compte global)
+// ════════════════════════════════════════════════════════════
 model User {
-  id                     String    @id @default(uuid())
-  email                  String    @unique
-  username               String    @unique
-  passwordHash           String
-  firstName              String    @default("")
-  lastName               String    @default("")
-  role                   UserRole  @default(CLIENT)
-  hotelId                String?
-  isActive               Boolean   @default(true)
-  refreshToken           String?
-  failedAttempts         Int       @default(0)
-  lockedUntil            DateTime?
-  lastLogin              DateTime?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  id              String       @id @default(uuid())
+  email           String       @unique
+  username        String       @unique
+  passwordHash    String?
+  firstName       String?
+  lastName        String?
+  avatarUrl       String?
+  phone           String?
 
+  // Auth
+  role            UserRole     @default(STAFF)  // GLOBAL role
+  emailVerified   Boolean      @default(false)
+  isActive        Boolean      @default(true)
+  lockedUntil     DateTime?
+  failedAttempts  Int          @default(0)
+  refreshToken    String?      // Legacy
+
+  // Firebase (optionnel)
+  firebaseUid     String?      @unique
+
+  // Metadata
+  timezone        String       @default("Europe/Paris")
+  locale          String       @default("fr")
+  lastLoginAt     DateTime?    // New name
+  lastLogin       DateTime?    // Legacy
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Stripe denormalized legacy fields (for Stripe webhook sync)
   stripeCustomerId       String?   @unique
   stripeSubscriptionId   String?   @unique
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
   subscriptionStatus     String?
 
-  logs                   AuditLog[]
+  // Relations
+  memberships     Membership[]       // Liens vers hotels
+  ownedHotels     Hotel[]            @relation("HotelOwner")
+  invitedUsers    Invitation[]       @relation("InvitedBy")
+  sessions        UserSession[]
+  activities      ActivityLog[]
+  legacyLogs      AuditLog[]
+
+  subscription    Subscription?
 
   @@map("users")
 }
+
+// ════════════════════════════════════════════════════════════
+// HOTEL (tenant)
+// ════════════════════════════════════════════════════════════
+model Hotel {
+  id              String       @id @default(cuid())
+  slug            String       @unique  // URL: zaphir.com/h/zaphir-paris
+  name            String
+  description     String?
+  logoUrl         String?
+  coverImageUrl   String?
+
+  // Adresse
+  addressLine1    String?
+  addressLine2    String?
+  city            String?
+  postalCode      String?
+  country         String       @default("FR")
+
+  // Contact
+  phone           String?
+  email           String?
+  website         String?
+
+  // Settings
+  timezone        String       @default("Europe/Paris")
+  currency        String       @default("EUR")
+  locale          String       @default("fr")
+
+  // Subscription (Mise à jour: la subscription est liée à l'hôtel ou au owner)
+  // Dans le schema précédent, elle était liée au User. Gardons celle du User, ou migrons.
+  // Le plan demandait Hotel -> Subscription. Ajoutons ce lien.
+  subscriptionId  String?      @unique
+  subscription    Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  // Status
+  isActive        Boolean      @default(true)
+  isVerified      Boolean      @default(false)  // KYC vérifié
+  verifiedAt      DateTime?
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  ownerId         String
+  owner           User         @relation("HotelOwner", fields: [ownerId], references: [id])
+
+  memberships     Membership[]
+  invitations     Invitation[]
+
+  // Legacy models relations
+  roomOrders      RoomServiceOrder[]
+  staffMembers    StaffMember[]
+  vaultDocuments  VaultDocument[]
+  suiteControls   SuiteControl[]
+  pricingRules    PricingRule[]
+
+  @@index([slug])
+  @@map("hotels")
+}
+
+// ════════════════════════════════════════════════════════════
+// MEMBERSHIP (lien User ↔ Hotel avec rôle spécifique)
+// ════════════════════════════════════════════════════════════
+model Membership {
+  id              String           @id @default(cuid())
+
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  hotelId         String
+  hotel           Hotel            @relation(fields: [hotelId], references: [id])
+
+  // Rôle SPÉCIFIQUE à cet hôtel
+  hotelRole       HotelRole        @default(STAFF)
+
+  // Permissions custom (override le rôle)
+  customPermissions Json?          // { "canManageStaff": true, "canExportData": false }
+
+  // Status
+  isActive        Boolean          @default(true)
+  invitedAt       DateTime         @default(now())
+  joinedAt        DateTime?
+  lastActiveAt    DateTime?
+
+  // Métadonnées
+  department      String?
+  position        String?
+  employeeId      String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@unique([userId, hotelId])
+  @@index([hotelId])
+  @@index([userId])
+  @@map("memberships")
+}
+
+// ════════════════════════════════════════════════════════════
+// INVITATION (workflow d'invitation)
+// ════════════════════════════════════════════════════════════
+model Invitation {
+  id              String       @id @default(cuid())
+
+  // Destinataire
+  email           String
+  hotelId         String
+  hotel           Hotel        @relation(fields: [hotelId], references: [id])
+
+  // Rôle proposé
+  proposedRole    HotelRole    @default(STAFF)
+  department      String?
+  position        String?
+
+  // Sécurité
+  token           String       @unique  // JWT court terme
+  expiresAt       DateTime
+
+  // Status
+  status          InviteStatus @default(PENDING)
+
+  // Métadonnées
+  invitedById     String
+  invitedBy       User         @relation("InvitedBy", fields: [invitedById], references: [id])
+  personalMessage String?
+
+  acceptedAt      DateTime?
+  createdAt       DateTime     @default(now())
+
+  @@index([email])
+  @@index([hotelId])
+  @@map("invitations")
+}
+
+// ════════════════════════════════════════════════════════════
+// USER SESSION (sessions actives pour révocation)
+// ════════════════════════════════════════════════════════════
+model UserSession {
+  id              String       @id @default(cuid())
+
+  userId          String
+  user            User         @relation(fields: [userId], references: [id])
+
+  // Token info
+  refreshTokenHash String?     @unique  // Hash du refresh token (optional before first generation)
+  accessTokenJti   String?     @unique  // JWT ID de l'access token
+
+  // Contexte
+  userAgent        String?
+  ipAddress        String?
+  deviceName       String?
+  location         String?
+
+  // Hotel actif au moment de la session
+  activeHotelId    String?
+
+  // Expiration
+  expiresAt        DateTime
+  lastUsedAt       DateTime    @default(now())
+
+  // Status
+  isActive         Boolean     @default(true)
+  revokedAt        DateTime?
+  revokedReason    String?
+
+  createdAt        DateTime    @default(now())
+
+  @@index([userId])
+  @@index([refreshTokenHash])
+  @@map("user_sessions")
+}
+
+// ════════════════════════════════════════════════════════════
+// ACTIVITY LOG (historique des actions utilisateur)
+// ════════════════════════════════════════════════════════════
+model ActivityLog {
+  id              String       @id @default(cuid())
+
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id])
+  hotelId         String?
+
+  // Action
+  action          String
+  resource        String?
+  resourceId      String?
+
+  // Détails
+  metadata        Json?
+  ipAddress       String?
+  userAgent       String?
+
+  // Résultat
+  status          String       @default("success")
+  errorMessage    String?
+
+  createdAt       DateTime     @default(now())
+
+  @@index([userId])
+  @@index([hotelId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// ════════════════════════════════════════════════════════════
+// LEGACY MODELS (Maintained for retro-compatibility)
+// ════════════════════════════════════════════════════════════
 
 model AuditLog {
   id           String      @id @default(uuid())
@@ -83,6 +338,7 @@ model RoomServiceOrder {
   status    OrderStatus @default(PREPARATION)
   price     Float
   hotelId   String?
+  hotel     Hotel?      @relation(fields: [hotelId], references: [id])
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
@@ -101,6 +357,7 @@ model StaffMember {
   clearanceLevel Int      @default(1)
   active         Boolean  @default(true)
   hotelId        String?
+  hotel          Hotel?   @relation(fields: [hotelId], references: [id])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -120,6 +377,7 @@ model VaultDocument {
   depositDate   DateTime  @default(now())
   withdrawnAt   DateTime?
   hotelId       String?
+  hotel         Hotel?    @relation(fields: [hotelId], references: [id])
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -137,6 +395,7 @@ model SuiteControl {
   musicVolume  Int     @default(30)
   doNotDisturb Boolean @default(false)
   hotelId      String?
+  hotel        Hotel?  @relation(fields: [hotelId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -153,9 +412,104 @@ model PricingRule {
   status             String    @default("ACTIVE")
   lastSync           DateTime?
   hotelId            String?
+  hotel              Hotel?    @relation(fields: [hotelId], references: [id])
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
   @@index([hotelId])
   @@map("pricing_rules")
+}
+
+// ════════════════════════════════════════════════════════════
+// BILLING & SUBSCRIPTIONS (Stripe)
+// ════════════════════════════════════════════════════════════
+
+enum PlanKey {
+  FREE
+  PREMIUM
+  PLATINIUM
+  GOLDEN
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id])
+
+  hotel                Hotel?
+
+  // Stripe IDs
+  stripeCustomerId     String    @unique
+  stripeSubscriptionId String    @unique
+  stripePriceId        String
+  stripeProductId      String
+  plan                 PlanKey   @default(FREE)
+
+  // Status
+  status               SubStatus @default(INCOMPLETE)
+
+  // Période de facturation
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+
+  // Annulation
+  cancelAt             DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  canceledAt           DateTime?
+
+  // Trial
+  trialStart           DateTime?
+  trialEnd             DateTime?
+
+  // Metadata
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  invoices             Invoice[]
+
+  @@index([status])
+  @@index([currentPeriodEnd])
+  @@map("subscriptions")
+}
+
+model Invoice {
+  id                String       @id @default(cuid())
+  subscriptionId    String
+  subscription      Subscription @relation(fields: [subscriptionId], references: [id])
+
+  stripeInvoiceId   String       @unique
+  number            String       @unique
+  amountPaid        Decimal      @db.Decimal(10, 2)
+  amountDue         Decimal      @db.Decimal(10, 2)
+  currency          String       @default("eur")
+  status            InvoiceStatus @default(OPEN)
+
+  // PDFs Stripe
+  invoicePdf        String?
+  hostedInvoiceUrl  String?
+
+  paidAt            DateTime?
+  createdAt         DateTime     @default(now())
+
+  @@index([subscriptionId])
+  @@map("invoices")
+}
+
+enum SubStatus {
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+  PAUSED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  UNCOLLECTIBLE
+  VOID
 }

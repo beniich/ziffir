@@ -12,7 +12,8 @@ import auditsRoutes from './routes/audits.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import controlsRoutes from './routes/controls.routes';
 import pricingRoutes from './routes/pricing.routes';
-import stripeRoutes from './routes/stripe.routes';
+import billingRoutes from './routes/billing.routes';
+import teamRoutes from './routes/team.routes';
 
 dotenv.config();
 
@@ -35,10 +36,10 @@ app.use(
   })
 );
 
-// ── Raw body for Stripe webhook BEFORE express.json() ───────
-app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+// ── Webhooks (Must be before express.json) ────────────────────
+app.use('/api/billing', billingRoutes); // Has raw() on /webhook
 
-// ── JSON Body parser ─────────────────────────────────────────
+// ── JSON Body parser (for all other routes) ─────────────────
 app.use(express.json());
 
 // ── Health check ─────────────────────────────────────────────
@@ -55,7 +56,8 @@ app.use('/api/audits', auditsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/controls', controlsRoutes);
 app.use('/api/pricing', pricingRoutes);
-app.use('/api/stripe', stripeRoutes);
+app.use('/api/team', teamRoutes);
+// app.use('/api/stripe', stripeRoutes); // Replaced by billingRoutes
 
 // ── 404 catch-all ────────────────────────────────────────────
 app.use((_req, res) => {
