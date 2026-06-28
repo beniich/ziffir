@@ -1,5 +1,5 @@
 // ============================================================
-// firebase.ts — Auth Motelix JWT (Remplacement Firebase)
+// firebase.ts — Auth Ziffir JWT
 // Firebase SDK conservé uniquement pour Firestore/Sheets config
 // ============================================================
 
@@ -19,7 +19,7 @@ export interface AuthUser {
   displayName: string | null;
   role: 'administrateur' | 'client' | 'hotel';
   activeHotelId: string | null;
-  plan: 'FREE' | 'PREMIUM' | 'PLATINIUM' | 'GOLDEN';
+  plan: 'TRIAL' | 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';
 }
 
 export interface AuthResponse {
@@ -142,17 +142,23 @@ async function tryRefresh(): Promise<boolean> {
   return refreshInFlight;
 }
 
+// SaaS self-registration: creates hotel + admin user in one step
 export async function registerWithEmail(
   email: string,
   password: string,
   displayName: string
 ): Promise<AuthUser> {
   const [firstName, ...lastNames] = displayName.split(' ');
-  const res = await fetch(`${API_URL}/register`, {
+  const res = await fetch(`${API_URL}/signup`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password, firstName, lastName: lastNames.join(' ') || 'User' }),
+    body: JSON.stringify({
+      email,
+      password,
+      firstName,
+      lastName: lastNames.join(' ') || 'User',
+    }),
   });
 
   if (!res.ok) {
@@ -161,7 +167,7 @@ export async function registerWithEmail(
   }
 
   const data = (await res.json()) as AuthResponse;
-  if (data.user) data.user.role = mapBackendRole(data.user.role);
+  if (data.user) data.user.role = mapBackendRole(data.user.role as string);
   persistSession(data);
   return data.user;
 }
@@ -183,7 +189,7 @@ export async function loginWithEmail(
   }
 
   const data = (await res.json()) as AuthResponse;
-  if (data.user) data.user.role = mapBackendRole(data.user.role);
+  if (data.user) data.user.role = mapBackendRole(data.user.role as string);
   persistSession(data);
   return data.user;
 }

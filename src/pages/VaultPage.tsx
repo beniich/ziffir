@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { useAuth } from '../auth/useAuth';
-import { VaultTab } from '../components/VaultTab';
+import { VaultTab } from '../domains/vault/components/VaultTab';
 
 export default function VaultPage() {
   const appCtx = useAppContext();

@@ -1,62 +1,22 @@
 import React, { useState } from 'react';
 import { Building, ChevronDown, Check, RefreshCw } from 'lucide-react';
-import { api } from '../api';
+import { useTenant } from '../hooks/useTenant';
 
-interface Hotel {
-  id: string;
-  name: string;
-  slug: string;
-  logoUrl?: string;
-}
-
-interface HotelMembership {
-  hotelId: string;
-  hotelRole: string;
-  hotel: Hotel;
-}
-
-interface ActiveHotel {
-  id: string;
-  name: string;
-  slug: string;
-  role: string;
-}
-
-interface HotelSwitcherProps {
-  activeHotel: ActiveHotel | null;
-  onHotelSwitch: (hotel: ActiveHotel) => void;
-}
-
-export const HotelSwitcher: React.FC<HotelSwitcherProps> = ({ activeHotel, onHotelSwitch }) => {
+export const HotelSwitcher: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [hotels, setHotels] = useState<HotelMembership[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { hotelId, memberships, switchHotel } = useTenant();
   const [switching, setSwitching] = useState<string | null>(null);
 
-  const loadHotels = async () => {
-    if (hotels.length > 0) return; // Already loaded
-    setLoading(true);
-    try {
-      const data = await api.team.listAccessibleHotels();
-      setHotels(data);
-    } catch {
-      // Backend not running — fail silently
-    } finally {
-      setLoading(false);
-    }
-  };
+  const activeMembership = memberships.find(m => m.hotelId === hotelId);
+  const activeHotel = activeMembership ? { id: hotelId, name: activeMembership.hotelName, role: activeMembership.role } : null;
 
-  const handleOpen = () => {
-    setOpen(!open);
-    if (!open) loadHotels();
-  };
+  const handleOpen = () => setOpen(!open);
 
-  const handleSwitch = async (hotelId: string) => {
-    if (hotelId === activeHotel?.id) { setOpen(false); return; }
-    setSwitching(hotelId);
+  const handleSwitch = async (targetId: string) => {
+    if (targetId === activeHotel?.id) { setOpen(false); return; }
+    setSwitching(targetId);
     try {
-      const result = await api.team.switchHotel(hotelId);
-      onHotelSwitch(result.activeHotel);
+      await switchHotel(targetId);
       setOpen(false);
     } catch (err) {
       console.warn('Hotel switch failed:', err);
@@ -89,21 +49,17 @@ export const HotelSwitcher: React.FC<HotelSwitcherProps> = ({ activeHotel, onHot
           <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-slate-900 border border-amber-500/20 shadow-2xl z-50 overflow-hidden animate-fade-in">
             <div className="px-3 py-2 border-b border-slate-700/50">
               <p className="text-[10px] text-slate-500 uppercase tracking-wider font-mono">
-                Vos Hôtels ({hotels.length})
+                Vos Hôtels ({memberships.length})
               </p>
             </div>
 
-            {loading ? (
-              <div className="flex items-center justify-center p-6">
-                <RefreshCw className="w-4 h-4 animate-spin text-amber-400" />
-              </div>
-            ) : hotels.length === 0 ? (
+            {memberships.length === 0 ? (
               <div className="p-4 text-xs text-slate-500 text-center">
                 Aucun hôtel accessible
               </div>
             ) : (
               <div className="p-1.5 space-y-0.5">
-                {hotels.map(m => (
+                {memberships.map(m => (
                   <button
                     key={m.hotelId}
                     onClick={() => handleSwitch(m.hotelId)}
@@ -115,16 +71,12 @@ export const HotelSwitcher: React.FC<HotelSwitcherProps> = ({ activeHotel, onHot
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      {m.hotel.logoUrl ? (
-                        <img src={m.hotel.logoUrl} alt={m.hotel.name} className="w-6 h-6 rounded-lg object-cover shrink-0" />
-                      ) : (
-                        <div className="w-6 h-6 rounded-lg bg-slate-700 flex items-center justify-center shrink-0">
-                          <Building className="w-3 h-3 text-slate-400" />
-                        </div>
-                      )}
+                      <div className="w-6 h-6 rounded-lg bg-slate-700 flex items-center justify-center shrink-0">
+                        <Building className="w-3 h-3 text-slate-400" />
+                      </div>
                       <div className="text-left min-w-0">
-                        <div className="text-sm font-medium truncate">{m.hotel.name}</div>
-                        <div className="text-[10px] text-slate-500">{m.hotelRole}</div>
+                        <div className="text-sm font-medium truncate">{m.hotelName}</div>
+                        <div className="text-[10px] text-slate-500">{m.role}</div>
                       </div>
                     </div>
                     {switching === m.hotelId ? (

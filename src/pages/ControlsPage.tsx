@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { useAuth } from '../auth/useAuth';
-import { ControlsTab } from '../components/ControlsTab';
+import { ControlsTab } from '../domains/suite/components/ControlsTab';
 
 export default function ControlsPage() {
   const appCtx = useAppContext();

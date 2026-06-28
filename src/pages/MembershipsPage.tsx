@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { useAuth } from '../auth/useAuth';
-import { MembershipsTab } from '../components/MembershipsTab';
+import { MembershipsTab } from '../domains/guest/components/MembershipsTab';
 
 export default function MembershipsPage() {
   const appCtx = useAppContext();

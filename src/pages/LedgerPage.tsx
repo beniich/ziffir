@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { useAuth } from '../auth/useAuth';
-import { LedgerTab } from '../components/LedgerTab';
+import { LedgerTab } from '../domains/ledger/components/LedgerTab';
 
 export default function LedgerPage() {
   const appCtx = useAppContext();

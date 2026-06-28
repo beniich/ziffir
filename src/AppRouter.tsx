@@ -5,7 +5,7 @@
 
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import { AuthGuard, RoleGuard } from './auth/guards';
+import { AuthGuard, RoleGuard, GuestGuard } from './auth/guards';
 import { useAuth } from './auth/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from './contexts/AppContext';
@@ -35,6 +35,7 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage').catch(() => ({ defa
 const SettingsPage = lazy(() => import('./pages/SettingsPage').catch(() => ({ default: () => <div>Not implemented yet</div> })));
 const DesignShowcasePage = lazy(() => import('./pages/DesignShowcasePage').catch(() => ({ default: () => <div>Not implemented yet</div> })));
 const ForbiddenPage = lazy(() => import('./pages/ForbiddenPage').catch(() => ({ default: () => <div>Not implemented yet</div> })));
+const SelectPlanPage = lazy(() => import('./pages/SelectPlanPage').catch(() => ({ default: () => <div>Not implemented yet</div> })));
 
 function LoadingScreen() {
   return (
@@ -81,8 +82,9 @@ export function AppRouter() {
         <Routes>
           {/* Routes publiques */}
             <Route path="/" element={<MarketingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<GuestGuard><LoginPage /></GuestGuard>} />
+            <Route path="/register" element={<GuestGuard><RegisterPage /></GuestGuard>} />
+            <Route path="/select-plan" element={<Suspense fallback={<LoadingScreen />}><SelectPlanPage /></Suspense>} />
 
             {/* Routes protégées */}
             <Route
@@ -93,7 +95,7 @@ export function AppRouter() {
               }
             >
               <Route
-                path="/portal"
+                path="/nexus/overview"
                 element={
                   <RoleGuard permission="portal.view">
                     <PortalPage />
@@ -101,7 +103,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/arrivals"
+                path="/flow/inbound"
                 element={
                   <RoleGuard permission="arrivals.view">
                     <ArrivalsPage />
@@ -109,7 +111,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/room-service"
+                path="/concierge/requests"
                 element={
                   <RoleGuard permission="room_service.view">
                     <RoomServicePage />
@@ -117,7 +119,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/controls"
+                path="/systems/override"
                 element={
                   <RoleGuard permission="controls.view">
                     <ControlsPage />
@@ -125,7 +127,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/channel-sync"
+                path="/matrix/sync"
                 element={
                   <RoleGuard permission="channel_sync.view">
                     <ChannelSyncPage />
@@ -133,7 +135,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/vault"
+                path="/secure-node"
                 element={
                   <RoleGuard permission="vault.view">
                     <VaultPage />
@@ -141,7 +143,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/memberships"
+                path="/circle/roster"
                 element={
                   <RoleGuard permission="memberships.view">
                     <MembershipsPage />
@@ -149,7 +151,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/billing"
+                path="/ops/financial-stream"
                 element={
                   <RoleGuard permission="billing.view">
                     <BillingPage />
@@ -157,7 +159,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/maintenance"
+                path="/ops/infrastructure"
                 element={
                   <RoleGuard permission="maintenance.view">
                     <MaintenancePage />
@@ -165,7 +167,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/omni-stream"
+                path="/matrix/stream"
                 element={
                   <RoleGuard permission="omni_stream.view">
                     <OmniStreamPage />
@@ -173,7 +175,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/ledger"
+                path="/ops/ledger-node"
                 element={
                   <RoleGuard permission="ledger.view">
                     <LedgerPage />
@@ -181,7 +183,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/management"
+                path="/director/board"
                 element={
                   <RoleGuard permission="management.view">
                     <ManagementPage />
@@ -189,7 +191,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/users"
+                path="/director/directory"
                 element={
                   <RoleGuard permission="user_directory.view">
                     <UserDirectoryPage />
@@ -197,7 +199,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/hospitality"
+                path="/guest-ops/hub"
                 element={
                   <RoleGuard permission="hospitality.view">
                     <HospitalityPage />
@@ -205,7 +207,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/wine-cellar"
+                path="/reserve/cellar"
                 element={
                   <RoleGuard permission="wine_cellar.view">
                     <WineCellarPage />
@@ -213,7 +215,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/profile"
+                path="/identity/profile"
                 element={
                   <RoleGuard permission="profile.view">
                     <ProfilePage />
@@ -221,7 +223,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/settings"
+                path="/identity/settings"
                 element={
                   <RoleGuard permission="settings.view">
                     <SettingsPage />
@@ -229,7 +231,7 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/design"
+                path="/nexus/design"
                 element={
                   <RoleGuard permission="design_showcase.view">
                     <DesignShowcasePage />

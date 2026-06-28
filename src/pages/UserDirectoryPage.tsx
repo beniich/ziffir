@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { useAuth } from '../auth/useAuth';
-import { UserManagerSuite } from '../components/UserManagerSuite';
+import { UserManagerSuite } from '../domains/identity/components/UserManagerSuite';
 
 export default function UserDirectoryPage() {
   const appCtx = useAppContext();

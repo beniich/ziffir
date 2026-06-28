@@ -9,6 +9,29 @@ import { useAuth } from './useAuth';
 import type { Permission } from './permissions';
 
 // ----------------------------------------------------------------------------
+// GuestGuard : empêche un utilisateur connecté de voir le login/register
+// ----------------------------------------------------------------------------
+interface GuestGuardProps {
+  children: ReactNode;
+  redirectTo?: string;
+  fallback?: ReactNode;
+}
+
+export function GuestGuard({
+  children,
+  redirectTo = '/nexus/overview',
+  fallback = null,
+}: GuestGuardProps) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) return <>{fallback}</>;
+  if (isAuthenticated) {
+    return <Navigate to={redirectTo} replace />;
+  }
+  return <>{children}</>;
+}
+
+// ----------------------------------------------------------------------------
 // AuthGuard : exige une session valide
 // ----------------------------------------------------------------------------
 interface AuthGuardProps {

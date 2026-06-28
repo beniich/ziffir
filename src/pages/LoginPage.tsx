@@ -18,7 +18,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       await signIn(email, password);
-      navigate('/portal');
+      navigate('/nexus/overview');
     } catch (err: any) {
       setError(err?.message || 'Identifiants invalides');
     } finally {

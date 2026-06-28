@@ -10,7 +10,7 @@ export default function ForbiddenPage() {
       <p style={{ color: '#94a3b8', fontSize: 16, maxWidth: 400 }}>
         Vous n'avez pas les permissions nécessaires pour accéder à cette section.
       </p>
-      <a href="/portal" style={{ background: '#c19a6b', color: '#050b16', borderRadius: 12, padding: '12px 32px', textDecoration: 'none', fontWeight: 700, fontSize: 14, letterSpacing: 1, textTransform: 'uppercase' }}>
+      <a href="/nexus/overview" style={{ background: '#c19a6b', color: '#050b16', borderRadius: 12, padding: '12px 32px', textDecoration: 'none', fontWeight: 700, fontSize: 14, letterSpacing: 1, textTransform: 'uppercase' }}>
         Retour au portail
       </a>
     </div>

@@ -545,47 +545,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsGenerating(true);
     setGenerationStep('Assembling cryptographic block variables...');
     await new Promise((r) => setTimeout(r, 800));
-    setGenerationStep('Aligning authorized seal from Dean Alistair Vance...');
-    await new Promise((r) => setTimeout(r, 1000));
+    setGenerationStep('Requesting authorized seal from backend server...');
     try {
-      const doc = new jsPDF();
-      doc.setDrawColor(193, 154, 107); doc.setLineWidth(1.0); doc.rect(8, 8, 194, 281);
-      doc.setDrawColor(12, 27, 51); doc.setLineWidth(0.2); doc.rect(10, 10, 190, 277);
-      doc.setFillColor(12, 27, 51); doc.rect(12, 12, 186, 32, 'F');
-      doc.setTextColor(255, 255, 255); doc.setFont('Helvetica', 'bold'); doc.setFontSize(18);
-      doc.text('ZAFIR ELITE COMMAND ACADEMY', 105, 24, { align: 'center' });
-      doc.setTextColor(193, 154, 107); doc.setFont('Helvetica', 'normal'); doc.setFontSize(10);
-      doc.text('Registry Hub & permanent decentralized credentials ledger', 105, 31, { align: 'center' });
-      doc.setTextColor(12, 27, 51); doc.setFont('Helvetica', 'bold'); doc.setFontSize(15);
-      doc.text('OFFICIAL REGISTERED TRANSCRIPT', 105, 56, { align: 'center' });
-      doc.setFillColor(245, 230, 211); doc.rect(15, 66, 180, 36, 'F');
-      doc.setTextColor(12, 27, 51); doc.setFontSize(9);
-      doc.text('STUDENT LEGAL NAME:', 18, 73); doc.text(studentName.toUpperCase(), 64, 73);
-      doc.text('ACADEMIC MAJOR:', 18, 80); doc.text(major, 64, 80);
-      doc.text('DATE OF BIRTH:', 18, 87); doc.text(dob, 64, 87);
-      doc.text('GPA CUMULATIVE:', 120, 73); doc.text(`${totalGPA} / 4.30`, 160, 73);
-      doc.text('BLOCKCHAIN ROOT:', 120, 80); doc.text(blockchainId, 160, 80);
-      doc.setFillColor(12, 27, 51); doc.rect(15, 110, 180, 8, 'F');
-      doc.setTextColor(255, 255, 255);
-      ['CODE', 'MODULE TITLE', 'CREDITS', 'GRADE'].forEach((t, i) => doc.text(t, [18, 38, 144, 174][i], 115.5));
-      let y = 118;
-      doc.setTextColor('#1E293B');
-      courses.forEach((c) => {
-        [c.code, c.name, c.credits.toFixed(1), c.grade].forEach((v, i) => doc.text(v.toString(), [18, 38, 144, 174][i], y + 5.5));
-        y += 8;
-      });
-      const sigY = y + 16;
-      doc.setDrawColor(193, 154, 107); doc.circle(45, sigY + 16, 18);
-      doc.text('ZAFIR OFFICIAL', 45, sigY + 14, { align: 'center' });
-      doc.text('AUTHORIZED', 45, sigY + 19, { align: 'center' });
-      doc.line(100, sigY + 16, 180, sigY + 16);
-      doc.text('Dr. Alistair Vance, Dean of Academic Registry', 100, sigY + 21);
-      doc.save(`Zafir_Official_Ledger_${studentName.replace(' ', '_')}.pdf`);
+      const response = await api.ledger.export(studentId, studentName, totalGPA, totalCredits.toString());
+      if (!response.ok) throw new Error('PDF Generation failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Zafir_Official_Ledger_${studentName.replace(' ', '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
       confetti({ particleCount: 100, spread: 85, colors: ['#c19a6b', '#ffffff'] });
-    } catch (e) { console.error(e); } finally {
-      setIsGenerating(false); setGenerationStep('');
+    } catch (e) {
+      console.error(e);
+      // Fallback if backend is unavailable? For now we just log it.
+    } finally {
+      setIsGenerating(false);
+      setGenerationStep('');
     }
-  }, [studentName, major, dob, totalGPA, blockchainId, courses]);
+  }, [studentName, studentId, totalGPA, totalCredits]);
 
   // ─────────────────────────────────────────────────────────────────────────
   const value = useMemo<AppContextValue>(

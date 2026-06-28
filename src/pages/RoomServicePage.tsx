@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { useAuth } from '../auth/useAuth';
-import { RoomServiceTab } from '../components/RoomServiceTab';
+import { RoomServiceTab } from '../domains/restaurant/components/RoomServiceTab';
 
 export default function RoomServicePage() {
   const appCtx = useAppContext();

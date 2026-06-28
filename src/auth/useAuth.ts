@@ -33,13 +33,16 @@ export function useAuth(): AuthState & {
   canAny: (permissions: Permission[]) => boolean;
   canAll: (permissions: Permission[]) => boolean;
   canTab: (tab: string) => boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, displayName: string) => Promise<void>;
+  signOut: () => Promise<void>;
 } {
   const ctx = useContext(AuthContext);
   if (!ctx) {
     throw new Error('useAuth doit être utilisé dans un <AuthProvider>');
   }
 
-  const { user, isLoading } = ctx;
+  const { user, isLoading, signIn, signUp, signOut } = ctx;
 
   return useMemo(
     () => ({
@@ -53,7 +56,10 @@ export function useAuth(): AuthState & {
       canAll: (permissions: Permission[]) =>
         hasAllPermissions(user?.role, permissions),
       canTab: (tab: string) => canAccessTab(user?.role, tab),
+      signIn,
+      signUp,
+      signOut,
     }),
-    [user, isLoading]
+    [user, isLoading, signIn, signUp, signOut]
   );
 }

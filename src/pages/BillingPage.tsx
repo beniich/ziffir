@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { useAuth } from '../auth/useAuth';
-import { SaaSBillingTab } from '../components/SaaSBillingTab';
+import { SaaSBillingTab } from '../domains/billing/components/SaaSBillingTab';
 
 export default function BillingPage() {
   const appCtx = useAppContext();

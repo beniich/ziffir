@@ -7,6 +7,7 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { canAccessTab, listAllowedTabs } from './permissions';
+import { HotelSwitcher } from '../components/HotelSwitcher';
 
 interface NavItem {
   tab: string;
@@ -17,24 +18,24 @@ interface NavItem {
 
 // ⚠️ Adapter cette liste à vos tabs réels
 const NAV_ITEMS: NavItem[] = [
-  { tab: 'prestige-portal', label: 'Prestige Portal', path: '/portal' },
-  { tab: 'arrivals', label: 'Arrivées', path: '/arrivals' },
-  { tab: 'room-service', label: 'Room Service', path: '/room-service' },
-  { tab: 'controls', label: 'Contrôles', path: '/controls' },
-  { tab: 'channel-sync', label: 'Channel Sync', path: '/channel-sync' },
-  { tab: 'vault', label: 'Coffre', path: '/vault' },
-  { tab: 'memberships', label: 'Memberships', path: '/memberships' },
-  { tab: 'billing', label: 'Billing', path: '/billing' },
-  { tab: 'maintenance', label: 'Maintenance', path: '/maintenance' },
-  { tab: 'omni-stream', label: 'Omni Stream', path: '/omni-stream' },
-  { tab: 'ledger', label: 'Ledger', path: '/ledger' },
-  { tab: 'management', label: 'Management', path: '/management' },
-  { tab: 'user-directory', label: 'Annuaire', path: '/users' },
-  { tab: 'hospitality-manager', label: 'Hospitality', path: '/hospitality' },
-  { tab: 'wine-cellar', label: 'Cave à vin', path: '/wine-cellar' },
-  { tab: 'profile', label: 'Profil', path: '/profile' },
-  { tab: 'settings', label: 'Paramètres', path: '/settings' },
-  { tab: 'design-showcase', label: 'Design System', path: '/design' },
+  { tab: 'prestige-portal', label: 'Prestige Portal', path: '/nexus/overview' },
+  { tab: 'arrivals', label: 'Arrivées', path: '/flow/inbound' },
+  { tab: 'room-service', label: 'Room Service', path: '/concierge/requests' },
+  { tab: 'controls', label: 'Contrôles', path: '/systems/override' },
+  { tab: 'channel-sync', label: 'Channel Sync', path: '/matrix/sync' },
+  { tab: 'vault', label: 'Coffre', path: '/secure-node' },
+  { tab: 'memberships', label: 'Memberships', path: '/circle/roster' },
+  { tab: 'billing', label: 'Billing', path: '/ops/financial-stream' },
+  { tab: 'maintenance', label: 'Maintenance', path: '/ops/infrastructure' },
+  { tab: 'omni-stream', label: 'Omni Stream', path: '/matrix/stream' },
+  { tab: 'ledger', label: 'Ledger', path: '/ops/ledger-node' },
+  { tab: 'management', label: 'Management', path: '/director/board' },
+  { tab: 'user-directory', label: 'Annuaire', path: '/director/directory' },
+  { tab: 'hospitality-manager', label: 'Hospitality', path: '/guest-ops/hub' },
+  { tab: 'wine-cellar', label: 'Cave à vin', path: '/reserve/cellar' },
+  { tab: 'profile', label: 'Profil', path: '/identity/profile' },
+  { tab: 'settings', label: 'Paramètres', path: '/identity/settings' },
+  { tab: 'design-showcase', label: 'Design System', path: '/nexus/design' },
 ];
 
 export function Sidebar() {
@@ -44,8 +45,11 @@ export function Sidebar() {
   const visibleItems = NAV_ITEMS.filter((item) => canAccessTab(role, item.tab));
 
   return (
-    <nav aria-label="Navigation principale">
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+    <nav aria-label="Navigation principale" className="w-64 flex-shrink-0 flex flex-col bg-slate-900 border-r border-white/5 h-full relative z-20">
+      <div className="p-4 border-b border-white/5">
+        <HotelSwitcher />
+      </div>
+      <ul style={{ listStyle: 'none', padding: 0 }} className="flex-1 overflow-y-auto">
         {visibleItems.map((item) => (
           <li key={item.tab}>
             <NavLink

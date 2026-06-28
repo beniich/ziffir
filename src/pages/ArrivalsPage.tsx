@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { useAuth } from '../auth/useAuth';
-import { ArrivalsTab } from '../components/ArrivalsTab';
+import { ArrivalsTab } from '../domains/reservation/components/ArrivalsTab';
 
 export default function ArrivalsPage() {
   const appCtx = useAppContext();

@@ -19,9 +19,9 @@ export default function RegisterPage() {
     setSubmitting(true);
     try {
       await signUp(email, password, name);
-      navigate('/portal');
+      navigate('/select-plan');
     } catch (err: any) {
-      setError(err?.message || 'Erreur lors de l\'inscription');
+      setError(err?.message || 'Erreur lors de l\'inscription. Vérifiez vos informations.');
     } finally {
       setSubmitting(false);
     }
