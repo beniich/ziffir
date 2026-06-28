@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { login, loginMobile, logout, me, register } from '../domains/identity/auth/auth.controller.js';
+import { login, loginMobile, logout, me, register, googleAuth } from '../domains/identity/auth/auth.controller.js';
 import { requireAuth } from '../domains/identity/auth/auth.middleware.js';
 
 const router = Router();
@@ -17,6 +17,7 @@ const loginLimiter = rateLimit({
 router.post('/login', loginLimiter, login);
 router.post('/login-mobile', loginLimiter, loginMobile);
 router.post('/register', loginLimiter, register);
+router.post('/google', loginLimiter, googleAuth);
 router.post('/logout', logout);
 router.get('/me', requireAuth, me);
 

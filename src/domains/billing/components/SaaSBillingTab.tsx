@@ -32,6 +32,7 @@ interface SaaSBillingTabProps {
   addAuditLog?: (action: string, reason: string, status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', role?: string) => void;
   themeMode?: 'dark' | 'light';
   initialPlan?: PlanKey;
+  refresh?: () => Promise<void>;
 }
 
 // ─── UsageBar Sub-component ───────────────────────────────────────────────────
@@ -86,31 +87,29 @@ const BillingCheckoutModal: React.FC<{
     setLoading(true);
     setError('');
     try {
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error("Erreur d'initialisation Stripe");
-
-      // URL courante pour les callbacks
       const currentUrl = window.location.origin;
+      const token = localStorage.getItem('zafir_auth_token');
 
-      const response = await fetch('http://localhost:5000/api/stripe/create-checkout-session', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/billing/checkout`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
-          userId: (window as any).__zaphirUserId || localStorage.getItem('zafir_user_id') || undefined,
           planKey,
           billing,
-          successUrl: `${currentUrl}/?checkout_success=true&plan=${planKey}`,
-          cancelUrl: `${currentUrl}/?checkout_canceled=true`
+          successUrl: `${currentUrl}/checkout/success?plan=${planKey}`,
+          cancelUrl: `${currentUrl}/checkout/cancel`
         })
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Erreur serveur Stripe');
       }
 
       const session = await response.json();
-      // Redirect to Stripe Checkout using the session URL
       if (session.url) {
         window.location.href = session.url;
       } else {
@@ -191,6 +190,7 @@ const BillingCheckoutModal: React.FC<{
 export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({
   addAuditLog,
   initialPlan,
+  refresh,
 }) => {
   const [currentPlan, setCurrentPlan] = useState<PlanKey>(initialPlan || 'TRIAL');
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
@@ -259,11 +259,14 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({
       if (planFromUrl && PLANS[planFromUrl]) {
         handleCheckoutSuccess(planFromUrl);
         confetti({ particleCount: 100, spread: 70, colors: ['#c19a6b', '#fff', PLANS[planFromUrl].color] });
+        if (refresh) {
+          refresh().catch(err => console.error('Refresh session failed:', err));
+        }
         // Clean up URL
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
-  }, []);
+  }, [refresh]);
 
   const handleToggleCancel = () => {
     const next = !cancelAtPeriodEnd;

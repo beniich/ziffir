@@ -36,6 +36,8 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage').catch(() => ({ de
 const DesignShowcasePage = lazy(() => import('./pages/DesignShowcasePage').catch(() => ({ default: () => <div>Not implemented yet</div> })));
 const ForbiddenPage = lazy(() => import('./pages/ForbiddenPage').catch(() => ({ default: () => <div>Not implemented yet</div> })));
 const SelectPlanPage = lazy(() => import('./pages/SelectPlanPage').catch(() => ({ default: () => <div>Not implemented yet</div> })));
+const CheckoutSuccessPage = lazy(() => import('./pages/CheckoutSuccessPage').catch(() => ({ default: () => <div>Not implemented yet</div> })));
+const CheckoutCancelPage = lazy(() => import('./pages/CheckoutCancelPage').catch(() => ({ default: () => <div>Not implemented yet</div> })));
 
 function LoadingScreen() {
   return (
@@ -85,6 +87,8 @@ export function AppRouter() {
             <Route path="/login" element={<GuestGuard><LoginPage /></GuestGuard>} />
             <Route path="/register" element={<GuestGuard><RegisterPage /></GuestGuard>} />
             <Route path="/select-plan" element={<Suspense fallback={<LoadingScreen />}><SelectPlanPage /></Suspense>} />
+            <Route path="/checkout/success" element={<Suspense fallback={<LoadingScreen />}><CheckoutSuccessPage /></Suspense>} />
+            <Route path="/checkout/cancel" element={<Suspense fallback={<LoadingScreen />}><CheckoutCancelPage /></Suspense>} />
 
             {/* Routes protégées */}
             <Route

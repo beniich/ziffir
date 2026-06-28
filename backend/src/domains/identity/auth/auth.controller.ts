@@ -8,7 +8,7 @@ import { setAuthCookie, clearAuthCookie } from '../../../utils/cookies.js';
 import { logAudit } from '../../audit/audit.service.js';
 import { asyncHandler } from '../../../shared/errors/asyncHandler.js';
 import { ApiError } from '../../../shared/errors/errorHandler.js';
-
+import { adminAuth } from '../../../infrastructure/firebase-admin.js';
 const loginSchema = z.object({
   email: z.string().email().transform((e) => e.toLowerCase()),
   password: z.string().min(1),
@@ -367,4 +367,128 @@ export const loginMobile = asyncHandler(async (req: Request, res: Response) => {
   
   const { passwordHash: _, ...userWithoutHash } = user;
   return res.json({ token, user: { ...userWithoutHash, activeHotelId, sessionId: session.id } });
+});
+
+export const googleAuth = asyncHandler(async (req: Request, res: Response) => {
+  const { idToken } = req.body;
+  if (!idToken) {
+    throw new ApiError(400, 'Jeton Google manquant.');
+  }
+
+  try {
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    const { email, uid, name, picture } = decodedToken;
+    
+    if (!email) {
+      throw new ApiError(400, 'Email introuvable dans le jeton Google.');
+    }
+
+    let user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        hotel: { select: { id: true, name: true, plan: true, trialEndsAt: true } },
+        memberships: {
+          include: { hotel: { select: { name: true, plan: true, trialEndsAt: true } } },
+        },
+      },
+    });
+
+    if (!user) {
+      // Create user if not exists
+      const passwordHash = await bcrypt.hash(uid + Math.random().toString(), 12);
+      const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+      
+      const nameParts = (name || 'Google User').split(' ');
+      const firstName = nameParts[0] || 'Utilisateur';
+      const lastName = nameParts.slice(1).join(' ') || 'Google';
+
+      const result = await prisma.$transaction(async (tx) => {
+        const newUser = await tx.user.create({
+          data: {
+            email,
+            passwordHash,
+            firstName,
+            lastName,
+            role: 'CLIENT',
+            isActive: true,
+            hotelId: '',
+          },
+        });
+
+        const slugBase = `hotel-${newUser.id}`
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-').slice(0, 40);
+        const slug = `${slugBase}-${Date.now().toString(36)}`;
+
+        const hotel = await tx.hotel.create({
+          data: {
+            name: `Hôtel de ${firstName}`,
+            slug,
+            address: '',
+            city: '',
+            country: '',
+            plan: 'FREE_TRIAL',
+            trialEndsAt,
+            isActive: true,
+          },
+        });
+
+        await tx.hotelMembership.create({
+          data: { userId: newUser.id, hotelId: hotel.id, role: 'OWNER' },
+        });
+
+        const updatedUser = await tx.user.update({
+          where: { id: newUser.id },
+          data: { hotelId: hotel.id },
+          include: {
+            hotel: { select: { id: true, name: true, plan: true, trialEndsAt: true } },
+            memberships: {
+              include: { hotel: { select: { name: true, plan: true, trialEndsAt: true } } },
+            },
+          }
+        });
+
+        return updatedUser;
+      });
+      user = result;
+    }
+
+    const activeHotelId = user.memberships[0]?.hotelId ?? user.hotelId ?? null;
+    const { session, token } = await createSessionAndToken(user.id, activeHotelId, user.role, user.email, req);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+    
+    setAuthCookie(res, token);
+    
+    await logAudit({
+      actor: user.id,
+      action: 'user.login_google',
+      resource: 'user',
+      resourceId: user.id,
+      metadata: { method: 'google', ip: req.ip, userAgent: req.get('user-agent'), sessionId: session.id },
+    }, req);
+    
+    const { passwordHash: _, ...userSafe } = user;
+    return res.json({
+      accessToken: token,
+      user: {
+        ...userSafe,
+        activeHotelId,
+        sessionId: session.id,
+        memberships: user.memberships.map(m => ({
+          hotelId: m.hotelId,
+          hotelName: m.hotel.name,
+          role: m.role,
+          plan: m.hotel.plan,
+          trialEndsAt: m.hotel.trialEndsAt,
+        })),
+      },
+    });
+  } catch (error: any) {
+    console.error('Google Auth Error:', error);
+    throw new ApiError(401, 'Jeton Google invalide ou expiré.');
+  }
 });

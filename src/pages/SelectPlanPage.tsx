@@ -20,32 +20,41 @@ export default function SelectPlanPage() {
   const { user } = useAuth();
   const [billing, setBilling] = useState<'monthly' | 'annual'>('annual');
   const [selecting, setSelecting] = useState<PlanKey | null>(null);
+  const [error, setError] = useState('');
 
   const handleSelectPlan = async (planKey: PlanKey) => {
     setSelecting(planKey);
+    setError('');
     try {
       const token = localStorage.getItem('zafir_auth_token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/subscription/checkout`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/billing/checkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ planId: planKey, interval: billing }),
+        body: JSON.stringify({
+          planKey,
+          billing,
+          successUrl: `${window.location.origin}/checkout/success?plan=${planKey}`,
+          cancelUrl: `${window.location.origin}/checkout/cancel`,
+        }),
       });
       
       if (!res.ok) {
-        throw new Error('Erreur lors de la création de la session de paiement');
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Erreur lors de la création de la session de paiement');
       }
       
       const data = await res.json();
-      if (data.data?.url) {
-        window.location.href = data.data.url;
+      if (data.url) {
+        window.location.href = data.url;
       } else {
         throw new Error('URL de session manquante');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Checkout error:', err);
+      setError(err.message || 'Une erreur est survenue');
       setSelecting(null);
     }
   };
@@ -167,12 +176,23 @@ export default function SelectPlanPage() {
                   border: isPopular ? 'none' : '1px solid rgba(255,255,255,0.1)',
                 }}
               >
-                {isLoading ? 'Chargement...' : `Choisir ${plan.name}`}
+                {isLoading ? '⟳ Redirection...' : `Choisir ${plan.name}`}
               </button>
             </div>
           );
         })}
       </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div style={{
+          maxWidth: 1100, margin: '24px auto 0',
+          background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+          borderRadius: 12, padding: '12px 20px', color: '#f87171', fontSize: 13, textAlign: 'center',
+        }}>
+          ⚠ {error}
+        </div>
+      )}
 
       {/* Skip link */}
       <div style={{ textAlign: 'center', marginTop: 36 }}>

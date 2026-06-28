@@ -36,13 +36,14 @@ export function useAuth(): AuthState & {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
 } {
   const ctx = useContext(AuthContext);
   if (!ctx) {
     throw new Error('useAuth doit être utilisé dans un <AuthProvider>');
   }
 
-  const { user, isLoading, signIn, signUp, signOut } = ctx;
+  const { user, isLoading, signIn, signUp, signOut, signInWithGoogle } = ctx;
 
   return useMemo(
     () => ({
@@ -59,7 +60,8 @@ export function useAuth(): AuthState & {
       signIn,
       signUp,
       signOut,
+      signInWithGoogle,
     }),
-    [user, isLoading, signIn, signUp, signOut]
+    [user, isLoading, signIn, signUp, signOut, signInWithGoogle]
   );
 }

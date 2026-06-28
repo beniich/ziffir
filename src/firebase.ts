@@ -321,4 +321,27 @@ export const firestoreService = {
   }
 };
 
-export const googleSignIn = async () => null;
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+
+export async function loginWithGoogle(): Promise<AuthResponse> {
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+  const result = await signInWithPopup(auth, provider);
+  const idToken = await result.user.getIdToken();
+  
+  const res = await fetch(`${API_URL}/google`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken }),
+    credentials: 'include'
+  });
+  
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Erreur lors de la connexion Google');
+  }
+  
+  const data = await res.json();
+  persistSession(data);
+  return data;
+}

@@ -10,7 +10,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { initAuth, loginWithEmail, logout, registerWithEmail } from '../firebase';
+import { initAuth, loginWithEmail, logout, registerWithEmail, loginWithGoogle } from '../firebase';
 import type { SessionRole } from './permissions';
 
 export interface AuthContextValue {
@@ -27,6 +27,7 @@ export interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -93,6 +94,12 @@ export function AuthProvider({ children }: ProviderProps) {
     []
   );
 
+  const signInWithGoogle = useCallback(async () => {
+    const res = await loginWithGoogle();
+    setUser(res.user as any);
+    setMemberships(res.memberships || []);
+  }, []);
+
   const signOut = useCallback(async () => {
     await logout();
     setUser(null);
@@ -115,9 +122,10 @@ export function AuthProvider({ children }: ProviderProps) {
       signIn,
       signUp,
       signOut,
+      signInWithGoogle,
       refresh,
     }),
-    [user, memberships, isLoading, signIn, signUp, signOut, refresh]
+    [user, memberships, isLoading, signIn, signUp, signOut, signInWithGoogle, refresh]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
