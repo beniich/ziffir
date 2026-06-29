@@ -19,7 +19,7 @@ import {
 import confetti from 'canvas-confetti';
 import { 
   initAuth, 
-  loginWithGoogle, 
+  googleSignIn, 
   logout, 
   firestoreService,
   registerWithEmail,
@@ -262,7 +262,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
   const handleGoogleAuth = async () => {
     try {
       setAuthLoading(true);
-      const res = await loginWithGoogle();
+      const res = await googleSignIn();
       if (res) {
         setCurrentUser(res.user);
         setOauthToken(res.accessToken);
