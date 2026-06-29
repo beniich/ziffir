@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ModuleGate } from './ModuleGate';
 import { 
   Wine as WineIcon, 
   Thermometer, 
@@ -626,7 +625,6 @@ export const WineCellarTab: React.FC<WineCellarTabProps> = ({ language, addAudit
   };
 
   return (
-    <ModuleGate requiredPlan="PROFESSIONAL">
     <div className={`space-y-8 animate-fade-in ${fontStyle === 'cyberpunk' ? 'font-mono' : 'font-sans-luxury'}`} id="wine-cellar-tab-panel">
       
       {/* HEADER BANNER OF THE SOVEREIGN CELLAR */}
@@ -1231,6 +1229,5 @@ export const WineCellarTab: React.FC<WineCellarTabProps> = ({ language, addAudit
       )}
 
     </div>
-    </ModuleGate>
   );
 };

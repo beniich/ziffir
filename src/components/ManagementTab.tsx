@@ -20,7 +20,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { AuditEntry } from '../contexts/AppContext';
+import { AuditEntry } from '../App';
 
 export interface AdminAccount {
   id: string;

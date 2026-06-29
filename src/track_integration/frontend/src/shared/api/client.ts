@@ -5,7 +5,7 @@ export interface FetchOptions extends RequestInit {
 }
 
 export class ApiClient {
-  private static baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  private static baseUrl = process.env.VITE_API_URL || 'http://localhost:3000/api';
 
   private static getHeaders(customHeaders?: HeadersInit): Headers {
     const headers = new Headers(customHeaders);
