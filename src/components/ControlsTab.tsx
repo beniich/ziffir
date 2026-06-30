@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import { RoomFloorplanController } from './RoomFloorplanController';
+import { HotelMap3D } from './dashboard/HotelMap3D';
 
 interface ControlsTabProps {
   lightScene: 'ambient' | 'bright' | 'relax' | 'night';
@@ -31,6 +32,44 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
   language,
   fontStyle
 }) => {
+  const [viewMode, setViewMode] = useState<'3d' | '2d'>('3d');
+  const [occupancyMap, setOccupancyMap] = useState<Record<string, boolean>>({
+    '201': true,
+    '202': false,
+    'corridor': true,
+    'meeting': false,
+    '203': true
+  });
+  const [temperatureMap, setTemperatureMap] = useState<Record<string, number>>({
+    '201': 21.5,
+    '202': 22.0,
+    'corridor': 20.2,
+    'meeting': 21.0,
+    '203': 22.5
+  });
+
+  const switcherT = {
+    EN: {
+      overview3d: "3D Overview",
+      blueprint2d: "2D Blueprint",
+      visualMode: "Visualization Mode"
+    },
+    FR: {
+      overview3d: "Aperçu 3D",
+      blueprint2d: "Plan 2D",
+      visualMode: "Mode de Visualisation"
+    },
+    RU: {
+      overview3d: "3D Обзор",
+      blueprint2d: "2D Чертеж",
+      visualMode: "Режим Отображения"
+    }
+  }[language] || {
+    overview3d: "3D Overview",
+    blueprint2d: "2D Blueprint",
+    visualMode: "Visualization Mode"
+  };
+
   return (
     <div className="space-y-6 animate-fade-in" id="controls-tab">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -150,14 +189,61 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Intricate Interactive D3 SVG Floorplan Map */}
-        <div className="lg:col-span-8 flex flex-col">
-          <RoomFloorplanController
-            language={language}
-            glowingRooms={glowingRooms}
-            toggleRoomGlow={toggleRoomGlow}
-            fontStyle={fontStyle}
-          />
+        {/* Right Column: Intricate Interactive D3 SVG Floorplan Map / 3D Space */}
+        <div className="lg:col-span-8 flex flex-col space-y-4">
+          {/* Sub-Tab Navigation Switcher */}
+          <div className="flex justify-between items-center bg-white/40 dark:bg-[#0c0d10]/40 backdrop-blur-md border border-slate-200 dark:border-white/5 rounded-2xl p-2.5 shadow-md">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 pl-2">
+              {switcherT.visualMode}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setViewMode('3d')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                  viewMode === '3d'
+                    ? 'bg-[#c19a6b]/20 text-[#7c5a30] dark:text-[#c19a6b] border border-[#c19a6b]/40 shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-white/20 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                🗺️ {switcherT.overview3d}
+              </button>
+              <button
+                onClick={() => setViewMode('2d')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                  viewMode === '2d'
+                    ? 'bg-[#c19a6b]/20 text-[#7c5a30] dark:text-[#c19a6b] border border-[#c19a6b]/40 shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-white/20 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                📐 {switcherT.blueprint2d}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 min-h-[500px] relative bg-white/20 dark:bg-black/10 rounded-3xl overflow-hidden border border-white/40 dark:border-white/5">
+            {viewMode === '3d' ? (
+              <HotelMap3D
+                language={language}
+                lightScene={lightScene}
+                glowingRooms={glowingRooms}
+                toggleRoomGlow={toggleRoomGlow}
+                occupancyMap={occupancyMap}
+                setOccupancyMap={setOccupancyMap}
+                temperatureMap={temperatureMap}
+              />
+            ) : (
+              <RoomFloorplanController
+                language={language}
+                glowingRooms={glowingRooms}
+                toggleRoomGlow={toggleRoomGlow}
+                fontStyle={fontStyle}
+                occupancyMap={occupancyMap}
+                setOccupancyMap={setOccupancyMap}
+                temperatureMap={temperatureMap}
+                setTemperatureMap={setTemperatureMap}
+              />
+            )}
+          </div>
         </div>
 
       </div>

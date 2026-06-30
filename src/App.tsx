@@ -56,6 +56,8 @@ import { UserManagerSuite } from './components/UserManagerSuite';
 import { WineCellarTab } from './components/WineCellarTab';
 import { MarketingWebsite } from './components/MarketingWebsite';
 import { SaaSCheckoutWall } from './components/SaaSCheckoutWall';
+import { AuthWall } from './components/AuthWall';
+import { zaphirApi } from './apiClient';
 
 // Cryptographic Simulation Utilities for dynamic chain audit logging
 export interface AuditEntry {
@@ -165,6 +167,8 @@ const translations = {
     stylesEngine: "ZAFIR CORE STYLES ENGINE v1.4",
     sovereignLive: "Sovereign Alignment Live",
     registry: "REGISTRY",
+    overview3d: "3D Overview",
+    blueprint2d: "2D Blueprint",
   },
   FR: {
     syncActive: "Synchro Réseau Sécurisée Active",
@@ -218,6 +222,8 @@ const translations = {
     stylesEngine: "MOTEUR DE STYLES ZAFIR v1.4",
     sovereignLive: "Alignement Souverain Actif",
     registry: "REGISTRE",
+    overview3d: "Aperçu 3D",
+    blueprint2d: "Plan 2D",
   },
   RU: {
     syncActive: "Безопасная синхронизация сети активна",
@@ -271,6 +277,8 @@ const translations = {
     stylesEngine: "ОСНОВНОЙ СТИЛЕВОЙ ДВИГАТЕЛЬ v1.4",
     sovereignLive: "Суверенное выравнивание активно",
     registry: "РЕЕСТР",
+    overview3d: "3D Обзор",
+    blueprint2d: "2D Чертеж",
   }
 };
 
@@ -327,9 +335,38 @@ export default function App() {
   // Student details
   const [studentName, setStudentName] = useState<string>('Elena Petrova');
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean>(() => {
     return localStorage.getItem('sapphir_has_active_subscription') === 'true';
   });
+
+
+  useEffect(() => {
+    const handleAuthError = () => {
+      // Zaphir API rejected token
+      setCurrentUser(null);
+    };
+    window.addEventListener('zaphir-unauthorized', handleAuthError);
+
+    if (currentUser && hasActiveSubscription) {
+      setIsLoadingBackend(true);
+      zaphirApi.get('/state')
+        .then((data: any) => {
+          if (data.arrivals?.vipGuests) setVipGuests(data.arrivals.vipGuests);
+          if (data.roomService?.roomOrders) setRoomOrders(data.roomService.roomOrders);
+          if (data.fleet?.fleetCars) setFleetCars(data.fleet.fleetCars);
+          if (data.suiteControls?.currentTemp) setCurrentTemp(data.suiteControls.currentTemp);
+          if (data.suiteControls?.targetTemp) setTargetTemp(data.suiteControls.targetTemp);
+          // And so on for other modules...
+        })
+        .catch(console.error)
+        .finally(() => setIsLoadingBackend(false));
+    }
+    
+    return () => {
+      window.removeEventListener('zaphir-unauthorized', handleAuthError);
+    };
+  }, [currentUser, hasActiveSubscription]);
 
   useEffect(() => {
     const unsubscribe = initAuth(
@@ -1130,13 +1167,19 @@ export default function App() {
               </button>
               <button
                 onClick={() => {
+                  const currentPlan = localStorage.getItem('sapphir_current_plan') || 'TRIAL';
+                  if (currentPlan === 'STARTER' || currentPlan === 'TRIAL') {
+                    addAuditLog('ROLE_ELEVATION_DENIED', `Clearance rejected. Plan ${currentPlan} is insufficient for Proprietor Level 5.`, 'RESTRICTED_ATTEMPT');
+                    alert(language === 'FR' ? "Accès Propriétaire (L5) refusé. Nécessite le plan PROFESSIONAL ou ENTERPRISE." : "Proprietor (L5) access denied. Requires PROFESSIONAL or ENTERPRISE plan.");
+                    return;
+                  }
                   setUserRole('manager');
                   addAuditLog('MANUAL_ROLE_ELEVATION', 'Manual bypass switch to high Proprietor Level 5 clearance enabled.', 'AUTHORIZED');
                   confetti({ particleCount: 40, spread: 45, colors: ['#ffd700'] });
                 }}
                 className={`flex-1 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${
                   userRole === 'manager'
-                    ? 'bg-amber-600 text-white font-bold'
+                    ? 'bg-amber-600 text-white font-bold shadow-[0_0_10px_rgba(217,119,6,0.5)]'
                     : 'text-stone-400 hover:text-stone-200'
                 }`}
               >
@@ -1199,6 +1242,31 @@ export default function App() {
     );
   }
 
+  // REQUIRE AUTHENTICATION WALL BEFORE CHECKOUT
+  if (!currentUser) {
+    return (
+      <AuthWall
+        themeMode={themeMode}
+        language={language}
+        onAuthSuccess={async (user) => {
+          const token = typeof user.getIdToken === 'function' 
+            ? await user.getIdToken() 
+            : await (user as any).getToken?.();
+          
+          if (token) {
+            zaphirApi.setToken(token);
+          }
+          
+          setCurrentUser(user as FirebaseUser);
+          addAuditLog('AUTH_SUCCESS', `User authenticated successfully: ${user.email}`, 'AUTHORIZED');
+        }}
+        onBackToWebsite={() => {
+          setViewMode('website');
+        }}
+      />
+    );
+  }
+
   // REQUIRE PAYMENT ACCESS WALL BEFORE DASHBOARD IS ENTERED
   if (!hasActiveSubscription) {
     return (
@@ -1213,6 +1281,17 @@ export default function App() {
           setViewMode('website');
         }}
       />
+    );
+  }
+
+  if (isLoadingBackend) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-obsidian-950 text-[#c19a6b] font-mono text-sm tracking-widest uppercase">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 border-2 border-[#c19a6b]/20 border-t-[#c19a6b] rounded-full animate-spin"></div>
+          <div>Establishing Secure Handshake...</div>
+        </div>
+      </div>
     );
   }
 

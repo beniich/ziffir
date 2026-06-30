@@ -14,6 +14,10 @@ interface RoomFloorplanControllerProps {
   glowingRooms: Record<string, boolean>;
   toggleRoomGlow: (room: string) => void;
   fontStyle?: 'standard' | 'cyberpunk' | 'luxury';
+  occupancyMap?: Record<string, boolean>;
+  setOccupancyMap?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  temperatureMap?: Record<string, number>;
+  setTemperatureMap?: React.Dispatch<React.SetStateAction<Record<string, number>>>;
 }
 
 interface FloorplanRoom {
@@ -90,7 +94,11 @@ export const RoomFloorplanController: React.FC<RoomFloorplanControllerProps> = (
   language,
   glowingRooms,
   toggleRoomGlow,
-  fontStyle
+  fontStyle,
+  occupancyMap: externalOccupancyMap,
+  setOccupancyMap: externalSetOccupancyMap,
+  temperatureMap: externalTemperatureMap,
+  setTemperatureMap: externalSetTemperatureMap
 }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -101,20 +109,25 @@ export const RoomFloorplanController: React.FC<RoomFloorplanControllerProps> = (
 
   // States for interactive controllers
   const [selectedRoomId, setSelectedRoomId] = useState<string>('201');
-  const [occupancyMap, setOccupancyMap] = useState<Record<string, boolean>>({
+  const [localOccupancyMap, setLocalOccupancyMap] = useState<Record<string, boolean>>({
     '201': true,
     '202': false,
     'corridor': true,
     'meeting': false,
     '203': true
   });
-  const [temperatureMap, setTemperatureMap] = useState<Record<string, number>>({
+  const [localTemperatureMap, setLocalTemperatureMap] = useState<Record<string, number>>({
     '201': 21.5,
     '202': 22.0,
     'corridor': 20.2,
     'meeting': 21.0,
     '203': 22.5
   });
+
+  const occupancyMap = externalOccupancyMap || localOccupancyMap;
+  const setOccupancyMap = externalSetOccupancyMap || setLocalOccupancyMap;
+  const temperatureMap = externalTemperatureMap || localTemperatureMap;
+  const setTemperatureMap = externalSetTemperatureMap || setLocalTemperatureMap;
   const [currentLevel, setCurrentLevel] = useState<'01' | '02' | '03'>('02');
   const [interactiveMode, setInteractiveMode] = useState<'lights' | 'occupancy'>('lights');
 
