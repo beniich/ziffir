@@ -28,7 +28,7 @@ import {
   Menu,
   Wine
 } from 'lucide-react';
-import { initAuth, logout } from './firebase';
+import { initAuth, logout, getOrCreateUserProfile } from './firebase';
 import { User as FirebaseUser } from 'firebase/auth';
 import QRCode from 'qrcode';
 import confetti from 'canvas-confetti';
@@ -299,7 +299,7 @@ const TAB_CLEARANCE: Record<string, ('administrateur' | 'client' | 'hotel')[]> =
   'hospitality-manager': ['administrateur', 'hotel'],
   'wine-cellar': ['administrateur', 'client', 'hotel'],
   'profile': ['administrateur', 'client', 'hotel'],
-  'settings': ['administrateur'],
+  'settings': ['administrateur', 'client', 'hotel'],
   'design-showcase': ['administrateur']
 };
 
@@ -370,14 +370,21 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribe = initAuth(
-      (user) => {
+      async (user) => {
         setCurrentUser(user);
         if (user) {
           setStudentName(user.displayName || user.email || 'Elena Petrova');
+          try {
+            const role = await getOrCreateUserProfile(user);
+            setSessionRole(role);
+          } catch (err) {
+            console.error('Failed to sync profile role:', err);
+          }
         }
       },
       () => {
         setCurrentUser(null);
+        setSessionRole('client'); // Default fallback on logout
       }
     );
     return () => unsubscribe();
@@ -1177,7 +1184,7 @@ export default function App() {
                   addAuditLog('MANUAL_ROLE_ELEVATION', 'Manual bypass switch to high Proprietor Level 5 clearance enabled.', 'AUTHORIZED');
                   confetti({ particleCount: 40, spread: 45, colors: ['#ffd700'] });
                 }}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${
+                className={`flex-1 py-2 rounded-lg text-xs font-mono font-bold uppercase transition ${
                   userRole === 'manager'
                     ? 'bg-amber-600 text-white font-bold shadow-[0_0_10px_rgba(217,119,6,0.5)]'
                     : 'text-stone-400 hover:text-stone-200'

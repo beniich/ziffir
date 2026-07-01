@@ -14,7 +14,8 @@ import {
   collection, 
   getDocs, 
   setDoc,
-  doc
+  doc,
+  getDoc
 } from 'firebase/firestore';
 
 import firebaseConfig from '../firebase-applet-config.json';
@@ -55,11 +56,45 @@ export const initAuth = (
 };
 
 // Register a new user with standard email/password credentials
+export const getOrCreateUserProfile = async (user: User, customDisplayName?: string): Promise<'administrateur' | 'client' | 'hotel'> => {
+  const userRef = doc(db, 'users', user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    return userSnap.data().role as 'administrateur' | 'client' | 'hotel';
+  }
+
+  // Determine role based on email domain
+  let role: 'administrateur' | 'client' | 'hotel' = 'client';
+  if (user.email?.endsWith('@zafir.academy')) {
+    role = 'administrateur';
+  } else if (user.email?.endsWith('@sapphir.academy')) {
+    role = 'hotel';
+  }
+
+  // Create new profile
+  const profileData = {
+    uid: user.uid,
+    email: user.email,
+    displayName: customDisplayName || user.displayName || user.email?.split('@')[0],
+    role: role,
+    createdAt: new Date().toISOString(),
+    lastLogin: new Date().toISOString()
+  };
+
+  await setDoc(userRef, profileData);
+  return role;
+};
+
 export const registerWithEmail = async (email: string, password: string, displayName: string): Promise<User> => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     await updateProfile(user, { displayName });
+    
+    // Ensure new profile registry entries are written directly to Firestore
+    await getOrCreateUserProfile(user, displayName);
+
     return user;
   } catch (error: any) {
     console.error('Registration error:', error);
