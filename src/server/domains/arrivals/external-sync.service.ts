@@ -90,7 +90,7 @@ class ExternalSyncService {
     }
 
     // Mise à jour de l'arrivée
-    const updated = await prisma.arrival.update({
+    await prisma.arrival.update({
       where: { id: arrival.id },
       data: { status: newStatus, flightEta: newEta, version: { increment: 1 } },
     });

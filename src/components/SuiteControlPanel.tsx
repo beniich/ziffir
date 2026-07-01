@@ -4,7 +4,7 @@
 // Indicateur Live/Offline, scènes, température, lumière, volets, DND
 // ============================================================================
 
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useSuiteControls, SuiteState } from '../hooks/useSuiteControls';
 
 interface Props {

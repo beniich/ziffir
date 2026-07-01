@@ -1,0 +1,67 @@
+// Prisma Schema for Zaphir Luxury Command Center backend DB (PostgreSQL)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  OPERATOR  // L4 Security Clearance
+  MANAGER   // L5 Sovereign Owner Clearance
+}
+
+enum AuditStatus {
+  AUTHORIZED
+  BYPASS
+  RESTRICTED_ATTEMPT
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role     @default(OPERATOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Link to Audit log entries created by this specific user
+  logs         AuditLog[]
+
+  @@map("users")
+}
+
+model AuditLog {
+  id           String      @id @default(uuid())
+  timestamp    DateTime    @default(now())
+  action       String
+  role         String
+  reason       String
+  previousHash String
+  hash         String      @unique
+  status       AuditStatus @default(AUTHORIZED)
+  
+  // Optional linkage to User record
+  userId       String?
+  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+model RoomServiceOrder {
+  id        String   @id @default(uuid())
+  guestName String
+  roomNo    String
+  details   String
+  status    String   @default("Preparation") // Preparation, Quality Check, Out for Delivery, Delivered
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("room_service_orders")
+}

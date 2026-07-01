@@ -79,7 +79,7 @@ router.get('/:roomId', async (req: Request, res: Response) => {
     const hotelId = getTenantId(req);
 
     const state = await prisma.suiteState.findFirst({
-      where: { hotelId, roomId: req.params.roomId },
+      where: { hotelId: String(hotelId), roomId: String(req.params.roomId) },
       include: { room: true },
     });
 
@@ -116,7 +116,7 @@ router.patch('/:roomId', async (req: Request, res: Response) => {
 
     // 1. Lire l'état courant
     const current = await prisma.suiteState.findFirst({
-      where: { hotelId, roomId: req.params.roomId },
+      where: { hotelId: String(hotelId), roomId: String(req.params.roomId) },
       include: { room: { select: { number: true } } },
     });
 
@@ -172,8 +172,7 @@ router.patch('/:roomId', async (req: Request, res: Response) => {
           metadata: { updates: Object.keys(dataToUpdate), version: u.version },
           ipAddress: req.ip || null,
           userAgent: req.headers['user-agent'] || null,
-        },
-        tx
+        }
       );
 
       return u;
@@ -224,7 +223,7 @@ router.get('/:roomId/history', async (req: Request, res: Response) => {
     const events = await prisma.suiteControlEvent.findMany({
       where: {
         hotelId,
-        suiteState: { roomId: req.params.roomId },
+        suiteState: { roomId: String(req.params.roomId) },
       },
       orderBy: { createdAt: 'desc' },
       take: 50,

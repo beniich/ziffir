@@ -5,7 +5,6 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { eventBus } from '../core/eventBus.js';
 
 const prisma = new PrismaClient();
 
@@ -22,7 +21,7 @@ export const trackTokens = (costPerRequest: number = 1) => {
     const auth = (req as any).auth;
     const hotelId = auth?.hotelId || auth?.tenantId || 'hotel-dev';
     const actorId = auth?.uid || auth?.sub || 'anonymous';
-    const actorType = auth?.role ? 'role' : 'user';
+    const actorType: string = auth?.role ? 'role' : 'user';
 
     const cacheKey = `${hotelId}:${actorType}:${actorId}`;
     let quota = quotaCache.get(cacheKey);

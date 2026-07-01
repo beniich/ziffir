@@ -127,7 +127,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const actorRole = getActorRole(req);
 
     const order = await prisma.roomOrder.findFirst({
-      where: { id: req.params.id, hotelId },
+      where: { id: String(req.params.id), hotelId: String(hotelId) },
       include: {
         room: true,
         items: true,
@@ -306,7 +306,7 @@ router.patch('/:id/transition', async (req: Request, res: Response) => {
     }
 
     const order = await prisma.roomOrder.findFirst({
-      where: { id: req.params.id, hotelId },
+      where: { id: String(req.params.id), hotelId: String(hotelId) },
       include: { room: true },
     });
 
@@ -442,7 +442,7 @@ router.post('/:id/rate', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { message: 'Note invalide (1-5)' } });
     }
 
-    const order = await prisma.roomOrder.findFirst({ where: { id: req.params.id, hotelId } });
+    const order = await prisma.roomOrder.findFirst({ where: { id: String(req.params.id), hotelId: String(hotelId) } });
     if (!order) {
       return res.status(404).json({ success: false, error: { message: 'Commande introuvable' } });
     }

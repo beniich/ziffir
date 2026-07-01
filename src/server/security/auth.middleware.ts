@@ -47,6 +47,6 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     return res.status(401).json({ error: 'Unauthorized', message: 'Missing or invalid authentication credentials.' });
 
   } catch (error) {
-    return res.status(500).json({ error: 'Internal Security Error', details: error.message });
+    return res.status(500).json({ error: 'Internal Security Error', details: error instanceof Error ? error.message : String(error) });
   }
 };

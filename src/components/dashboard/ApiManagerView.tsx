@@ -3,7 +3,7 @@
 // API & Token Manager - Panneau de contrôle des quotas
 // ============================================================================
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from '../../hooks/useToast';
 
 interface TokenQuota {

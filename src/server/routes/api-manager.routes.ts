@@ -43,7 +43,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     const { isSuspended, dailyLimit, suspendReason } = req.body;
     
     const quota = await prisma.apiTokenQuota.findUnique({
-      where: { id: req.params.id }
+      where: { id: String(req.params.id) }
     });
 
     if (!quota || quota.hotelId !== hotelId) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User as FirebaseUser } from 'firebase/auth';
-import { Lock, UserCircle2, KeyRound, ChevronLeft, ShieldCheck, Mail, LogIn, ArrowRight, UserPlus, RefreshCw, Cpu } from 'lucide-react';
+import { Lock, UserCircle2, KeyRound, ChevronLeft, ShieldCheck, Mail, LogIn, UserPlus, RefreshCw, Cpu } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { loginWithEmail, registerWithEmail, googleSignIn } from '../firebase';
 

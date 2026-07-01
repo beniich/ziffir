@@ -65,7 +65,7 @@ interface UseRoomOrdersOptions {
 
 export function useRoomOrders(options: UseRoomOrdersOptions = {}) {
   const { socket, isConnected } = useSocket();
-  const { user } = useAppContext();
+  const {  } = useAppContext();
   const toast = useToast();
   const [orders, setOrders] = useState<RoomOrder[]>([]);
   const [loading, setLoading] = useState(true);

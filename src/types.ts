@@ -1,7 +1,7 @@
 export interface Course {
   code: string;
   name: string;
-  category: 'Operations' | 'Gastronomy' | 'Service' | 'Management';
+  category: 'Operations' | 'Gastronomy' | 'Service' | 'Management' | 'Accommodation' | 'F&B' | 'Wellness' | 'Conciergerie';
   credits: number;
   grade: string;
   completedDate: string;

@@ -3,13 +3,12 @@
 // File d'attente cuisine - affichage optimisé pour écrans cuisine
 // ============================================================================
 
-import React, { useState, useEffect } from 'react';
-import { useRoomOrders, OrderStatus } from '../../hooks/useRoomOrders';
-import { useToast } from '../../hooks/useToast';
+import { useState, useEffect } from 'react';
+import { useRoomOrders } from '../../hooks/useRoomOrders';
+
 
 export function KitchenQueue() {
   const { orders, transition, isLive, stats } = useRoomOrders({ view: 'kitchen' });
-  const toast = useToast();
   
   // Tri : PENDING en premier, puis par ancienneté
   const sorted = [...orders].sort((a, b) => {

@@ -94,7 +94,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { hotelId } = getAuth(req);
 
     const arrival = await prisma.arrival.findFirst({
-      where: { id: req.params.id, hotelId },
+      where: { id: String(req.params.id), hotelId: String(hotelId) },
       include: {
         room: true,
         host: { select: { displayName: true, email: true } },
@@ -222,7 +222,7 @@ router.patch('/:id/transition', async (req: Request, res: Response) => {
     }
 
     const arrival = await prisma.arrival.findFirst({
-      where: { id: req.params.id, hotelId },
+      where: { id: String(req.params.id), hotelId: String(hotelId) },
       include: { tasks: true },
     });
 
@@ -251,8 +251,8 @@ router.patch('/:id/transition', async (req: Request, res: Response) => {
 
     // Bloquer CHECKED_IN si tâches critiques non terminées
     if (toStatus === 'CHECKED_IN') {
-      const criticalPending = arrival.tasks.filter(
-        t => t.isCritical && !['COMPLETED', 'CANCELLED'].includes(t.status)
+      const criticalPending = (arrival as any).tasks.filter(
+        (t: any) => t.isCritical && !['COMPLETED', 'CANCELLED'].includes(t.status)
       );
       if (criticalPending.length > 0) {
         return res.status(400).json({
@@ -260,7 +260,7 @@ router.patch('/:id/transition', async (req: Request, res: Response) => {
           error: {
             message: 'Tâches critiques non terminées',
             code: 'CRITICAL_TASKS_PENDING',
-            tasks: criticalPending.map(t => t.title),
+            tasks: criticalPending.map((t: any) => t.title),
           },
         });
       }
@@ -361,10 +361,10 @@ router.patch('/:id/transition', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/:arrivalId/tasks', async (req: Request, res: Response) => {
   try {
-    const { hotelId, actorId } = getAuth(req);
+    const { hotelId } = getAuth(req);
     const { team, title, description, dueAt, assignedUserId, priority, isCritical } = req.body;
 
-    const arrival = await prisma.arrival.findFirst({ where: { id: req.params.arrivalId, hotelId } });
+    const arrival = await prisma.arrival.findFirst({ where: { id: String(req.params.arrivalId), hotelId: String(hotelId) } });
     if (!arrival) return res.status(404).json({ success: false, error: { message: 'Arrivée introuvable' } });
 
     const task = await prisma.arrivalTask.create({
@@ -411,7 +411,7 @@ router.patch('/tasks/:taskId', async (req: Request, res: Response) => {
     const { status, assignedUserId, version, notes, evidenceUrl } = req.body;
 
     const task = await prisma.arrivalTask.findFirst({
-      where: { id: req.params.taskId, hotelId },
+      where: { id: String(req.params.taskId), hotelId: String(hotelId) },
     });
     if (!task) return res.status(404).json({ success: false, error: { message: 'Tâche introuvable' } });
 

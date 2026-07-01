@@ -3,7 +3,7 @@
 // Vue opérationnelle Arrivals VIP — Timeline + Checklist par équipe
 // ============================================================================
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useArrivals, Arrival, ArrivalTask, ArrivalStatus, TeamType } from '../../hooks/useArrivals';
 
 const VIP_COLORS: Record<string, string> = {
