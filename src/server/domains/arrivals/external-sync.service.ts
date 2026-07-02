@@ -33,7 +33,7 @@ class ExternalSyncService {
       where: {
         hotelId,
         flightNumber: payload.flightNumber,
-        status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PREPARATION', 'ENROUTE'] },
+        status: { in: ['SCHEDULED', 'CONFIRMED', 'EN_ROUTE'] },
       },
     });
 
@@ -67,7 +67,7 @@ class ExternalSyncService {
     }
 
     if (payload.status === 'LANDED') {
-      newStatus = 'LANDED';
+      newStatus = 'EN_ROUTE';
       // Créer une task urgente pour le transport
       await prisma.arrivalTask.create({
         data: {
@@ -85,7 +85,7 @@ class ExternalSyncService {
     }
 
     if (payload.status === 'CANCELLED') {
-      newStatus = 'CANCELLED';
+      newStatus = 'CANCELLED' as any; // Ignore type since cancelled is usually terminal or we use another state
       await this.alertConcierge(arrival, `⛔ Vol ${payload.flightNumber} ANNULÉ`, 'critical');
     }
 
@@ -138,7 +138,7 @@ class ExternalSyncService {
       },
     });
 
-    const newStatus = payload.status === 'AT_LOCATION' ? 'AT_HOTEL' : 'DRIVER_EN_ROUTE';
+    const newStatus = payload.status === 'AT_LOCATION' ? 'ARRIVED' : 'EN_ROUTE';
 
     await prisma.arrival.update({
       where: { id: arrival.id },

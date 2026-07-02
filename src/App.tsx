@@ -26,8 +26,7 @@ import {
   Menu,
   Wine
 } from 'lucide-react';
-import { initAuth, logout, getOrCreateUserProfile } from './firebase';
-import { User as FirebaseUser } from 'firebase/auth';
+import { useAuth } from './contexts/AuthContext';
 import QRCode from 'qrcode';
 import confetti from 'canvas-confetti';
 import { jsPDF } from 'jspdf';
@@ -314,7 +313,15 @@ const TAB_CLEARANCE: Record<string, ('administrateur' | 'client' | 'hotel')[]> =
 export default function App() {
   const [viewMode, setViewMode] = useState<'website' | 'dashboard'>('website');
   const [activeTab, setActiveTab ] = useState<'arrivals' | 'room-service' | 'controls' | 'channel-sync' | 'vault' | 'memberships' | 'maintenance' | 'omni-stream' | 'ledger' | 'management' | 'hospitality-manager' | 'wine-cellar' | 'profile' | 'prestige-portal' | 'design-showcase' | 'settings' | 'billing' | 'user-directory'>('prestige-portal');
-  const [sessionRole, setSessionRole] = useState<'administrateur' | 'client' | 'hotel'>('administrateur');
+  const { user: currentUser, activeHotel, logout: authLogout } = useAuth();
+  
+  const sessionRole = activeHotel?.role === 'OWNER' 
+    ? 'administrateur' 
+    : activeHotel?.role 
+      ? 'hotel' 
+      : currentUser?.role === 'ADMIN' 
+        ? 'administrateur' 
+        : 'client';
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [language, setLanguage] = useState<'EN' | 'FR' | 'RU'>('EN');
 
@@ -332,7 +339,7 @@ export default function App() {
 
   // Student details
   const [studentName, setStudentName] = useState<string>('Invité / Guest');
-  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean>(() => {
     return localStorage.getItem('sapphir_has_active_subscription') === 'true';
@@ -342,7 +349,7 @@ export default function App() {
   useEffect(() => {
     const handleAuthError = () => {
       // Zaphir API rejected token
-      setCurrentUser(null);
+      authLogout();
     };
     window.addEventListener('zaphir-unauthorized', handleAuthError);
 
@@ -366,26 +373,12 @@ export default function App() {
   }, [currentUser, hasActiveSubscription]);
 
   useEffect(() => {
-    const unsubscribe = initAuth(
-      async (user) => {
-        setCurrentUser(user);
-        if (user) {
-          setStudentName(user.displayName || user.email?.split('@')[0] || 'Utilisateur');
-          try {
-            const role = await getOrCreateUserProfile(user);
-            setSessionRole(role);
-          } catch (err) {
-            console.error('Failed to sync profile role:', err);
-          }
-        }
-      },
-      () => {
-        setCurrentUser(null);
-        setSessionRole('client'); // Default fallback on logout
-      }
-    );
-    return () => unsubscribe();
-  }, []);
+    if (currentUser) {
+      setStudentName(currentUser.displayName || currentUser.email?.split('@')[0] || 'Utilisateur');
+    } else {
+      setStudentName('Invité / Guest');
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -976,15 +969,6 @@ export default function App() {
         themeMode={themeMode}
         language={language}
         onAuthSuccess={async (user) => {
-          const token = typeof (user as FirebaseUser).getIdToken === 'function' 
-            ? await (user as FirebaseUser).getIdToken() 
-            : await (user as any).getToken?.();
-          
-          if (token) {
-            zaphirApi.setToken(token);
-          }
-          
-          setCurrentUser(user as FirebaseUser);
           addAuditLog('AUTH_SUCCESS', `User authenticated successfully: ${user.email}`, 'AUTHORIZED');
         }}
         onBackToWebsite={() => {
@@ -1179,15 +1163,8 @@ export default function App() {
                             key={roleItem.id}
                             type="button"
                             onClick={() => {
-                              setSessionRole(roleItem.id as any);
-                              addAuditLog(
-                                'SESSION_ROLE_SIMULATED',
-                                `Switched active credentials profile simulated role to [${roleItem.id.toUpperCase()}].`,
-                                'AUTHORIZED',
-                                roleItem.id.toUpperCase()
-                              );
+                              alert('Le changement de rôle est maintenant géré par le backend unifié (switchHotel).');
                               setProfileDropdownOpen(false);
-                              confetti({ particleCount: 15, colors: ['#c19a6b', '#ffffff'] });
                             }}
                             className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border ${
                               sessionRole === roleItem.id
@@ -1232,7 +1209,7 @@ export default function App() {
                         onClick={async () => {
                           setProfileDropdownOpen(false);
                           try {
-                            await logout();
+                            await authLogout();
                             addAuditLog(
                               'CRYPTO_SECURITY_LOGOUT',
                               'User triggered defensive logout sequence. Recovering access tokens and recycling keys.',
@@ -1240,7 +1217,6 @@ export default function App() {
                               sessionRole.toUpperCase()
                             );
                             setStudentName('Invité / Guest');
-                            setSessionRole('client');
                             confetti({ particleCount: 15, colors: ['#e11d48'] });
                             alert(language === 'FR' ? 'Déconnexion effectuée avec succès !' : 'Successfully logged out !');
                           } catch (err) {

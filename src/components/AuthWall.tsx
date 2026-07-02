@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { User as FirebaseUser } from 'firebase/auth';
 import { Lock, UserCircle2, KeyRound, ChevronLeft, ShieldCheck, Mail, LogIn, UserPlus, RefreshCw, Cpu } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { loginWithEmail, registerWithEmail, googleSignIn } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AuthWallProps {
-  onAuthSuccess: (user: FirebaseUser | { email: string; displayName: string; uid: string; getToken: () => Promise<string> }) => void;
+  onAuthSuccess: (user: any) => void;
   onBackToWebsite: () => void;
   themeMode: 'dark' | 'light';
   language: 'EN' | 'FR' | 'RU';
@@ -94,6 +93,8 @@ export const AuthWall: React.FC<AuthWallProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { login, register } = useAuth();
+  
   const triggerSuccess = (user: any) => {
     confetti({
       particleCount: 100,
@@ -118,11 +119,11 @@ export const AuthWall: React.FC<AuthWallProps> = ({
 
     try {
       if (mode === 'register') {
-        const user = await registerWithEmail(email, password, name);
-        triggerSuccess(user);
+        await register({ email, password, displayName: name || 'User', hotelName: name ? `${name}'s Hotel` : 'My Hotel' });
+        triggerSuccess({ email });
       } else {
-        const user = await loginWithEmail(email, password);
-        triggerSuccess(user);
+        await login(email, password);
+        triggerSuccess({ email });
       }
     } catch (err: any) {
       console.error(err);
@@ -133,16 +134,7 @@ export const AuthWall: React.FC<AuthWallProps> = ({
   };
 
   const handleGoogleSignIn = async () => {
-    setError(null);
-    try {
-      const res = await googleSignIn();
-      if (res?.user) {
-        triggerSuccess(res.user);
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Google Auth failed');
-    }
+    setError('Google SignIn est désactivé sur le système propriétaire Zafir. Veuillez utiliser une clé cryptographique (email/mdp).');
   };
 
   const handleDevBypass = () => {

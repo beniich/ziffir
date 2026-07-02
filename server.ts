@@ -1,10 +1,11 @@
 import 'dotenv/config';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import { createServer as createHttpServer } from 'http';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { microserviceService } from './src/server/microservices.js';
-import { requireAuth } from './src/server/security/auth.middleware.js';
+import { requireAuth } from './src/server/middleware/cookieAuth.js';
 import { trackTokens } from './src/server/security/tokenTracker.js';
 import { initRealtimeServer } from './src/server/realtime/socketServer.js';
 import { orchestrator } from './src/server/core/orchestrator.js';
@@ -13,13 +14,27 @@ import roomOrdersRoutes from './src/server/routes/room-orders.routes.js';
 import pushRoutes from './src/server/routes/push.routes.js';
 import apiManagerRoutes from './src/server/routes/api-manager.routes.js';
 import arrivalsRoutes from './src/server/routes/arrivals.routes.js';
+import authRoutes from './src/server/domains/auth/auth.routes.js';
+import teamRoutes from './src/server/routes/team.routes.js';
+import cors from 'cors';
+import { config } from './src/server/config.js';
 
 async function startServer() {
   const app = express();
   const httpServer = createHttpServer(app);
   const PORT = 3000;
 
+  // CORS
+  app.use(cors({
+    origin: config.frontendUrl,
+    credentials: true, // ⚠️ indispensable pour les cookies
+  }));
+
   app.use(express.json());
+  app.use(cookieParser(config.cookies.domain));
+
+  app.use('/api/auth', authRoutes);
+  app.use('/api/team', teamRoutes);
 
   // --- ZAPHIR SECURITY ENVELOPE ---
   // Ensure all API endpoints are authenticated and tracked

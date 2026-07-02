@@ -272,7 +272,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Notifications push aux staffs
     try {
-      const staffMembers = await prisma.membership.findMany({
+      const staffMembers = await prisma.hotelMembership.findMany({
         where: { hotelId, role: { in: ['OWNER', 'MANAGER', 'STAFF'] } },
         include: { user: { include: { pushSubscriptions: true } } },
       });

@@ -29,13 +29,10 @@ router.post('/subscribe', async (req: Request, res: Response) => {
         endpoint,
         p256dh: keys.p256dh,
         auth: keys.auth,
-        userAgent: req.headers['user-agent'] || null,
       },
       update: {
-        userId: actorId,
         p256dh: keys.p256dh,
         auth: keys.auth,
-        lastUsedAt: new Date(),
       },
     });
 

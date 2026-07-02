@@ -3,13 +3,9 @@
 // Génère automatiquement la checklist de tasks selon le profil VIP
 // ============================================================================
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, VipLevel, TransportMode, TeamType } from '@prisma/client';
 
 const prisma = new PrismaClient();
-
-type VipLevel = 'CLASSIC' | 'PREFERRED' | 'VIP' | 'PRESTIGE' | 'ROYAL' | 'BLACKLISTED';
-type TransportMode = 'PRIVATE_JET' | 'COMMERCIAL_FLIGHT' | 'HELICOPTER' | 'YACHT' | 'LIMOUSINE' | 'TRAIN' | 'CAR' | 'WALKING';
-type TeamType = 'RECEPTION' | 'CONCIERGERIE' | 'HOUSEKEEPING' | 'KITCHEN' | 'BELL_SERVICE' | 'TRANSPORT' | 'SECURITY' | 'MANAGEMENT' | 'EXTERNAL';
 
 interface ArrivalInput {
   guestName: string;
@@ -45,7 +41,7 @@ interface PlannedTask {
   isCritical: boolean;
 }
 
-const HIGH_VIP_LEVELS: VipLevel[] = ['VIP', 'PRESTIGE', 'ROYAL'];
+const HIGH_VIP_LEVELS: VipLevel[] = ['GOLD', 'DIAMOND', 'AMBASSADOR'];
 
 class ArrivalPlannerService {
 
@@ -54,7 +50,7 @@ class ArrivalPlannerService {
     const arrivalTime = new Date(arrival.scheduledArrivalAt);
     const suiteReadyBy = new Date(arrival.suiteReadyBy);
 
-    // --- HOUSEKEEPING ---
+    // --- HOUSEKEEPING : préparation de la suite ---
     tasks.push({
       team: 'HOUSEKEEPING',
       title: 'Inspection finale de la suite',
@@ -75,7 +71,7 @@ class ArrivalPlannerService {
 
     // --- KITCHEN ---
     tasks.push({
-      team: 'KITCHEN',
+      team: 'RESTAURANT',
       title: 'Préparation du welcome drink',
       description: arrival.dietaryNotes
         ? `Welcome drink — attention: ${arrival.dietaryNotes}`
@@ -87,7 +83,7 @@ class ArrivalPlannerService {
 
     // --- CONCIERGERIE ---
     tasks.push({
-      team: 'CONCIERGERIE',
+      team: 'CONCIERGE',
       title: 'Vérification profil & préférences guest',
       description: 'Historique séjours, allergies, anniversaires, demandes spéciales',
       dueAt: new Date(arrivalTime.getTime() - 24 * 60 * 60_000), // T-24h
@@ -96,7 +92,7 @@ class ArrivalPlannerService {
     });
 
     // --- BELL SERVICE ---
-    if (arrival.transportMode !== 'WALKING') {
+    if (arrival.transportMode !== 'WALK_IN') {
       tasks.push({
         team: 'BELL_SERVICE',
         title: 'Voiturier en position',
@@ -108,9 +104,9 @@ class ArrivalPlannerService {
     }
 
     // --- TRANSPORT : jet privé / hélico / yacht ---
-    if (['PRIVATE_JET', 'HELICOPTER', 'YACHT'].includes(arrival.transportMode)) {
+    if (['HELICOPTER', 'YACHT'].includes(arrival.transportMode)) {
       tasks.push({
-        team: 'TRANSPORT',
+        team: 'VALET',
         title: 'Coordination avec compagnie jet/yacht',
         description: `Transport: ${arrival.flightNumber || 'N/A'} — vérifier ETA et conditions d'accueil tarmac`,
         dueAt: new Date(arrivalTime.getTime() - 2 * 60 * 60_000),
@@ -120,7 +116,7 @@ class ArrivalPlannerService {
     }
 
     // --- EXTERNAL : tracking vol commercial ---
-    if (arrival.transportMode === 'COMMERCIAL_FLIGHT' && arrival.flightNumber) {
+    if (arrival.transportMode === 'FLIGHT' && arrival.flightNumber) {
       tasks.push({
         team: 'EXTERNAL',
         title: `Suivi vol ${arrival.flightNumber} en temps réel`,
@@ -155,7 +151,7 @@ class ArrivalPlannerService {
     // --- MANAGEMENT : niveaux VIP+ ---
     if (HIGH_VIP_LEVELS.includes(arrival.vipLevel) && arrival.hostUserId) {
       tasks.push({
-        team: 'MANAGEMENT',
+        team: 'RECEPTION',
         title: 'GM / Directeur prêt pour accueil personnalisé',
         description: 'Discours personnalisé selon profil, photo souvenir si souhaité',
         dueAt: new Date(arrivalTime.getTime() - 15 * 60_000),
@@ -165,14 +161,26 @@ class ArrivalPlannerService {
     }
 
     // --- SECURITY : ROYAL ou très haut risque ---
-    if (arrival.vipLevel === 'ROYAL') {
+    if (arrival.vipLevel === 'AMBASSADOR') {
       tasks.push({
-        team: 'SECURITY',
+        team: 'RECEPTION',
         title: 'Périmètre sécurisé et briefing agents',
         description: 'Coordonner avec service de sécurité VIP. Vérifier accès discrets.',
         dueAt: new Date(arrivalTime.getTime() - 60 * 60_000),
         priority: 2,
         isCritical: true,
+      });
+    }
+
+    // --- 3. DIAMOND / AMBASSADOR level overrides
+    if (arrival.vipLevel === 'DIAMOND' || arrival.vipLevel === 'AMBASSADOR') {
+      tasks.push({
+        team: 'RESTAURANT',
+        title: 'Accueil personnalisé avec champagne',
+        description: 'Bouteille sélectionnée en chambre. Assurer la température parfaite.',
+        dueAt: new Date(arrivalTime.getTime() - 30 * 60_000),
+        priority: 1,
+        isCritical: false,
       });
     }
 

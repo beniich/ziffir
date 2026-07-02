@@ -62,19 +62,17 @@ class AuditService {
   private async writeOne(event: AuditEventInput) {
     // 1. Récupérer le dernier log (pour la chaîne)
     const last = await prisma.auditLog.findFirst({
-      orderBy: { sequence: 'desc' },
-      select: { sequence: true, hash: true },
+      orderBy: { createdAt: 'desc' },
+      select: { hash: true },
     });
 
-    const sequence = last ? BigInt(last.sequence) + 1n : 1n;
-    const previousHash = last?.hash ?? null;
+    const previousHash = last?.hash ?? 'GENESIS';
     const now = new Date().toISOString();
 
     // 2. Calculer le hash du log courant
     const payload = JSON.stringify({
-      sequence: sequence.toString(),
       eventType: event.eventType,
-      tenantId: event.tenantId ?? null,
+      hotelId: event.tenantId ?? null,
       actorId: event.actorId ?? null,
       actorType: event.actorType,
       resourceType: event.resourceType ?? null,
@@ -93,19 +91,18 @@ class AuditService {
     // 3. Écrire
     const log = await prisma.auditLog.create({
       data: {
-        sequence,
         eventType: event.eventType,
-        tenantId: event.tenantId,
-        actorId: event.actorId,
+        hotelId: event.tenantId ?? undefined,
+        actorId: event.actorId ?? undefined,
         actorType: event.actorType,
-        resourceType: event.resourceType,
-        resourceId: event.resourceId,
+        resourceType: event.resourceType ?? undefined,
+        resourceId: event.resourceId ?? undefined,
         action: event.action,
-        metadata: event.metadata ? JSON.stringify(event.metadata) : null,
+        metadata: event.metadata ? JSON.stringify(event.metadata) : undefined,
         previousHash,
         hash,
-        ipAddress: event.ipAddress,
-        userAgent: event.userAgent,
+        ipAddress: event.ipAddress ?? undefined,
+        userAgent: event.userAgent ?? undefined,
       },
     });
 
@@ -121,16 +118,15 @@ class AuditService {
     totalLogs: number;
   }> {
     const logs = await prisma.auditLog.findMany({
-      orderBy: { sequence: 'asc' },
+      orderBy: { createdAt: 'asc' },
     });
 
     let previousHash: string | null = null;
 
     for (const log of logs) {
       const payload = JSON.stringify({
-        sequence: log.sequence.toString(),
         eventType: log.eventType,
-        tenantId: log.tenantId,
+        hotelId: log.hotelId,
         actorId: log.actorId,
         actorType: log.actorType,
         resourceType: log.resourceType,
@@ -149,7 +145,7 @@ class AuditService {
       if (log.hash !== expectedHash || log.previousHash !== previousHash) {
         return {
           valid: false,
-          brokenAt: log.sequence,
+          brokenAt: BigInt(logs.indexOf(log)),
           totalLogs: logs.length,
         };
       }
@@ -174,7 +170,7 @@ class AuditService {
       limit?: number;
     } = {}
   ) {
-    const where: any = { tenantId };
+    const where: any = { hotelId: tenantId };
     if (options.eventType) where.eventType = options.eventType;
     if (options.resourceType) where.resourceType = options.resourceType;
     if (options.actorId) where.actorId = options.actorId;
@@ -186,7 +182,7 @@ class AuditService {
 
     return prisma.auditLog.findMany({
       where,
-      orderBy: { sequence: 'desc' },
+      orderBy: { createdAt: 'desc' },
       take: options.limit ?? 100,
     });
   }
