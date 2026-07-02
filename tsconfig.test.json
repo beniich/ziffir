@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "strict": true,
+    "noEmit": true,
+    "types": ["jest", "node"],
+    "esModuleInterop": true
+  },
+  "include": ["src/server/__tests__", "src/server"],
+  "exclude": ["node_modules"]
+}

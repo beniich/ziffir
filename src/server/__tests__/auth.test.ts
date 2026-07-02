@@ -192,7 +192,7 @@ describe('Auth Service', () => {
   // SWITCH HOTEL
   // ===========================================================================
   describe('switchHotel', () => {
-    it('change l\\'hôtel actif', async () => {
+    it("change l'hôtel actif", async () => {
       // User avec 1 hôtel (OWNER) ne peut pas switch
       // Créer un user avec 2 memberships manuellement
       const user = await prisma.user.create({
@@ -332,7 +332,7 @@ describe('Auth Service', () => {
       expect(perms).toContain('*');
     });
 
-    it('STAFF n\\'a pas accès au billing', () => {
+    it("STAFF n'a pas accès au billing", () => {
       const perms = authService['computePermissions']('STAFF', []);
       expect(perms).not.toContain('billing.view');
       expect(perms).not.toContain('billing.manage');
@@ -347,7 +347,7 @@ describe('Auth Service', () => {
       expect(authService.hasPermission(perms, 'unknown.action')).toBe(false);
     });
 
-    it('permissions custom s\\'ajoutent aux permissions de base', () => {
+    it("permissions custom s'ajoutent aux permissions de base", () => {
       const basePerms = authService['computePermissions']('STAFF', []);
       const customPerms = authService['computePermissions']('STAFF', ['vault.view', 'vault.edit']);
       

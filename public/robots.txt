@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /portal/
+Disallow: /suite-controls
+Disallow: /room-service
+Disallow: /arrivals
+Disallow: /wine-cellar
+Disallow: /settings
+
+# Sitemap
+Sitemap: https://www.ziffir.com/sitemap.xml

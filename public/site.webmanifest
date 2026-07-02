@@ -1,0 +1,23 @@
+{
+  "name": "Ziffir — Hôtellerie de Luxe",
+  "short_name": "Ziffir",
+  "description": "Plateforme SaaS d'intelligence prédictive pour hôtellerie de luxe",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060A13",
+  "theme_color": "#0f172a",
+  "lang": "fr-FR",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "productivity", "lifestyle"]
+}
