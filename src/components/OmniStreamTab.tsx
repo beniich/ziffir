@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, Instagram, Mail, Star } from 'lucide-react';
+import { Activity, Camera, Mail, Star } from 'lucide-react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -111,7 +111,7 @@ export const OmniStreamTab: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-1.5 text-xs text-rose-600 font-bold">
-                    <Instagram className="w-4 h-4" /> <span>Instagram</span>
+                    <Camera className="w-4 h-4" /> <span>Social</span>
                   </div>
                   <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-300/30 shadow-sm">AIS</span>
                 </div>
