@@ -937,7 +937,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
           </div>
           
           <div className="flex flex-wrap items-center gap-2 self-stretch md:self-auto">
-            <button
+            <button type="button" 
               onClick={() => setShowNewOrderModal(true)}
               className="flex items-center gap-1 bg-gradient-to-r from-gold-400 to-gold-600 hover:from-gold-300 hover:to-gold-500 text-slate-950 font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-lg hover:shadow-gold-500/10 active:scale-95 duration-150 cursor-pointer border border-gold-300/20"
             >
@@ -1006,7 +1006,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
             {/* Quick Status Filters */}
             <div className="flex flex-wrap items-center gap-1.5">
               {(['All', 'Preparation', 'Quality Check', 'Out for Delivery', 'Delivered'] as const).map((st) => (
-                <button
+                <button type="button" 
                   key={st}
                   onClick={() => setStatusFilter(st)}
                   className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-medium transition cursor-pointer border ${
@@ -1040,7 +1040,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
               </select>
 
               {/* Ascending toggle */}
-              <button
+              <button type="button" 
                 onClick={() => setIsAsc(!isAsc)}
                 title={isAsc ? t.desc : t.asc}
                 className="p-1 hover:bg-slate-800 rounded transition text-slate-400 border border-slate-800 cursor-pointer"
@@ -1051,7 +1051,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
 
             {/* View Mode segmented control */}
             <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-              <button
+              <button type="button" 
                 onClick={() => setViewMode('kanban')}
                 className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1 transition-all ${
                   viewMode === 'kanban' 
@@ -1063,7 +1063,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
                 <Kanban className="w-3.5 h-3.5 text-[#c19a6b]" />
                 <span className="hidden sm:inline">{t.viewKanban}</span>
               </button>
-              <button
+              <button type="button" 
                 onClick={() => setViewMode('grid')}
                 className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1 transition-all ${
                   viewMode === 'grid' 
@@ -1164,14 +1164,14 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
 
                               {/* Order prioritization controls overlay */}
                               <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-950/95 backdrop-blur-md p-1 rounded-lg border border-slate-800 shadow-lg z-15">
-                                <button 
+                                <button type="button" 
                                   onClick={(e) => { e.stopPropagation(); moveOrder(order.id, 'up'); }}
                                   className="p-1 hover:bg-slate-800 text-slate-300 hover:text-gold-400 rounded transition cursor-pointer"
                                   title={t.movePrioritize}
                                 >
                                   <ArrowUp className="w-3 h-3" />
                                 </button>
-                                <button 
+                                <button type="button" 
                                   onClick={(e) => { e.stopPropagation(); moveOrder(order.id, 'down'); }}
                                   className="p-1 hover:bg-slate-800 text-slate-300 hover:text-gold-400 rounded transition cursor-pointer"
                                   title={t.moveDeprioritize}
@@ -1206,7 +1206,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
                                 </span>
                                 
                                 {order.status !== 'Delivered' && (
-                                  <button
+                                  <button type="button" 
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleAdvanceStatus(order.id);
@@ -1255,14 +1255,14 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
 
                     {/* Order prioritization controls */}
                     <div className="absolute top-4 right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-950/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-800 shadow-lg z-15">
-                      <button 
+                      <button type="button" 
                         onClick={(e) => { e.stopPropagation(); moveOrder(order.id, 'up'); }}
                         className="p-1 hover:bg-slate-800 text-slate-300 hover:text-gold-400 rounded transition cursor-pointer"
                         title={t.movePrioritize}
                       >
                         <ArrowUp className="w-4 h-4" />
                       </button>
-                      <button 
+                      <button type="button" 
                         onClick={(e) => { e.stopPropagation(); moveOrder(order.id, 'down'); }}
                         className="p-1 hover:bg-slate-800 text-slate-300 hover:text-gold-400 rounded transition cursor-pointer"
                         title={t.moveDeprioritize}
@@ -1324,7 +1324,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
                       </span>
                       
                       {order.status !== 'Delivered' && (
-                        <button
+                        <button type="button" 
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAdvanceStatus(order.id);
@@ -1418,7 +1418,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
           {/* Refund issuance trigger */}
           {currentInvoice.status === 'PAID' && (
             <div className="pt-6 border-t border-slate-800 mt-6 flex justify-start animate-fade-in">
-              <button 
+              <button type="button" 
                 onClick={() => setShowRefundPrompt(true)}
                 className="py-2.5 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 font-bold text-xs uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1.5 font-mono cursor-pointer"
               >
@@ -1457,13 +1457,13 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
                 </div>
               </div>
               <div className="flex gap-2 pt-2">
-                <button 
+                <button type="button" 
                   onClick={handleIssueRefund} 
                   className="bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/40 text-[10px] font-bold px-4 py-2 rounded-xl transition cursor-pointer"
                 >
                   {t.confirmRefund}
                 </button>
-                <button 
+                <button type="button" 
                   onClick={() => setShowRefundPrompt(false)}
                   className="bg-slate-900 hover:bg-slate-800 text-slate-400 text-[10px] font-bold px-4 py-2 rounded-xl transition cursor-pointer border border-slate-800"
                 >
@@ -1488,7 +1488,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
 
             {/* Pay method selector tabs */}
             <div className="grid grid-cols-3 gap-2 py-1">
-              <button 
+              <button type="button" 
                 onClick={() => setPayMethod('CARD')}
                 className={`py-2 text-[9px] font-mono font-bold uppercase border rounded-xl transition-all cursor-pointer ${
                   payMethod === 'CARD' ? 'border-[#c19a6b] bg-[#c19a6b]/10 text-[#c19a6b] font-bold' : 'border-slate-800 bg-transparent text-slate-400 hover:text-slate-300'
@@ -1496,7 +1496,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
               >
                 Card
               </button>
-              <button 
+              <button type="button" 
                 onClick={() => setPayMethod('BANK_TRANSFER')}
                 className={`py-2 text-[9px] font-mono font-bold uppercase border rounded-xl transition-all cursor-pointer ${
                   payMethod === 'BANK_TRANSFER' ? 'border-[#c19a6b] bg-[#c19a6b]/10 text-[#c19a6b] font-bold' : 'border-slate-800 bg-transparent text-slate-400 hover:text-slate-300'
@@ -1504,7 +1504,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
               >
                 SWIFT Wire
               </button>
-              <button 
+              <button type="button" 
                 onClick={() => setPayMethod('CASH')}
                 className={`py-2 text-[9px] font-mono font-bold uppercase border rounded-xl transition-all cursor-pointer ${
                   payMethod === 'CASH' ? 'border-[#c19a6b] bg-[#c19a6b]/10 text-[#c19a6b] font-bold' : 'border-slate-800 bg-transparent text-slate-400 hover:text-slate-300'
@@ -1651,7 +1651,7 @@ export const RoomServiceTab: React.FC<RoomServiceTabProps> = ({ roomOrders, adva
               <h3 className="text-sm font-sans font-bold text-slate-100 uppercase tracking-widest flex items-center gap-1.5">
                 <Utensils className="w-4 h-4 text-[#c19a6b]" /> {t.newOrderBtn}
               </h3>
-              <button 
+              <button type="button" 
                 onClick={() => setShowNewOrderModal(false)}
                 className="text-slate-400 hover:text-slate-200 transition bg-slate-950 p-1.5 rounded-lg border border-slate-800 cursor-pointer"
               >

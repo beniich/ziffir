@@ -938,7 +938,7 @@ export const WineCellarTab: React.FC<WineCellarTabProps> = ({ language, addAudit
             </div>
 
             {/* Add Bottle Lot Lot Trigger Button */}
-            <button
+            <button type="button" 
               onClick={() => setIsModalOpen(true)}
               className="bg-[#722f37] hover:bg-[#582027] text-white font-mono text-[10px] uppercase font-bold p-3 px-4 rounded-xl transition shadow active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
             >
@@ -1026,7 +1026,7 @@ export const WineCellarTab: React.FC<WineCellarTabProps> = ({ language, addAudit
 
                         {/* Interactive decrementor & incremental restocker */}
                         <div className="flex gap-1">
-                          <button
+                          <button type="button" 
                             onClick={() => handleConsumeBottle(wine.id)}
                             disabled={wine.bottleCount <= 0}
                             title={t.consumeBtn}
@@ -1035,7 +1035,7 @@ export const WineCellarTab: React.FC<WineCellarTabProps> = ({ language, addAudit
                             <Minus className="w-2.5 h-2.5" />
                             <span>Pour</span>
                           </button>
-                          <button
+                          <button type="button" 
                             onClick={() => handleRestockBottle(wine.id)}
                             title={t.restockBtn}
                             className="p-1 px-2.5 bg-[#7c5a30]/10 hover:bg-[#7c5a30]/25 text-[#7c5a30] rounded-lg border border-[#c19a6b]/35 active:scale-95 transition-all text-[11px] font-bold cursor-pointer flex items-center gap-0.5"
@@ -1063,7 +1063,7 @@ export const WineCellarTab: React.FC<WineCellarTabProps> = ({ language, addAudit
                 <WineIcon className="w-5 h-5 text-[#722f37]" />
                 {t.addWineModal}
               </h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-1 rounded-full hover:bg-black/5 text-slate-400 hover:text-slate-700">
+              <button type="button" onClick={() => setIsModalOpen(false)} className="p-1 rounded-full hover:bg-black/5 text-slate-400 hover:text-slate-700">
                 Cancel
               </button>
             </div>

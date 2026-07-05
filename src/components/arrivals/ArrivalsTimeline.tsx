@@ -87,13 +87,13 @@ function TaskRow({ task, onUpdate }: { task: ArrivalTask; onUpdate: (status: str
       {!isDone && task.status !== 'BLOCKED' && (
         <div style={{ display: 'flex', gap: '6px' }}>
           {task.status === 'PENDING' && (
-            <button onClick={() => onUpdate('IN_PROGRESS')} style={{
+            <button type="button" onClick={() => onUpdate('IN_PROGRESS')} style={{
               fontSize: '12px', padding: '4px 10px', backgroundColor: '#60a5fa', color: '#fff',
               border: 'none', borderRadius: '6px', cursor: 'pointer',
             }}>▶ Start</button>
           )}
           {task.status === 'IN_PROGRESS' && (
-            <button onClick={() => onUpdate('COMPLETED')} style={{
+            <button type="button" onClick={() => onUpdate('COMPLETED')} style={{
               fontSize: '12px', padding: '4px 10px', backgroundColor: '#10b981', color: '#fff',
               border: 'none', borderRadius: '6px', cursor: 'pointer',
             }}>✓ Done</button>
@@ -200,8 +200,7 @@ function ArrivalCard({ arrival, onTransition, onTaskUpdate }: {
           {/* Action principale */}
           <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
             {nextAction && (
-              <button
-                onClick={() => onTransition(arrival.id, nextAction.toStatus, arrival.version)}
+              <button type="button"                 onClick={() => onTransition(arrival.id, nextAction.toStatus, arrival.version)}
                 style={{
                   flex: 1, padding: '10px', backgroundColor: '#1f2937', color: '#fff',
                   border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '14px',
@@ -211,8 +210,7 @@ function ArrivalCard({ arrival, onTransition, onTaskUpdate }: {
               </button>
             )}
             {!['CANCELLED', 'CHECKED_IN', 'NO_SHOW'].includes(arrival.status) && (
-              <button
-                onClick={() => onTransition(arrival.id, 'CANCELLED', arrival.version)}
+              <button type="button"                 onClick={() => onTransition(arrival.id, 'CANCELLED', arrival.version)}
                 style={{
                   padding: '10px 16px', backgroundColor: 'transparent', color: '#ef4444',
                   border: '1px solid #ef4444', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px',

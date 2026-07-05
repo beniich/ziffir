@@ -1,4 +1,6 @@
 import { SEO } from '../seo/SEO';
+import { Link } from 'react-router-dom';
+import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -12,28 +14,29 @@ export function PublicLayout({ children, title, description, noindex, jsonLd }: 
   return (
     <>
       <SEO title={title} description={description} noindex={noindex} jsonLd={jsonLd} />
-
-      <header role="banner" className="public-header">
-        <nav aria-label="Navigation principale" className="public-nav">
-          <a href="/" className="nav-brand" aria-label="Ziffir - Accueil">
+      <header role="banner" className="public-header glass-header">
+        <nav aria-label="Main Navigation" className="public-nav">
+          <Link to="/" className="nav-brand" aria-label="Ziffir - Home">
             <span className="brand-logo">✦</span>
             <span className="brand-name">Ziffir</span>
-          </a>
+          </Link>
 
           <ul className="nav-links" role="list">
-            <li><a href="/#features">Fonctionnalités</a></li>
-            <li><a href="/#pricing">Tarifs</a></li>
-            <li><a href="/#faq">FAQ</a></li>
+            <li><Link to="/features">Features</Link></li>
+            <li><Link to="/pricing">Pricing</Link></li>
+            <li><Link to="/blog">Blog</Link></li>
+            <li><Link to="/changelog">Changelog</Link></li>
           </ul>
 
           <div className="nav-actions">
-            <a href="/login" className="btn btn-ghost">Connexion</a>
-            <a href="/register" className="btn btn-primary">Essai gratuit</a>
+            <LanguageSwitcher compact />
+            <Link to="/login" className="btn-ghost">Login</Link>
+            <Link to="/register" className="btn-primary glow-btn-sm">Free Trial</Link>
           </div>
         </nav>
       </header>
 
-      <main id="main-content" role="main">
+      <main id="main-content" role="main" className="public-main">
         {children}
       </main>
 
@@ -42,18 +45,32 @@ export function PublicLayout({ children, title, description, noindex, jsonLd }: 
           <section aria-labelledby="footer-product">
             <h2 id="footer-product">Produit</h2>
             <ul>
-              <li><a href="/#features">Fonctionnalités</a></li>
-              <li><a href="/#pricing">Tarifs</a></li>
-              <li><a href="/register">Essai gratuit</a></li>
+              <li><Link to="/features">Fonctionnalités</Link></li>
+              <li><Link to="/pricing">Tarifs</Link></li>
+              <li><Link to="/trial">Essai Gratuit</Link></li>
+              <li><Link to="/status">Statut</Link></li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="footer-company">
+            <h2 id="footer-company">Entreprise</h2>
+            <ul>
+              <li><Link to="/blog">Blog</Link></li>
+              <li><Link to="/changelog">Changelog</Link></li>
+              <li><Link to="/careers">Carrières</Link></li>
+              <li><Link to="/partners">Partenaires</Link></li>
+              <li><Link to="/docs">Documentation</Link></li>
             </ul>
           </section>
 
           <section aria-labelledby="footer-legal">
-            <h2 id="footer-legal">Légal</h2>
+            <h2 id="footer-legal"><Link to="/legal" className="hover:text-[#D4AF37]">Légal</Link></h2>
             <ul>
-              <li><a href="/legal/mentions">Mentions légales</a></li>
-              <li><a href="/legal/privacy">Confidentialité</a></li>
-              <li><a href="/legal/gdpr">RGPD</a></li>
+              <li><Link to="/legal/terms">Conditions d'utilisation</Link></li>
+              <li><Link to="/legal/privacy">Politique de confidentialité</Link></li>
+              <li><Link to="/legal/gdpr">Conformité RGPD</Link></li>
+              <li><Link to="/legal/cgv">CGV</Link></li>
+              <li><Link to="/legal/cookies">Cookies</Link></li>
             </ul>
           </section>
 
@@ -68,7 +85,7 @@ export function PublicLayout({ children, title, description, noindex, jsonLd }: 
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Ziffir SAS. Tous droits réservés.</p>
+          <p>&copy; {new Date().getFullYear()} Ziffir SAS. All rights reserved.</p>
         </div>
       </footer>
     </>

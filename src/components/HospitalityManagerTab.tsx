@@ -801,8 +801,7 @@ export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ la
                 className="pl-8 pr-4 py-1.5 w-full md:w-64 bg-white/60 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-[#c19a6b] font-mono"
               />
             </div>
-            <button
-              onClick={() => setShowAddSuite(!showAddSuite)}
+            <button type="button"               onClick={() => setShowAddSuite(!showAddSuite)}
               className="py-1.5 px-3.5 bg-[#c19a6b] hover:bg-[#7c5a30] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition flex items-center gap-1.5 shrink-0"
             >
               <PlusCircle className="w-3.5 h-3.5" />
@@ -906,8 +905,7 @@ export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ la
                     </div>
                   </td>
                   <td className="py-3.5 px-4 font-mono">
-                    <button
-                      onClick={() => handleToggleOccupancy(s.id)}
+                    <button type="button"                       onClick={() => handleToggleOccupancy(s.id)}
                       title="Click to cycle occupancy status"
                       className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold cursor-pointer hover:scale-105 active:scale-95 transition-all outline-none border ${
                         s.occupancy === 'Occupied' ? 'bg-amber-100/90 text-amber-700 border-amber-200' :
@@ -945,14 +943,14 @@ export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ la
                   </td>
                   <td className="py-2 px-4 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <button 
+                      <button type="button" 
                         onClick={() => handleCleanSuite(s.id)}
                         className="py-1 px-2.5 hover:bg-emerald-600 hover:text-white bg-emerald-500/10 text-emerald-700 font-mono text-[10px] font-bold rounded-lg border border-emerald-500/20 transition-all active:scale-95 duration-150"
                         title={t.cleanRoom}
                       >
                         {s.cleaningStatus === 'Requires Attention' ? 'Clean Now' : 'Refresh'}
                       </button>
-                      <button 
+                      <button type="button" 
                         onClick={() => handleToggleCardAccess(s.id)}
                         className="p-1 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono text-[10px] rounded-lg border border-slate-350 transition-all"
                         title={t.toggleAccess}
@@ -985,8 +983,7 @@ export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ la
             {/* Filter buttons */}
             <div className="inline-flex rounded-lg bg-black/5 p-0.5">
               {(['All', 'Awaiting Fire', 'Preparing', 'Ready'] as const).map((opt) => (
-                <button
-                  key={opt}
+                <button type="button"                   key={opt}
                   onClick={() => setKitchenFilter(opt)}
                   className={`px-2.5 py-1 text-[10px] font-mono rounded-md transition ${
                     kitchenFilter === opt ? 'bg-white text-slate-800 shadow-sm font-bold' : 'text-slate-500 hover:text-slate-800'
@@ -997,8 +994,7 @@ export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ la
               ))}
             </div>
             
-            <button
-              onClick={() => setShowAddDish(!showAddDish)}
+            <button type="button"               onClick={() => setShowAddDish(!showAddDish)}
               className="py-1.5 px-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition flex items-center gap-1.5 shrink-0"
             >
               <UtensilsCrossed className="w-3.5 h-3.5" />
@@ -1131,7 +1127,7 @@ export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ la
                   <td className="py-2 px-4 text-right">
                     <div className="flex items-center justify-end gap-1.5">
                       {k.status !== 'Ready to Dispatch' && (
-                        <button 
+                        <button type="button" 
                           onClick={() => handleFireDish(k.id)}
                           className="py-1 px-2 hover:bg-amber-600 hover:text-white bg-amber-500/10 text-amber-800 font-mono text-[10px] font-bold rounded-lg border border-amber-500/20 transition-all flex items-center gap-1"
                           title={t.fireDish}
@@ -1140,7 +1136,7 @@ export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ la
                           <span>FIRE</span>
                         </button>
                       )}
-                      <button 
+                      <button type="button" 
                         onClick={() => handleReadyDish(k.id, k.name, k.roomDestination)}
                         className="py-1 px-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-mono text-[10px] font-bold rounded-lg transition-all"
                         title={t.readyDish}
@@ -1180,8 +1176,7 @@ export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ la
                 className="pl-8 pr-4 py-1.5 w-full md:w-64 bg-white/60 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-[#c19a6b] font-mono"
               />
             </div>
-            <button
-              onClick={() => setShowAddStock(!showAddStock)}
+            <button type="button"               onClick={() => setShowAddStock(!showAddStock)}
               className="py-1.5 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition flex items-center gap-1.5 shrink-0"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -1332,7 +1327,7 @@ export const HospitalityManagerTab: React.FC<HospitalityManagerTabProps> = ({ la
                       )}
                     </td>
                     <td className="py-2 px-4 text-right">
-                      <button 
+                      <button type="button" 
                         onClick={() => handleReplenishStock(stk.id, stk.name)}
                         className="py-1 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-[10px] font-bold rounded-lg transition-all"
                       >

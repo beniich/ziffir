@@ -23,7 +23,7 @@ export const ChannelSyncTab: React.FC<ChannelSyncTabProps> = ({ channels, syncLo
             </h2>
             <p className="text-xs text-slate-600">Distribute pricing, real-time availability parity & synchronize OTA integrations</p>
           </div>
-          <button 
+          <button type="button" 
             onClick={() => window.location.reload()}
             className="text-xs bg-[#c19a6b]/20 hover:bg-[#c19a6b] hover:text-white text-[#7c5a30] border border-[#c19a6b]/40 font-mono font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1 active:scale-95"
           >

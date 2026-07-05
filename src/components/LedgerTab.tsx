@@ -244,7 +244,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
 
             {/* Dispatch interactives */}
             <div className="space-y-2 relative z-10 pt-2 border-t border-black/5">
-              <button
+              <button type="button" 
                 onClick={handleLocalVerify}
                 className="w-full py-3 bg-[#c19a6b] hover:bg-[#7c5a30] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow active:scale-95 flex items-center justify-center gap-1.5 font-mono duration-200"
               >

@@ -7,7 +7,7 @@ const { authenticator } = require('otplib');
 import { UserRole, HotelRole, Plan, SubscriptionStatus } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { emailService } from '../../lib/email';
-
+import { auditService } from '../shared/services/audit.service';
 const ACCESS_TTL = '15m';
 // const REFRESH_TTL = '7d';
 const TRIAL_DURATION_DAYS = 14;
@@ -153,6 +153,17 @@ class AuthService {
       
       return { user, hotel, session, refreshToken };
     });
+
+    // SOC 2 Audit: Register
+    auditService.append({
+      eventType: 'AUTH.REGISTER',
+      actorId: result.user.id,
+      actorType: 'user',
+      action: 'User registered new account and hotel',
+      resourceType: 'Hotel',
+      resourceId: result.hotel.id,
+      metadata: { hotelName: input.hotelName, email: input.email }
+    }).catch(console.error);
     
     const accessToken = this.signAccessToken({
       sub: result.user.id,
@@ -199,7 +210,7 @@ class AuthService {
     
     const passwordOk = await bcrypt.compare(input.password, user.passwordHash);
     if (!passwordOk) {
-      await this.recordFailedLogin(user.id);
+      await this.recordFailedLogin(user.id, input.email, input.ipAddress, input.userAgent);
       throw new Error('Identifiants invalides');
     }
     
@@ -242,6 +253,16 @@ class AuthService {
       activeHotelId: activeHotel?.id || null,
       sessionId: session.id,
     });
+    
+    // SOC 2 Audit: Login Success
+    auditService.append({
+      eventType: 'AUTH.LOGIN_SUCCESS',
+      actorId: user.id,
+      actorType: 'user',
+      action: 'User logged in successfully',
+      ipAddress: input.ipAddress,
+      userAgent: input.userAgent,
+    }).catch(console.error);
     
     return {
       accessToken,
@@ -555,7 +576,7 @@ class AuthService {
     return [...new Set([...basePerms, ...customPerms])];
   }
   
-  private async recordFailedLogin(userId: string): Promise<void> {
+  private async recordFailedLogin(userId: string, email?: string, ipAddress?: string, userAgent?: string): Promise<void> {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return;
     
@@ -567,6 +588,17 @@ class AuthService {
     }
     
     await prisma.user.update({ where: { id: userId }, data: update });
+
+    // SOC 2 Audit: Login Failed
+    auditService.append({
+      eventType: 'AUTH.LOGIN_FAILED',
+      actorId: userId,
+      actorType: 'user',
+      action: 'Failed login attempt',
+      ipAddress,
+      userAgent,
+      metadata: { failedAttempts: newCount, locked: newCount >= MAX_FAILED_LOGINS, email }
+    }).catch(console.error);
   }
   
   private async isSubscriptionExpired(hotel: any): Promise<boolean> {

@@ -228,7 +228,7 @@ export const SaaSCheckoutWall: React.FC<SaaSCheckoutWallProps> = ({
         
         {/* Top bar with back option */}
         <div className="flex justify-between items-center pb-2 border-b border-stone-800/10 dark:border-slate-800/30">
-          <button
+          <button type="button" 
             onClick={onBackToWebsite}
             className={`flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider cursor-pointer transition-colors ${
               isDark ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-stone-900'

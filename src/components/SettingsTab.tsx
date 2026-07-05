@@ -648,7 +648,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                   </div>
                 </div>
 
-                <button
+                <button type="button" 
                   onClick={handleSignOut}
                   className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 text-red-200 text-xs font-mono font-bold transition-all"
                 >
@@ -660,7 +660,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
               <div className="space-y-4 animate-fade-in">
                 {/* Tab Switcher */}
                 <div className="flex border-b border-white/10 mb-4 p-1 bg-black/30 rounded-xl">
-                  <button
+                  <button type="button" 
                     onClick={() => { setAuthMethod('email'); setAuthError(null); setAuthSuccess(null); }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-mono font-bold rounded-lg transition-all ${
                       authMethod === 'email'
@@ -671,7 +671,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                     <Mail className="w-4 h-4" />
                     <span>{trans.emailAuthTab}</span>
                   </button>
-                  <button
+                  <button type="button" 
                     onClick={() => { setAuthMethod('google'); setAuthError(null); setAuthSuccess(null); }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-mono font-bold rounded-lg transition-all ${
                       authMethod === 'google'
@@ -777,7 +777,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                       <span>{trans.notConnected}</span>
                     </div>
 
-                    <button 
+                    <button type="button" 
                       onClick={handleGoogleAuth} 
                       className="gsi-material-button w-full flex items-center justify-center text-center focus:ring-2 focus:ring-[#c19a6b]/50 cursor-pointer"
                     >
@@ -965,7 +965,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
             
             {/* Export Guests */}
-            <button
+            <button type="button" 
               onClick={handleExportGuests}
               disabled={syncLoading !== null}
               className="p-5 bg-stone-900/80 hover:bg-stone-800 border border-white/5 hover:border-[#c19a6b] rounded-2xl flex flex-col items-center text-center justify-center gap-3 transition-all duration-200 group text-slate-100"
@@ -980,7 +980,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
             </button>
 
             {/* Import Guests */}
-            <button
+            <button type="button" 
               onClick={handleImportGuests}
               disabled={syncLoading !== null}
               className="p-5 bg-stone-900/80 hover:bg-stone-800 border border-white/5 hover:border-[#c19a6b] rounded-2xl flex flex-col items-center text-center justify-center gap-3 transition-all duration-200 group text-slate-100"
@@ -995,7 +995,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
             </button>
 
             {/* Export culinary kitchen orders */}
-            <button
+            <button type="button" 
               onClick={handleExportOrders}
               disabled={syncLoading !== null}
               className="p-5 bg-stone-900/80 hover:bg-stone-800 border border-white/5 hover:border-[#c19a6b] rounded-2xl flex flex-col items-center text-center justify-center gap-3 transition-all duration-200 group text-slate-100"
@@ -1010,7 +1010,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
             </button>
 
             {/* Export full auditing ledger */}
-            <button
+            <button type="button" 
               onClick={handleExportLogs}
               disabled={syncLoading !== null}
               className="p-5 bg-stone-900/80 hover:bg-stone-800 border border-white/5 hover:border-[#c19a6b] rounded-2xl flex flex-col items-center text-center justify-center gap-3 transition-all duration-200 group text-slate-100"

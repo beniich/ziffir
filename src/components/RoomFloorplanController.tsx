@@ -517,8 +517,7 @@ export const RoomFloorplanController: React.FC<RoomFloorplanControllerProps> = (
           {/* Level selectors */}
           <div className="bg-slate-100/80 p-1 rounded-xl border border-black/5 flex items-center gap-1">
             {(['01', '02', '03'] as const).map(lev => (
-              <button
-                key={lev}
+              <button type="button"                 key={lev}
                 onClick={() => {
                   setCurrentLevel(lev);
                   confetti({ particleCount: 8, spread: 20 });
@@ -536,8 +535,7 @@ export const RoomFloorplanController: React.FC<RoomFloorplanControllerProps> = (
 
           {/* Interactive touch action selectors */}
           <div className="bg-slate-100/80 p-1 rounded-xl border border-black/5 flex items-center gap-1">
-            <button
-              onClick={() => setInteractiveMode('lights')}
+            <button type="button"               onClick={() => setInteractiveMode('lights')}
               className={`py-1.5 px-3 text-[9.5px] font-mono font-bold rounded-lg transition flex items-center gap-1.5 ${
                 interactiveMode === 'lights'
                   ? 'bg-[#7c5a30] text-white shadow-sm'
@@ -548,8 +546,7 @@ export const RoomFloorplanController: React.FC<RoomFloorplanControllerProps> = (
               <Lightbulb className="w-3 h-3" />
               <span>LIGHTS</span>
             </button>
-            <button
-              onClick={() => setInteractiveMode('occupancy')}
+            <button type="button"               onClick={() => setInteractiveMode('occupancy')}
               className={`py-1.5 px-3 text-[9.5px] font-mono font-bold rounded-lg transition flex items-center gap-1.5 ${
                 interactiveMode === 'occupancy'
                   ? 'bg-emerald-600 text-white shadow-sm'
@@ -644,8 +641,7 @@ export const RoomFloorplanController: React.FC<RoomFloorplanControllerProps> = (
                     <span className="text-[8.5px] font-mono text-slate-400 uppercase font-black tracking-wider block">
                       {t.lights}
                     </span>
-                    <button
-                      onClick={() => toggleRoomGlow(selectedRoomId)}
+                    <button type="button"                       onClick={() => toggleRoomGlow(selectedRoomId)}
                       className={`text-[10px] font-bold font-mono p-1.5 rounded-lg w-full transition border text-center flex items-center justify-center gap-1.5 ${
                         glowingRooms[selectedRoomId]
                           ? 'bg-amber-100/50 text-amber-800 border-amber-350'
@@ -662,8 +658,7 @@ export const RoomFloorplanController: React.FC<RoomFloorplanControllerProps> = (
                     <span className="text-[8.5px] font-mono text-slate-400 uppercase font-black tracking-wider block">
                       {t.occupancy}
                     </span>
-                    <button
-                      onClick={() => toggleOccupancy(selectedRoomId)}
+                    <button type="button"                       onClick={() => toggleOccupancy(selectedRoomId)}
                       className={`text-[10px] font-bold font-mono p-1.5 rounded-lg w-full transition border text-center flex items-center justify-center gap-1.5 ${
                         occupancyMap[selectedRoomId]
                           ? 'bg-emerald-100/50 text-emerald-800 border-emerald-300'
@@ -687,8 +682,7 @@ export const RoomFloorplanController: React.FC<RoomFloorplanControllerProps> = (
                   
                   {/* Climate temperature increment controllers */}
                   <div className="flex gap-1.5">
-                    <button
-                      onClick={() => setTemperatureMap(prev => ({
+                    <button type="button"                       onClick={() => setTemperatureMap(prev => ({
                         ...prev,
                         [selectedRoomId]: +((prev[selectedRoomId] || activeRoomData.baseTemp) - 0.5).toFixed(1)
                       }))}
@@ -696,8 +690,7 @@ export const RoomFloorplanController: React.FC<RoomFloorplanControllerProps> = (
                     >
                       -
                     </button>
-                    <button
-                      onClick={() => setTemperatureMap(prev => ({
+                    <button type="button"                       onClick={() => setTemperatureMap(prev => ({
                         ...prev,
                         [selectedRoomId]: +((prev[selectedRoomId] || activeRoomData.baseTemp) + 0.5).toFixed(1)
                       }))}
@@ -742,8 +735,7 @@ export const RoomFloorplanController: React.FC<RoomFloorplanControllerProps> = (
               </p>
             </div>
 
-            <button
-              onClick={handleSimulatePresence}
+            <button type="button"               onClick={handleSimulatePresence}
               className="bg-[#1a1410] hover:bg-[#3d1f0f] active:bg-[#1a1410] text-[#eae4d5] border border-[#c19a6b]/30 font-mono text-[9px] uppercase font-bold p-2.5 px-4 rounded-xl transition shadow cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
             >
               <RefreshCw className="w-3.5 h-3.5 text-amber-300 fill-none animate-spin" strokeWidth="2.5" />

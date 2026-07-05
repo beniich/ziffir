@@ -263,7 +263,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
       
       {/* Upper Navigation Selector */}
       <div className="flex border-b border-stone-200/50 pb-2 gap-2">
-        <button
+        <button type="button" 
           onClick={() => setSubTab('dashboard')}
           className={`px-4 py-2 text-xs font-mono tracking-wider font-bold uppercase rounded-lg transition-all ${
             subTab === 'dashboard'
@@ -274,7 +274,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
         >
           💳 Subscriptions & Billing SaaS
         </button>
-        <button
+        <button type="button" 
           onClick={() => setSubTab('marketing-studio')}
           className={`px-4 py-2 text-xs font-mono tracking-wider font-bold uppercase rounded-lg transition-all flex items-center gap-1.5 ${
             subTab === 'marketing-studio'
@@ -319,7 +319,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
             </div>
 
             <div className="flex flex-row md:flex-col gap-2 shrink-0">
-              <button
+              <button type="button" 
                 onClick={() => setCheckoutModalOpen(true)}
                 className="px-4 py-2.5 bg-[#c19a6b] hover:bg-[#7c5a30] text-white font-mono font-bold text-xs uppercase rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
                 id="upgrade-plan-btn"
@@ -328,7 +328,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
               </button>
               
               {currentPlan !== 'TRIAL' && (
-                <button
+                <button type="button" 
                   onClick={handleToggleCancel}
                   className={`px-4 py-2 border font-mono text-[10px] uppercase font-bold rounded-xl transition-all ${
                     cancelAtPeriodEnd
@@ -429,7 +429,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
                     </ul>
                   </div>
 
-                  <button
+                  <button type="button" 
                     disabled={isActive}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -497,7 +497,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
                         </span>
                       </td>
                       <td className="py-3 text-right">
-                        <button 
+                        <button type="button" 
                           onClick={() => alert(`Generating printable receipt for Invoice #${inv.id} on ${inv.plan} plan...`)}
                           className={`p-1 px-2.5 border rounded-lg text-[10px] transition-all flex items-center gap-1 ml-auto cursor-pointer ${
                             themeMode === 'dark'
@@ -540,7 +540,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
                 <div className="space-y-1">
                   <label className="font-mono font-bold text-[#7c5a30] uppercase block">Asset Format</label>
                   <div className="grid grid-cols-2 gap-2">
-                    <button
+                    <button type="button" 
                       onClick={() => setMediaType('image')}
                       className={`p-2.5 rounded-xl border font-mono font-bold flex items-center justify-center gap-1.5 transition-all ${
                         mediaType === 'image'
@@ -551,7 +551,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
                     >
                       <ImageIcon className="w-4 h-4" /> Image Render
                     </button>
-                    <button
+                    <button type="button" 
                       onClick={() => {
                         if (['TRIAL', 'STARTER'].includes(currentPlan)) {
                           alert(`PRO FEATURE REQUIRED: Cinematic Video Panoramas require the PROFESSIONAL or ENTERPRISE contract plans.`);
@@ -585,7 +585,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
                       const isLocked = (sceneOpt.key === 'lounge' && currentPlan === 'TRIAL') || 
                                       (sceneOpt.key === 'cyber' && ['TRIAL', 'STARTER'].includes(currentPlan));
                       return (
-                        <button
+                        <button type="button" 
                           key={sceneOpt.key}
                           disabled={isLocked}
                           onClick={() => setSelectedScene(sceneOpt.key as any)}
@@ -639,7 +639,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
 
                 {/* Generate Button with telemetry */}
                 <div className="pt-2">
-                  <button
+                  <button type="button" 
                     onClick={startAssetGeneration}
                     disabled={rendering}
                     className={`w-full py-3 bg-[#c19a6b] hover:bg-[#7c5a30] text-white font-mono font-bold text-xs uppercase rounded-xl transition-all shadow-md flex items-center justify-center gap-2 ${
@@ -742,7 +742,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
 
                   {/* Audio curation control toggle */}
                   {mediaType === 'video' && renderedSuccess && (
-                    <button
+                    <button type="button" 
                       onClick={() => setIsCurationMuted(!isCurationMuted)}
                       className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md hover:bg-black/80 p-2 rounded-full border border-white/15 text-white z-10 transition-all shadow"
                     >
@@ -753,7 +753,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
                   {/* Video Player Bottom bar controls (play / pause actions) */}
                   {mediaType === 'video' && renderedSuccess && (
                     <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/15 text-white z-10 font-mono text-[9px] flex items-center gap-3">
-                      <button 
+                      <button type="button" 
                         onClick={() => setIsPlaying(!isPlaying)}
                         className="text-[#c19a6b] hover:text-white transition-all flex items-center justify-center"
                       >
@@ -802,7 +802,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
                     </div>
                     
                     <div className="flex gap-2 w-full sm:w-auto">
-                      <button
+                      <button type="button" 
                         onClick={() => {
                           alert(`Downloading raw visual asset... File size: ${mediaType === 'video' ? '82.4 MB (ProRes)' : '4.2 MB (JPEG HDR)'}`);
                         }}
@@ -810,7 +810,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
                       >
                         <Download className="w-3 h-3" /> Download Source
                       </button>
-                      <button
+                      <button type="button" 
                         onClick={() => {
                           alert(`Cryptographic receipt synchronised! Asset saved permanently inside Level 5 Secure Vault Tab.`);
                         }}
@@ -849,7 +849,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
                   Secure Checkout powered by Stripe
                 </h4>
               </div>
-              <button 
+              <button type="button" 
                 onClick={() => {
                   setCheckoutModalOpen(false);
                   setCheckoutStep('plan');
@@ -975,7 +975,7 @@ export const SaaSBillingTab: React.FC<SaaSBillingTabProps> = ({ addAuditLog, the
                     </p>
                   </div>
 
-                  <button
+                  <button type="button" 
                     onClick={() => {
                       setCheckoutModalOpen(false);
                       setCheckoutStep('plan');

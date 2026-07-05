@@ -1,0 +1,33 @@
+{
+  "common": { "loading": "Caricamento…", "error": "Si è verificato un errore", "retry": "Riprova", "save": "Salva", "cancel": "Annulla" },
+  "nav": { "home": "Home", "features": "Funzionalità", "pricing": "Prezzi", "trial": "Prova gratuita", "login": "Accedi", "register": "Crea account", "logout": "Esci" },
+  "hero": {
+    "title": "Intelligenza predittiva per l'hotelleria di lusso",
+    "subtitle": "Domotica intelligente, room service in tempo reale, arrivi VIP orchestrati, cantina IA. Un'unica piattaforma per orchestrare l'eccellenza.",
+    "cta_trial": "Inizia gratis",
+    "cta_features": "Scopri le funzionalità",
+    "trust": "Prova gratuita di 14 giorni · Senza carta di credito · Configurazione in 5 min"
+  },
+  "auth": {
+    "login_title": "Accedi",
+    "register_title": "Crea il tuo account",
+    "email": "Email",
+    "password": "Password",
+    "forgot_password": "Password dimenticata?",
+    "create_account": "Crea account",
+    "displayName": "Nome completo",
+    "hotelName": "Nome del tuo hotel",
+    "create_hotel": "Crea il mio hotel"
+  },
+  "errors": {
+    "network": "Errore di rete. Controlla la connessione.",
+    "unauthorized": "Sessione scaduta. Accedi di nuovo.",
+    "forbidden": "Non hai accesso a questa risorsa.",
+    "not_found": "Pagina non trovata.",
+    "server_error": "Errore del server. Riprova più tardi."
+  },
+  "footer": {
+    "product": "Prodotto", "company": "Azienda", "legal": "Legale", "contact": "Contatto",
+    "rights": "© {{year}} Ziffir SAS. Tutti i diritti riservati."
+  }
+}

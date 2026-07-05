@@ -1,18 +1,193 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4AF37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5z'/%3E%3Cpath d='M2 17l10 5 10-5'/%3E%3Cpath d='M2 12l10 5 10-5'/%3E%3C/svg%3E" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zafir Command Academy — Certifications Registry</title>
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-BRvkh4jy.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-JptbqXlB.css">
-  </head>
-  <body class="bg-[#060A13] text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden">
-    <div id="root"></div>
-  </body>
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="color-scheme" content="dark light" />
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- BALISES META PRINCIPALES                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <title>Ziffir — Plateforme d'Intelligence Prédictive pour l'Hôtellerie de Luxe</title>
+
+  <meta
+    name="description"
+    content="Ziffir révolutionne l'hôtellerie de luxe avec une plateforme SaaS d'intelligence prédictive, domotique intelligente et gestion temps réel. Contrôle des suites, room service, arrivées VIP, cave à vin IA et ledger auditable."
+  />
+
+  <meta
+    name="keywords"
+    content="hôtellerie de luxe, intelligence prédictive, domotique hôtelière, gestion hôtelière, SaaS hôtellerie, room service, arrivées VIP, cave à vin intelligente, ledger hôtelier, Ziffir, plateforme hôtellerie, contrôle suites, conciergerie digitale"
+  />
+
+  <meta name="author" content="Ziffir SAS" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  <meta name="rating" content="general" />
+  <meta name="distribution" content="global" />
+  <meta name="revisit-after" content="7 days" />
+  <meta name="language" content="French" />
+  <meta name="geo.region" content="FR" />
+
+  <!-- Canonical URL (évite le duplicate content) -->
+  <link rel="canonical" href="https://www.ziffir.com/" />
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- FAVICON & APP ICONS                                                -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4AF37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5z'/%3E%3Cpath d='M2 17l10 5 10-5'/%3E%3Cpath d='M2 12l10 5 10-5'/%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- OPEN GRAPH (Facebook, LinkedIn, WhatsApp)                          -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Ziffir" />
+  <meta property="og:title" content="Ziffir — Intelligence Prédictive pour Hôtels de Luxe" />
+  <meta property="og:description" content="Plateforme SaaS nouvelle génération pour palaces, yachts et jets privés. Domotique, room service temps réel, arrivées VIP orchestrées, cave à vin IA." />
+  <meta property="og:url" content="https://www.ziffir.com/" />
+  <meta property="og:image" content="https://www.ziffir.com/og-image.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Ziffir — Tableau de bord hôtellerie de luxe" />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- TWITTER CARDS                                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@ziffir" />
+  <meta name="twitter:title" content="Ziffir — Intelligence Prédictive pour Hôtels de Luxe" />
+  <meta name="twitter:description" content="Plateforme SaaS pour palaces : domotique, room service temps réel, arrivées VIP, cave à vin IA." />
+  <meta name="twitter:image" content="https://www.ziffir.com/twitter-card.png" />
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- DONNÉES STRUCTURÉES JSON-LD (Schema.org)                           -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.ziffir.com/#organization",
+        "name": "Ziffir SAS",
+        "url": "https://www.ziffir.com",
+        "foundingDate": "2024",
+        "address": { "@type": "PostalAddress", "addressCountry": "FR" },
+        "sameAs": ["https://www.linkedin.com/company/ziffir", "https://twitter.com/ziffir"]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://www.ziffir.com/#software",
+        "name": "Ziffir",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Hospitality Management Software",
+        "operatingSystem": "Web Browser, iOS, Android",
+        "description": "Ziffir est une plateforme SaaS d'intelligence prédictive dédiée à l'hôtellerie de luxe.",
+        "url": "https://www.ziffir.com",
+        "offers": [
+          { "@type": "Offer", "name": "Premium", "price": "49.00", "priceCurrency": "EUR" },
+          { "@type": "Offer", "name": "Platinium", "price": "149.00", "priceCurrency": "EUR" },
+          { "@type": "Offer", "name": "Golden", "price": "499.00", "priceCurrency": "EUR" }
+        ],
+        "featureList": [
+          "Contrôle domotique intelligent des suites",
+          "Room service temps réel avec workflow multi-rôles",
+          "Orchestration des arrivées VIP",
+          "Cave à vin IA avec recommandations contextuelles",
+          "Ledger auditable avec hash chain cryptographique",
+          "Push notifications PWA",
+          "API publique pour intégrations tierces"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.ziffir.com/#website",
+        "url": "https://www.ziffir.com",
+        "name": "Ziffir",
+        "description": "Plateforme d'intelligence prédictive pour l'hôtellerie de luxe",
+        "inLanguage": "fr-FR"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Qu'est-ce que Ziffir ?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Ziffir est une plateforme SaaS d'intelligence prédictive dédiée à l'hôtellerie de luxe. Elle permet de contrôler la domotique des suites, gérer le room service en temps réel, orchestrer les arrivées VIP, et dispose d'une cave à vin IA contextuelle." }
+          },
+          {
+            "@type": "Question",
+            "name": "À qui s'adresse Ziffir ?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Ziffir s'adresse aux palaces, hôtels 5 étoiles, yachts de luxe, jets privés et toute enseigne d'hôtellerie haut de gamme." }
+          },
+          {
+            "@type": "Question",
+            "name": "Y a-t-il une période d'essai ?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Oui, Ziffir offre 14 jours d'essai gratuit sans carte bancaire requise." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- FONTS & CRITICAL CSS                                               -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    html { background: #060A13; color: #f1f5f9; }
+    body { margin: 0; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
+    /* Skip link accessibilité */
+    .skip-link { position: absolute; top: -40px; left: 0; background: #3b82f6; color: white; padding: .5rem 1rem; z-index: 9999; text-decoration: none; border-radius: 0 0 4px 0; }
+    .skip-link:focus { top: 0; }
+  </style>
+  <script type="module" crossorigin src="/assets/index-COP6VYUX.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-i18n-DO-8ZKL7.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-react-CY75gVY0.js">
+  <link rel="modulepreload" crossorigin href="/assets/i18n-locales-Bv47Y24J.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-framer-BEx50cn_.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-socket-dm1FmSOd.js">
+  <link rel="modulepreload" crossorigin href="/assets/pages-public-Cx6bAbrF.js">
+  <link rel="stylesheet" crossorigin href="/assets/pages-public-uitV_6It.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-p4kxzlKp.css">
+</head>
+
+<body class="bg-[#060A13] text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden">
+  <!-- Skip link accessibilité (lecteurs d'écran + navigation clavier) -->
+  <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+  <div id="root">
+    <!-- Fallback SEO : visible si JS désactivé -->
+    <noscript>
+      <main style="padding:2rem;text-align:center;font-family:sans-serif;">
+        <h1>Ziffir — Intelligence Prédictive pour l'Hôtellerie de Luxe</h1>
+        <p>Ziffir est une plateforme SaaS qui révolutionne la gestion des palaces, hôtels 5 étoiles, yachts et jets privés.</p>
+        <p><strong>JavaScript est requis pour utiliser l'application.</strong></p>
+        <nav>
+          <a href="/register">Créer un compte</a> ·
+          <a href="/login">Connexion</a>
+        </nav>
+      </main>
+    </noscript>
+  </div>
+
+</body>
 </html>

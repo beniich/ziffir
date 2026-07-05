@@ -1,0 +1,33 @@
+{
+  "common": { "loading": "Cargando…", "error": "Ocurrió un error", "retry": "Reintentar", "save": "Guardar", "cancel": "Cancelar" },
+  "nav": { "home": "Inicio", "features": "Funciones", "pricing": "Precios", "trial": "Prueba gratis", "login": "Iniciar sesión", "register": "Crear cuenta", "logout": "Cerrar sesión" },
+  "hero": {
+    "title": "Inteligencia predictiva para la hostelería de lujo",
+    "subtitle": "Domótica inteligente, room service en tiempo real, llegadas VIP orquestadas, bodega con IA. Una sola plataforma para orquestar la excelencia.",
+    "cta_trial": "Empezar gratis",
+    "cta_features": "Descubrir funciones",
+    "trust": "Prueba gratis de 14 días · Sin tarjeta · Configuración en 5 min"
+  },
+  "auth": {
+    "login_title": "Iniciar sesión",
+    "register_title": "Crear cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgot_password": "¿Olvidaste tu contraseña?",
+    "create_account": "Crear cuenta",
+    "displayName": "Nombre completo",
+    "hotelName": "Nombre de tu hotel",
+    "create_hotel": "Crear mi hotel"
+  },
+  "errors": {
+    "network": "Error de red. Comprueba tu conexión.",
+    "unauthorized": "Sesión expirada. Vuelve a iniciar sesión.",
+    "forbidden": "No tienes acceso a este recurso.",
+    "not_found": "Página no encontrada.",
+    "server_error": "Error del servidor. Inténtalo más tarde."
+  },
+  "footer": {
+    "product": "Producto", "company": "Empresa", "legal": "Legal", "contact": "Contacto",
+    "rights": "© {{year}} Ziffir SAS. Todos los derechos reservados."
+  }
+}

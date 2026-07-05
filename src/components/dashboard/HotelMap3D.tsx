@@ -551,8 +551,7 @@ export function HotelMap3D({
       </div>
 
       {/* Camera Reset */}
-      <button
-        onClick={resetCamera}
+      <button type="button"         onClick={resetCamera}
         style={{
           position: 'absolute', top: '14px', right: '14px',
           background: 'rgba(4,5,12,0.82)', backdropFilter: 'blur(12px)',

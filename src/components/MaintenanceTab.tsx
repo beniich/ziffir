@@ -269,7 +269,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ addAuditLog }) =
       {issueMessage && (
         <div className="p-4 bg-amber-500/10 border border-amber-500/35 rounded-2xl text-amber-800 font-mono text-xs flex items-center justify-between shadow-sm">
           <span>{issueMessage}</span>
-          <button onClick={() => setIssueMessage(null)} className="text-amber-800 font-bold">&times;</button>
+          <button type="button" onClick={() => setIssueMessage(null)} className="text-amber-800 font-bold">&times;</button>
         </div>
       )}
 
@@ -415,7 +415,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ addAuditLog }) =
                   <div className="flex justify-between items-start">
                     <span className="font-bold">{iss.id} ({iss.room})</span>
                     {!iss.resolved && (
-                      <button 
+                      <button type="button" 
                         onClick={() => handleResolveIssue(iss.id)}
                         className="text-[9px] bg-[#c19a6b] hover:bg-[#7c5a30] text-white font-bold px-2 py-0.5 rounded"
                       >
@@ -497,7 +497,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ addAuditLog }) =
                 <p className="text-xs text-slate-500">Track active guest nodes and housekeeping progress. Support multi-select bulk operations.</p>
               </div>
               
-              <button 
+              <button type="button" 
                 onClick={toggleSelectAll}
                 className="text-[10px] font-mono font-bold uppercase border border-slate-350 hover:bg-[#c19a6b]/20 px-3 py-1.5 rounded-lg transition"
               >
@@ -512,13 +512,13 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ addAuditLog }) =
                   🎯 BULK ACTIONS DETECTED // {selectedRoomIds.length} ROOM NODES SELECTED
                 </span>
                 <div className="flex gap-2">
-                  <button 
+                  <button type="button" 
                     onClick={() => handleBulkStatusChange('AVAILABLE')}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs font-mono px-3.5 py-1.5 rounded-lg transition"
                   >
                     Mark Ready [AVAILABLE]
                   </button>
-                  <button 
+                  <button type="button" 
                     onClick={() => handleBulkStatusChange('CLEANING')}
                     className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs font-mono px-3.5 py-1.5 rounded-lg transition"
                   >
@@ -662,7 +662,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ addAuditLog }) =
                 </div>
               </div>
             ) : (
-              <button 
+              <button type="button" 
                 onClick={handleUploadPhoto}
                 disabled={isUploadingPhoto}
                 className="w-full border-2 border-dashed border-slate-350 hover:border-[#c19a6b] rounded-xl py-5 bg-white/40 hover:bg-white/70 text-slate-600 flex flex-col items-center justify-center font-mono text-xs gap-1 transition"
@@ -684,7 +684,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ addAuditLog }) =
           </div>
 
           {/* Promote or verify buttons */}
-          <button 
+          <button type="button" 
             onClick={handlePromoteRoom}
             className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase rounded-xl font-mono shadow-sm flex items-center justify-center gap-1.5 transition active:scale-95 duration-100"
           >

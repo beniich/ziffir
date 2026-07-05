@@ -216,7 +216,7 @@ export const MembershipsTab: React.FC<MembershipsTabProps> = ({ addAuditLog }) =
       {gdprMessage && (
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/35 rounded-2xl text-emerald-700 font-mono text-xs flex items-center justify-between shadow-sm animate-pulse">
           <span>{gdprMessage}</span>
-          <button onClick={() => setGdprMessage(null)} className="text-[#7c5a30] hover:text-black font-bold">&times;</button>
+          <button type="button" onClick={() => setGdprMessage(null)} className="text-[#7c5a30] hover:text-black font-bold">&times;</button>
         </div>
       )}
 
@@ -490,7 +490,7 @@ export const MembershipsTab: React.FC<MembershipsTabProps> = ({ addAuditLog }) =
 
             <div className="grid grid-cols-2 gap-3 pt-2">
               {/* GDPR Article 15 */}
-              <button 
+              <button type="button" 
                 onClick={handleGDPRExport}
                 className="p-3 bg-white/50 hover:bg-[#c19a6b]/20 border border-slate-350 hover:border-[#c19a6b] rounded-2xl flex flex-col items-center text-center gap-1 font-mono transition duration-150"
               >
@@ -500,7 +500,7 @@ export const MembershipsTab: React.FC<MembershipsTabProps> = ({ addAuditLog }) =
               </button>
 
               {/* GDPR Article 17 */}
-              <button 
+              <button type="button" 
                 onClick={handleGDPRAnonymize}
                 disabled={currentMember.guest.includes('ANONYMIZED')}
                 className={`p-3 rounded-2xl flex flex-col items-center text-center gap-1 font-mono transition duration-150 border ${

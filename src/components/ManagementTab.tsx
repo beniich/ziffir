@@ -842,7 +842,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
         </div>
 
         <div className="flex p-1 bg-black/80 rounded-2xl border border-stone-800 w-full sm:w-auto font-mono text-xs">
-          <button
+          <button type="button" 
             onClick={() => setViewMode('standard')}
             className={`flex-1 sm:flex-none px-5 py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 font-bold ${
               viewMode === 'standard'
@@ -854,7 +854,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
             <span>{language === 'FR' ? "Personnel & Simulateur" : language === 'RU' ? "Персонал и Имитатор" : "Operations & Simulator"}</span>
           </button>
           
-          <button
+          <button type="button" 
             onClick={() => setViewMode('rbac')}
             className={`flex-1 sm:flex-none px-5 py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 font-bold ${
               viewMode === 'rbac'
@@ -933,7 +933,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
                         </div>
 
                         {/* Status Toggle Button */}
-                        <button
+                        <button type="button" 
                           onClick={() => handleToggleAdminStatus(adm.id)}
                           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-[9.5px] font-bold transition-all duration-200 ${
                             adm.status === 'Active'
@@ -963,7 +963,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
                         </button>
 
                         {/* Irrevocable revoking of account */}
-                        <button
+                        <button type="button" 
                           onClick={() => handleDeleteAdmin(adm.id, adm.username)}
                           className="p-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-all"
                           title="Revoke Admin Access Permanently"
@@ -1259,7 +1259,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      <button
+                      <button type="button" 
                         onClick={() => handleToggleStatus(member.id)}
                         className={`text-[10px] font-mono font-bold px-2 py-1 rounded-lg border transition ${
                           member.status === 'Active' ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20 hover:bg-emerald-500/20' :
@@ -1275,7 +1275,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
 
                       {/* Protect deleting Elena Petrova to keep default admin */}
                       {member.id !== 'ST-9182' && (
-                        <button
+                        <button type="button" 
                           onClick={() => handleDeleteStaff(member.id, member.name)}
                           className="p-1 px-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 border border-red-500/20 transition-all duration-200"
                           title={trans.revokeAccess}
@@ -1553,7 +1553,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
                   { filter: 'BYPASS', label: trans.filterBypass },
                   { filter: 'RESTRICTED_ATTEMPT', label: trans.filterAlerts },
                 ].map(item => (
-                  <button
+                  <button type="button" 
                     key={item.filter}
                     onClick={() => setActiveFilter(item.filter as any)}
                     className={`px-2.5 py-1 rounded-lg transition ${

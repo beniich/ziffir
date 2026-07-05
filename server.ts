@@ -15,10 +15,11 @@ import pushRoutes from './src/server/routes/push.routes.js';
 import apiManagerRoutes from './src/server/routes/api-manager.routes.js';
 import arrivalsRoutes from './src/server/routes/arrivals.routes.js';
 import authRoutes from './src/server/domains/auth/auth.routes.js';
+import auditRoutes from './src/server/domains/audit/audit.routes.js';
 import teamRoutes from './src/server/routes/team.routes.js';
 import cors from 'cors';
 import { config } from './src/server/config.js';
-
+import { auditMiddleware } from './src/server/middlewares/audit.middleware.js';
 async function startServer() {
   const app = express();
   const httpServer = createHttpServer(app);
@@ -40,6 +41,9 @@ async function startServer() {
   // Ensure all API endpoints are authenticated and tracked
   app.use('/api', requireAuth);
   app.use('/api', trackTokens(1)); // Charge 1 token for standard API calls
+  app.use('/api', auditMiddleware); // SOC 2 & ISO 27001 Audit Trail
+  
+  app.use('/api/audit', auditRoutes); // SOC 2 Export & Logging routes
 
   // --- SUITE CONTROLS (Prisma + Socket.IO) ---
   app.use('/api/suite-controls', suiteControlsRoutes);

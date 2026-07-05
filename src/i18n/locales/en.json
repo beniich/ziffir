@@ -1,0 +1,122 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "trial": "Free trial",
+    "about": "About",
+    "blog": "Blog",
+    "changelog": "Changelog",
+    "careers": "Careers",
+    "contact": "Contact",
+    "docs": "Documentation",
+    "login": "Login",
+    "register": "Sign up",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "settings": "Settings"
+  },
+  "hero": {
+    "title": "Predictive intelligence for luxury hospitality",
+    "subtitle": "Smart automation, real-time room service, orchestrated VIP arrivals, AI wine cellar. One platform to orchestrate excellence.",
+    "cta_trial": "Start for free",
+    "cta_features": "Discover features",
+    "trust": "14-day free trial · No credit card required · Setup in 5 min"
+  },
+  "auth": {
+    "login_title": "Sign in",
+    "register_title": "Create your account",
+    "email": "Email",
+    "password": "Password",
+    "forgot_password": "Forgot password?",
+    "no_account": "Don't have an account yet?",
+    "have_account": "Already have an account?",
+    "create_account": "Create account",
+    "signup_subtitle": "14-day free trial, no credit card required",
+    "displayName": "Full name",
+    "hotelName": "Your hotel name",
+    "phone": "Phone",
+    "password_min_length": "Minimum 12 characters",
+    "create_hotel": "Create my hotel"
+  },
+  "suite_controls": {
+    "title": "Suite Controls",
+    "temperature": "Temperature",
+    "light": "Light",
+    "curtains": "Curtains",
+    "music": "Music",
+    "scene_idle": "Idle",
+    "scene_welcome": "Welcome",
+    "scene_morning": "Morning",
+    "scene_work": "Work",
+    "scene_dinner": "Dinner",
+    "scene_night": "Night",
+    "scene_away": "Away",
+    "do_not_disturb": "Do Not Disturb",
+    "dnd_active": "DND on",
+    "dnd_inactive": "DND off"
+  },
+  "room_service": {
+    "title": "Room Service",
+    "pending": "Pending",
+    "preparing": "Preparing",
+    "ready": "Ready",
+    "delivered": "Delivered",
+    "estimated_time": "Estimated time",
+    "minutes": "min"
+  },
+  "arrivals": {
+    "title": "VIP Arrivals",
+    "war_room": "War Room",
+    "next_24h": "Next 24h",
+    "critical_tasks": "Critical tasks",
+    "vip_royal": "Royal",
+    "vip_prestige": "Prestige",
+    "vip_vip": "VIP",
+    "vip_preferred": "Preferred",
+    "vip_classic": "Classic"
+  },
+  "billing": {
+    "title": "Subscription",
+    "current_plan": "Current plan",
+    "trial_active": "Free trial active",
+    "trial_days_left_one": "{{count}} day remaining",
+    "trial_days_left_other": "{{count}} days remaining",
+    "trial_expired": "Your free trial has expired",
+    "subscribe": "Subscribe",
+    "invoice": "Invoice",
+    "next_billing": "Next billing date"
+  },
+  "errors": {
+    "network": "Network error. Check your connection.",
+    "unauthorized": "Session expired. Please sign in again.",
+    "forbidden": "You don't have access to this resource.",
+    "not_found": "Page not found.",
+    "server_error": "Server error. Please try again later.",
+    "validation": "Please check the entered data."
+  },
+  "footer": {
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "contact": "Contact",
+    "rights": "© {{year}} Ziffir SAS. All rights reserved."
+  }
+}

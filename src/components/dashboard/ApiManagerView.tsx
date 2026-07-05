@@ -121,8 +121,7 @@ export function ApiManagerView() {
               </div>
 
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  onClick={() => toggleSuspend(quota)}
+                <button type="button"                   onClick={() => toggleSuspend(quota)}
                   style={{
                     backgroundColor: quota.isSuspended ? 'rgba(52, 211, 153, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                     border: `1px solid ${quota.isSuspended ? '#34d399' : '#ef4444'}`,

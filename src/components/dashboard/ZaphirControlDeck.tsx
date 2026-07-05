@@ -68,8 +68,7 @@ export function ZaphirControlDeck() {
         
         <nav style={{ display: 'flex', gap: '8px' }}>
           {(['OVERVIEW', 'ARRIVALS', 'ROOM_SERVICE', 'SECURITY', 'AI_CORE'] as const).map(tab => (
-            <button
-              key={tab}
+            <button type="button"               key={tab}
               onClick={() => setActiveTab(tab)}
               style={{
                 background: activeTab === tab ? 'rgba(255, 255, 255, 0.1)' : 'transparent',

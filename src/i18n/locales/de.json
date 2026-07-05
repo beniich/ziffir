@@ -1,0 +1,33 @@
+{
+  "common": { "loading": "Laden…", "error": "Ein Fehler ist aufgetreten", "retry": "Erneut versuchen", "save": "Speichern", "cancel": "Abbrechen" },
+  "nav": { "home": "Startseite", "features": "Funktionen", "pricing": "Preise", "trial": "Kostenlos testen", "login": "Anmelden", "register": "Konto erstellen", "logout": "Abmelden" },
+  "hero": {
+    "title": "Prädiktive Intelligenz für Luxushotellerie",
+    "subtitle": "Intelligente Hausautomation, Room-Service in Echtzeit, orchestrierte VIP-Ankünfte, KI-Weinkeller. Eine Plattform zur Orchestrierung von Exzellenz.",
+    "cta_trial": "Kostenlos starten",
+    "cta_features": "Funktionen entdecken",
+    "trust": "14 Tage kostenlos testen · Keine Kreditkarte · In 5 Min. eingerichtet"
+  },
+  "auth": {
+    "login_title": "Anmelden",
+    "register_title": "Konto erstellen",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "forgot_password": "Passwort vergessen?",
+    "create_account": "Konto erstellen",
+    "displayName": "Vollständiger Name",
+    "hotelName": "Name Ihres Hotels",
+    "create_hotel": "Mein Hotel erstellen"
+  },
+  "errors": {
+    "network": "Netzwerkfehler. Überprüfen Sie Ihre Verbindung.",
+    "unauthorized": "Sitzung abgelaufen. Bitte erneut anmelden.",
+    "forbidden": "Sie haben keinen Zugriff auf diese Ressource.",
+    "not_found": "Seite nicht gefunden.",
+    "server_error": "Serverfehler. Bitte versuchen Sie es später erneut."
+  },
+  "footer": {
+    "product": "Produkt", "company": "Unternehmen", "legal": "Rechtliches", "contact": "Kontakt",
+    "rights": "© {{year}} Ziffir SAS. Alle Rechte vorbehalten."
+  }
+}

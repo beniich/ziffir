@@ -39,7 +39,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({ vaultDocs, startDecrypt }) =
 
                   <div className="flex items-center gap-3">
                     {doc.encrypted ? (
-                      <button
+                      <button type="button" 
                         onClick={() => startDecrypt(doc.id)}
                         disabled={doc.decrypting}
                         className="text-xs bg-[#c19a6b]/20 hover:bg-[#c19a6b] hover:text-white text-[#7c5a30] border border-[#c19a6b]/40 font-mono font-bold px-4 py-2 rounded-xl transition-all shadow-sm active:scale-95 duration-200"

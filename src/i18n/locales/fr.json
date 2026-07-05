@@ -1,0 +1,122 @@
+{
+  "common": {
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue",
+    "retry": "Réessayer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "search": "Rechercher",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Envoyer",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "nav": {
+    "home": "Accueil",
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "trial": "Essai gratuit",
+    "about": "À propos",
+    "blog": "Blog",
+    "changelog": "Nouveautés",
+    "careers": "Carrières",
+    "contact": "Contact",
+    "docs": "Documentation",
+    "login": "Connexion",
+    "register": "Créer un compte",
+    "logout": "Déconnexion",
+    "dashboard": "Tableau de bord",
+    "settings": "Paramètres"
+  },
+  "hero": {
+    "title": "L'intelligence prédictive au service de l'hôtellerie de luxe",
+    "subtitle": "Domotique intelligente, room service temps réel, arrivées VIP orchestrées, cave à vin IA. Une seule plateforme pour orchestrer l'excellence.",
+    "cta_trial": "Démarrer gratuitement",
+    "cta_features": "Découvrir les fonctionnalités",
+    "trust": "14 jours d'essai gratuit · Sans carte bancaire · Setup en 5 min"
+  },
+  "auth": {
+    "login_title": "Connexion",
+    "register_title": "Créer votre compte",
+    "email": "Email",
+    "password": "Mot de passe",
+    "forgot_password": "Mot de passe oublié ?",
+    "no_account": "Pas encore de compte ?",
+    "have_account": "Déjà un compte ?",
+    "create_account": "Créer un compte",
+    "signup_subtitle": "14 jours d'essai gratuit, aucune carte requise",
+    "displayName": "Nom complet",
+    "hotelName": "Nom de votre hôtel",
+    "phone": "Téléphone",
+    "password_min_length": "12 caractères minimum",
+    "create_hotel": "Créer mon hôtel"
+  },
+  "suite_controls": {
+    "title": "Suite Controls",
+    "temperature": "Température",
+    "light": "Lumière",
+    "curtains": "Volets",
+    "music": "Musique",
+    "scene_idle": "Repos",
+    "scene_welcome": "Accueil",
+    "scene_morning": "Matin",
+    "scene_work": "Travail",
+    "scene_dinner": "Dîner",
+    "scene_night": "Nuit",
+    "scene_away": "Absent",
+    "do_not_disturb": "Ne pas déranger",
+    "dnd_active": "DND actif",
+    "dnd_inactive": "DND inactif"
+  },
+  "room_service": {
+    "title": "Room Service",
+    "pending": "En attente",
+    "preparing": "En préparation",
+    "ready": "Prête",
+    "delivered": "Livrée",
+    "estimated_time": "Temps estimé",
+    "minutes": "min"
+  },
+  "arrivals": {
+    "title": "Arrivées VIP",
+    "war_room": "War Room",
+    "next_24h": "Prochaines 24h",
+    "critical_tasks": "Tâches critiques",
+    "vip_royal": "Royal",
+    "vip_prestige": "Prestige",
+    "vip_vip": "VIP",
+    "vip_preferred": "Preferred",
+    "vip_classic": "Classic"
+  },
+  "billing": {
+    "title": "Abonnement",
+    "current_plan": "Plan actuel",
+    "trial_active": "Essai gratuit actif",
+    "trial_days_left_one": "{{count}} jour restant",
+    "trial_days_left_other": "{{count}} jours restants",
+    "trial_expired": "Votre essai gratuit a expiré",
+    "subscribe": "Souscrire",
+    "invoice": "Facture",
+    "next_billing": "Prochaine facturation"
+  },
+  "errors": {
+    "network": "Erreur réseau. Vérifiez votre connexion.",
+    "unauthorized": "Session expirée. Veuillez vous reconnecter.",
+    "forbidden": "Vous n'avez pas accès à cette ressource.",
+    "not_found": "Page introuvable.",
+    "server_error": "Erreur serveur. Réessayez plus tard.",
+    "validation": "Veuillez vérifier les données saisies."
+  },
+  "footer": {
+    "product": "Produit",
+    "company": "Entreprise",
+    "legal": "Légal",
+    "contact": "Contact",
+    "rights": "© {{year}} Ziffir SAS. Tous droits réservés."
+  }
+}

@@ -769,7 +769,7 @@ export const UserManagerSuite: React.FC<UserManagerSuiteProps> = ({
 
               {/* Dynamic Action Buttons */}
               <div className="flex items-center gap-2 flex-wrap">
-                <button
+                <button type="button" 
                   onClick={handleCloudSync}
                   disabled={loading || sessionRole !== 'administrateur'}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#c19a6b]/40 bg-white/80 hover:bg-[#c19a6b]/10 text-stone-800 font-mono text-[10px] uppercase font-bold tracking-wider transition shadow-xs ${
@@ -780,7 +780,7 @@ export const UserManagerSuite: React.FC<UserManagerSuiteProps> = ({
                   <RefreshCw className={`w-3.5 h-3.5 text-[#c19a6b] ${loading ? 'animate-spin' : ''}`} />
                   <span>{trans.syncCloudBtn}</span>
                 </button>
-                <button
+                <button type="button" 
                   onClick={() => {
                     if (sessionRole === 'administrateur') {
                       setShowAddForm(!showAddForm);
@@ -907,7 +907,7 @@ export const UserManagerSuite: React.FC<UserManagerSuiteProps> = ({
                   { id: 'client', label: 'Client' },
                   { id: 'hotel', label: 'Hotel' }
                 ].map(item => (
-                  <button
+                  <button type="button" 
                     key={item.id}
                     onClick={() => setRoleFilter(item.id as any)}
                     className={`px-3 py-2 rounded-xl text-[10px] font-mono font-bold tracking-wider uppercase whitespace-nowrap transition cursor-pointer border ${
@@ -1033,13 +1033,13 @@ export const UserManagerSuite: React.FC<UserManagerSuiteProps> = ({
                             <div className="flex items-center justify-end gap-1 px-1">
                               {isEditing ? (
                                 <>
-                                  <button
+                                  <button type="button" 
                                     onClick={() => handleUpdateUserSave(user.id)}
                                     className="p-1 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-mono text-[10px] font-bold uppercase transition"
                                   >
                                     Save
                                   </button>
-                                  <button
+                                  <button type="button" 
                                     onClick={() => setEditingUserId(null)}
                                     className="p-1 px-2 bg-stone-200 hover:bg-stone-300 text-stone-600 rounded font-mono text-[10px] font-bold uppercase transition"
                                   >
@@ -1048,7 +1048,7 @@ export const UserManagerSuite: React.FC<UserManagerSuiteProps> = ({
                                 </>
                               ) : (
                                 <>
-                                  <button
+                                  <button type="button" 
                                     onClick={() => setSelectedUserForDetails(user)}
                                     className="p-1 px-2 border border-slate-200 hover:border-[#c19a6b] hover:bg-[#c19a6b]/10 text-slate-600 hover:text-[#7c5a30] rounded-xl font-mono text-[10px] font-bold uppercase transition flex items-center gap-1 cursor-pointer"
                                     title={language === 'FR' ? "Afficher les Détails" : "Show Details"}
@@ -1056,7 +1056,7 @@ export const UserManagerSuite: React.FC<UserManagerSuiteProps> = ({
                                     <Eye className="w-3.5 h-3.5 text-stone-500" />
                                     <span>{language === 'FR' ? 'Détails' : language === 'RU' ? 'Детали' : 'Details'}</span>
                                   </button>
-                                  <button
+                                  <button type="button" 
                                     onClick={() => {
                                       if (sessionRole === 'administrateur') {
                                         setSelectedUserForModal(user);
@@ -1074,7 +1074,7 @@ export const UserManagerSuite: React.FC<UserManagerSuiteProps> = ({
                                     <Edit2 className="w-3.5 h-3.5 text-[#7c5a30]" />
                                     <span>{language === 'FR' ? 'Rôle' : 'Role'}</span>
                                   </button>
-                                  <button
+                                  <button type="button" 
                                     onClick={() => {
                                       if (sessionRole === 'administrateur') {
                                         handleDeleteUser(user.id, user.name);

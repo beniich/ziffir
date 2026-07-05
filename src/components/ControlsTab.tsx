@@ -87,7 +87,7 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
               <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 block mb-1">Ambient Lighting Scenes</span>
               <div className="grid grid-cols-2 gap-2">
                 {(['ambient', 'bright', 'relax', 'night'] as const).map(scene => (
-                  <button
+                  <button type="button" 
                     key={scene}
                     onClick={() => setLightScene(scene)}
                     className={`py-2 px-3 rounded-xl text-xs font-mono font-bold border uppercase transition-all duration-200 ${
@@ -146,13 +146,13 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
                   </div>
                   
                   <div className="flex gap-1.5 justify-center sm:justify-start">
-                    <button 
+                    <button type="button" 
                       onClick={() => { setTargetTemp(Math.max(16, targetTemp - 1)); setCurrentTemp(Math.max(16, currentTemp - 1)); }}
                       className="p-1 px-3 bg-white/60 hover:bg-[#c19a6b]/20 border border-slate-300 rounded-lg text-slate-800 shadow-sm active:scale-95 duration-150"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <button 
+                    <button type="button" 
                       onClick={() => { setTargetTemp(Math.min(30, targetTemp + 1)); setCurrentTemp(Math.min(30, currentTemp + 1)); }}
                       className="p-1 px-3 bg-white/60 hover:bg-[#c19a6b]/20 border border-slate-300 rounded-lg text-slate-800 shadow-sm active:scale-95 duration-150"
                     >
@@ -197,7 +197,7 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
               {switcherT.visualMode}
             </span>
             <div className="flex gap-2">
-              <button
+              <button type="button" 
                 onClick={() => setViewMode('3d')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                   viewMode === '3d'
@@ -207,7 +207,7 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
               >
                 🗺️ {switcherT.overview3d}
               </button>
-              <button
+              <button type="button" 
                 onClick={() => setViewMode('2d')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                   viewMode === '2d'

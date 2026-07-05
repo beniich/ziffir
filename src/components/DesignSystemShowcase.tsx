@@ -240,8 +240,7 @@ export default function DesignSystemShowcase() {
           ].map((seg) => {
             const isActive = activeSegment === seg.id;
             return (
-              <button
-                key={seg.id}
+              <button type="button"                 key={seg.id}
                 onClick={() => setActiveSegment(seg.id as any)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-bold tracking-wider uppercase transition-all duration-300 shrink-0 ${
                   isActive 
@@ -278,8 +277,7 @@ export default function DesignSystemShowcase() {
                     { id: 'input', label: 'Input' },
                     { id: 'select', label: 'Select' },
                   ].map((comp) => (
-                    <button
-                      key={comp.id}
+                    <button type="button"                       key={comp.id}
                       onClick={() => setSandboxComponent(comp.id as any)}
                       className={`py-2 px-3 text-xs font-mono uppercase font-semibold rounded-lg border transition-all ${
                         sandboxComponent === comp.id

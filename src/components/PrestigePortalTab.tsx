@@ -166,8 +166,7 @@ export const PrestigePortalTab: React.FC<PrestigePortalTabProps> = ({
           {(['hero', 'about', 'pricing', 'security'] as const).map((tab) => {
             const isActive = subTab === tab;
             return (
-              <button
-                key={tab}
+              <button type="button"                 key={tab}
                 onClick={() => setSubTab(tab)}
                 className={`flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-xl text-[10px] md:text-xs font-mono font-bold tracking-wider uppercase transition-all duration-300 ${
                   isActive 
@@ -218,14 +217,14 @@ export const PrestigePortalTab: React.FC<PrestigePortalTabProps> = ({
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <button 
+                <button type="button" 
                   onClick={() => setSubTab('pricing')}
                   className="bg-[#c19a6b] hover:bg-[#7c5a30] text-white px-6 py-3 rounded-xl font-mono text-xs uppercase font-bold tracking-widest transition shadow-lg flex items-center justify-center gap-2"
                 >
                   {trans.reserveSuite}
                   <ArrowRight className="w-4 h-4" />
                 </button>
-                <button 
+                <button type="button" 
                   onClick={() => setSubTab('about')}
                   className="bg-white/15 hover:bg-white/25 border border-white/30 text-white px-6 py-3 rounded-xl font-mono text-xs uppercase font-bold tracking-widest transition"
                 >
@@ -482,7 +481,7 @@ export const PrestigePortalTab: React.FC<PrestigePortalTabProps> = ({
                 <p className="text-[10px] text-slate-500 font-mono mt-0.5">Calculated based on active sovereign tariff formulas</p>
               </div>
 
-              <button 
+              <button type="button" 
                 onClick={handleLockIn}
                 className="w-full bg-[#c19a6b] hover:bg-[#a98150] text-slate-950 font-mono font-bold text-[11px] uppercase tracking-widest p-3 rounded-xl transition duration-150 shadow-md text-center"
               >

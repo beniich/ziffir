@@ -1,0 +1,66 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.ziffir.com
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install & Build
+        run: |
+          npm ci
+          npm run build
+        env:
+          VITE_API_URL: ${{ secrets.STAGING_API_URL }}
+      
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+      
+      - name: Deploy to S3 + CloudFront
+        run: |
+          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_STAGING }} --delete
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CF_DISTRIBUTION_STAGING }} \
+            --paths "/*"
+      
+      - name: Smoke tests on staging
+        run: |
+          npx playwright install chromium --with-deps
+          npx playwright test e2e/01-marketing.spec.ts --reporter=line
+        env:
+          E2E_BASE_URL: https://staging.ziffir.com
+        continue-on-error: true
+      
+      - name: Notify Slack
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_CI }}
+          payload: |
+            {
+              "text": "🚀 Staging deploy *${{ job.status }}* — `${{ github.ref_name }}` @ `${{ github.sha }}`"
+            }

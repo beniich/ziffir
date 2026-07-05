@@ -82,8 +82,7 @@ const ToastItem = ({ toast: t }: { toast: Toast }) => {
             <p className="text-xs text-slate-400 mt-0.5">{t.description}</p>
           )}
           {t.action && (
-            <button
-              onClick={() => { t.action!.onClick(); dismiss(t.id); }}
+            <button type="button"               onClick={() => { t.action!.onClick(); dismiss(t.id); }}
               className={`mt-2 text-xs font-semibold ${config.color} hover:underline`}
             >
               {t.action.label}
@@ -91,8 +90,7 @@ const ToastItem = ({ toast: t }: { toast: Toast }) => {
           )}
         </div>
 
-        <button
-          onClick={() => dismiss(t.id)}
+        <button type="button"           onClick={() => dismiss(t.id)}
           className="shrink-0 p-1 rounded text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors"
           aria-label="Fermer"
         >

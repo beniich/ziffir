@@ -784,7 +784,7 @@ export default function App() {
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#c19a6b] flex items-center gap-2">
               <Settings className="w-4 h-4 animate-spin-slow" /> {t('settingsHeading')}
             </h3>
-            <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white">
+            <button type="button" onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -795,7 +795,7 @@ export default function App() {
               {t('themeHeading')}
             </label>
             <div className="grid grid-cols-2 gap-2">
-              <button
+              <button type="button"
                 onClick={() => {
                   setThemeMode('dark');
                   addAuditLog('THEME_RECALIBRATION', 'Switched master lightwave back into Deep Cosmic Obsidian Dark mode.', 'AUTHORIZED');
@@ -808,7 +808,7 @@ export default function App() {
               >
                 <Moon className="w-3.5 h-3.5" /> {t('themeDark')}
               </button>
-              <button
+              <button type="button"
                 onClick={() => {
                   setThemeMode('light');
                   addAuditLog('THEME_RECALIBRATION', 'Calibrated master lightwave into Champagne Light mode.', 'AUTHORIZED');
@@ -830,7 +830,7 @@ export default function App() {
               {t('aestheticHeading')}
             </label>
             <div className="flex flex-col gap-1.5">
-              <button
+              <button type="button"
                 onClick={() => {
                   setStyleMode('standard');
                   addAuditLog('AESTHETIC_RECONFIG', 'Restored Zafir Command standard luxury visual layouts.', 'AUTHORIZED');
@@ -845,7 +845,7 @@ export default function App() {
                 <span className="text-[9px] bg-[#c19a6b]/20 px-1.5 py-0.5 rounded text-[#c19a6b]">ACTIVE</span>
               </button>
 
-              <button
+              <button type="button"
                 onClick={() => {
                   setStyleMode('cyberpunk');
                   addAuditLog('AESTHETIC_RECONFIG', 'Forced Cyberpunk Extrême mode. Active CRT scanlines, flicker & cyan neon spikes.', 'AUTHORIZED');
@@ -860,7 +860,7 @@ export default function App() {
                 <span className="text-[9px] bg-cyan-500/20 px-1.5 py-0.5 rounded text-cyan-400">NEON</span>
               </button>
 
-              <button
+              <button type="button"
                 onClick={() => {
                   setStyleMode('luxury');
                   addAuditLog('AESTHETIC_RECONFIG', 'Adopted Quiet Luxury style: thin Georgia serifs with muted borders.', 'AUTHORIZED');
@@ -889,7 +889,7 @@ export default function App() {
                 { name: 'emerald', code: '#10b981', label: 'Forest' },
                 { name: 'sunset', code: '#f97316', label: 'Riviera' },
               ].map(gem => (
-                <button
+                <button type="button"
                   key={gem.name}
                   onClick={() => {
                     setColorScheme(gem.name as any);
@@ -919,7 +919,7 @@ export default function App() {
                 { code: 'FR', name: 'Français', flag: '🇫🇷' },
                 { code: 'RU', name: 'Русский', flag: '🇷🇺' }
               ].map(lang => (
-                <button
+                <button type="button"
                   key={lang.code}
                   onClick={() => {
                     setLanguage(lang.code as any);
@@ -1043,7 +1043,7 @@ export default function App() {
       )}
 
       {/* Floating Settings Button in bottom-right corner */}
-      <button
+      <button type="button"
         onClick={() => setShowSettings(!showSettings)}
         className="fixed bottom-6 right-6 z-50 p-3.5 rounded-full bg-black border-2 border-stone-800 shadow-[0_0_15px_rgba(193,154,107,0.85)] text-[#c19a6b] hover:text-white hover:scale-110 active:scale-95 transition-all duration-200"
         title="Custom Sovereign Aesthetics Deck"
@@ -1063,7 +1063,7 @@ export default function App() {
       }`}>
         <div className="max-w-7xl mx-auto px-3 sm:px-6 min-h-18 py-2.5 sm:py-0 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5">
-            <button
+            <button type="button"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               className="p-1.5 sm:p-2 mr-1 rounded-xl bg-white/70 dark:bg-[#121214]/60 border border-[#c19a6b]/25 hover:border-[#c19a6b]/60 text-[#7c5a30] dark:text-[#c19a6b] hover:bg-[#c19a6b]/10 transition-all flex items-center justify-center shadow-xs"
               title={sidebarCollapsed ? "Show Sidebar" : "Hide Sidebar"}
@@ -1116,7 +1116,7 @@ export default function App() {
             </div>
 
             <div className="relative">
-              <button 
+              <button type="button" 
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="flex items-center gap-2 cursor-pointer focus:outline-none hover:opacity-90 select-none group"
               >
@@ -1246,7 +1246,7 @@ export default function App() {
         {!sidebarCollapsed && (
           <aside className="w-full lg:w-64 flex flex-row lg:flex-col gap-1.5 shrink-0 overflow-x-auto pb-2 lg:pb-0 scrollbar-none glass-panel p-2.5 sm:p-4 h-fit sticky top-[62px] lg:top-24 z-30 shadow-md animate-fade-in">
           
-          <button
+          <button type="button"
             onClick={() => {
               setViewMode('website');
               addAuditLog('RETURNED_TO_WEBSITE', 'Navigated back to the public landing page from secure cockpit.', 'AUTHORIZED');
@@ -1258,7 +1258,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/30 text-[#7c5a30] px-1.5 py-0.2 rounded font-bold">WEB</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('prestige-portal')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'prestige-portal'
@@ -1271,7 +1271,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/30 text-[#7c5a30] px-1.5 py-0.2 rounded font-bold">INFO</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('arrivals')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'arrivals'
@@ -1284,7 +1284,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-sky-500/10 text-sky-700 px-1.5 py-0.2 rounded border border-sky-500/20 font-bold">VIP</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('room-service')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'room-service'
@@ -1297,7 +1297,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/15 text-[#7c5a30] px-1.5 py-0.2 rounded border border-[#c19a6b]/30 font-bold">6</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('controls')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'controls'
@@ -1310,7 +1310,7 @@ export default function App() {
 
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('channel-sync')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'channel-sync'
@@ -1322,7 +1322,7 @@ export default function App() {
             <span className="text-xs font-semibold tracking-wider uppercase font-mono font-sans-luxury">{t('tabChannelSync')}</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('vault')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'vault'
@@ -1335,7 +1335,7 @@ export default function App() {
 
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('memberships')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'memberships'
@@ -1347,7 +1347,7 @@ export default function App() {
             <span className="text-xs font-semibold tracking-wider uppercase font-mono flex-1 font-sans-luxury">{t('tabMemberships')}</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('billing')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'billing'
@@ -1361,7 +1361,7 @@ export default function App() {
             <span className="ml-auto text-[9px] bg-emerald-500/15 text-emerald-700 px-1.5 py-0.2 rounded border border-emerald-500/20 font-bold uppercase">SaaS</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('maintenance')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'maintenance'
@@ -1374,7 +1374,7 @@ export default function App() {
 
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('omni-stream')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'omni-stream'
@@ -1388,7 +1388,7 @@ export default function App() {
 
           <div className="hidden lg:block border-t border-slate-350/50 my-4" />
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('ledger')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'ledger'
@@ -1401,7 +1401,7 @@ export default function App() {
             <span className="ml-auto text-[9px] bg-[#c19a6b]/20 text-[#7c5a30] px-1.5 py-0.2 rounded border border-[#c19a6b]/30 font-bold">GPA {totalGPA}</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('management')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'management'
@@ -1414,7 +1414,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.2 rounded border border-emerald-500/20 font-bold font-mono">SYS</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('user-directory')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'user-directory'
@@ -1429,7 +1429,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/20 text-[#7c5a30] px-1.5 py-0.2 rounded border border-[#c19a6b]/40 font-bold font-mono">ROLE</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('hospitality-manager')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'hospitality-manager'
@@ -1442,7 +1442,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/20 text-[#7c5a30] px-1.5 py-0.2 rounded border border-[#c19a6b]/40 font-bold font-mono">OPS</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('wine-cellar')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'wine-cellar'
@@ -1455,7 +1455,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/20 text-[#7c5a30] px-1.5 py-0.2 rounded border border-[#c19a6b]/40 font-bold font-mono">CAV</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('profile')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'profile'
@@ -1475,7 +1475,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/30 text-[#7c5a30] px-1.5 py-0.2 rounded font-bold">VIP-V</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('settings')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'settings'
@@ -1488,7 +1488,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-amber-500/10 text-amber-600 px-1.5 py-0.2 rounded border border-amber-500/20 font-bold font-mono">SYNC</span>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigateToTab('design-showcase')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'design-showcase'

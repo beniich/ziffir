@@ -166,8 +166,7 @@ export function SuiteControlPanel({ roomId, compact = false, themeMode = 'dark' 
         marginBottom: '1.25rem',
       }}>
         {SCENES.map(s => (
-          <button
-            key={s.key}
+          <button type="button"             key={s.key}
             onClick={() => exec(`scene-${s.key}`, () => setScene(roomId, s.key))}
             disabled={!!pending || suite.scene === s.key}
             title={s.label}
@@ -251,8 +250,7 @@ export function SuiteControlPanel({ roomId, compact = false, themeMode = 'dark' 
                 action: () => toggleMusic(roomId),
               },
             ].map(t => (
-              <button
-                key={t.key}
+              <button type="button"                 key={t.key}
                 onClick={() => exec(t.key, t.action)}
                 disabled={!!pending}
                 style={{

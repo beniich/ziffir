@@ -477,7 +477,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
               {/* Quick Airport Selector Tabs */}
               <div className="flex items-center gap-1 bg-slate-200/50 dark:bg-stone-900/60 p-0.5 rounded-xl border border-black/5">
                 {AIRPORTS.map(ap => (
-                  <button
+                  <button type="button" 
                     key={ap.id}
                     onClick={() => setSelectedAirportId(ap.id)}
                     className={`px-2 py-1 rounded-lg text-[10px] font-mono font-extrabold uppercase transition-all cursor-pointer ${
@@ -519,7 +519,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
                     📍 Examine Palace Grounds Walkways & POIs:
                   </span>
                   <div className="flex flex-wrap gap-1">
-                    <button
+                    <button type="button" 
                       onClick={() => setSelectedPoi(null)}
                       className={`px-2 py-0.5 rounded-lg text-[9px] font-mono font-bold uppercase transition border ${
                         !selectedPoi
@@ -530,7 +530,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
                       🛸 Heli approach tracking
                     </button>
                     {ZAFIR_POIS.map((p, idx) => (
-                      <button
+                      <button type="button" 
                         key={idx}
                         onClick={() => {
                           setSelectedPoi(p);
@@ -608,7 +608,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
 
                 {/* ZOOM CONTROLS & AGRANDIR COMPASS CONTROLLER GRID */}
                 <div className="absolute bottom-3 right-3 flex flex-col gap-1.5 z-20">
-                  <button
+                  <button type="button" 
                     onClick={() => setIsModalOpen(true)}
                     className="p-2.5 bg-white/90 hover:bg-white text-slate-800 rounded-xl hover:text-sapphire border border-slate-300 hover:border-[#c19a6b] transition shadow-md cursor-pointer flex items-center justify-center gap-1"
                     title="Agrandir la carte / Enlarge Live Navigation"
@@ -617,14 +617,14 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
                     <span className="text-[9.5px] font-extrabold font-mono tracking-widest uppercase px-1">AGRANDIR / ENLARGE</span>
                   </button>
                   <div className="flex items-center justify-end gap-1.5">
-                    <button 
+                    <button type="button" 
                       onClick={() => setZoomScale(p => Math.max(1, p - 1))}
                       className="w-8 h-8 font-serif bg-white/95 text-slate-800 font-bold rounded-lg border border-slate-300 hover:border-[#c19a6b] select-none hover:bg-slate-50 transition shadow text-xs cursor-pointer"
                       title="Zoom Out"
                     >
                       -
                     </button>
-                    <button 
+                    <button type="button" 
                       onClick={() => setZoomScale(p => Math.min(20, p + 1))}
                       className="w-8 h-8 font-serif bg-white/95 text-slate-800 font-semibold rounded-lg border border-slate-300 hover:border-[#c19a6b] select-none hover:bg-slate-50 transition shadow text-xs cursor-pointer"
                       title="Zoom In"
@@ -656,7 +656,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
               <div className="flex items-center justify-between text-[10px] font-mono border-t border-black/5 pt-3">
                 <span className="font-bold text-slate-500 uppercase tracking-widest">MAP RENDERING MODE:</span>
                 <div className="flex gap-1">
-                  <button
+                  <button type="button" 
                     onClick={() => setMapStyle('radar-glow')}
                     className={`px-2 py-0.5 rounded-lg border uppercase font-extrabold ${
                       mapStyle === 'radar-glow'
@@ -666,7 +666,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
                   >
                     CYAN RADAR
                   </button>
-                  <button
+                  <button type="button" 
                     onClick={() => setMapStyle('standard')}
                     className={`px-2 py-0.5 rounded-lg border uppercase font-extrabold ${
                       mapStyle === 'standard'
@@ -676,7 +676,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
                   >
                     STREET VECT
                   </button>
-                  <button
+                  <button type="button" 
                     onClick={() => setMapStyle('satellite')}
                     className={`px-2 py-0.5 rounded-lg border uppercase font-extrabold ${
                       mapStyle === 'satellite'
@@ -740,7 +740,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
                   Interactive High-Resolution Navigation Radar: {currentAirportObj.city} ({currentAirportObj.code})
                 </h3>
               </div>
-              <button
+              <button type="button" 
                 onClick={() => setIsModalOpen(false)}
                 className="p-1 px-3 bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white rounded-xl font-mono text-xs uppercase font-bold transition flex items-center gap-1 cursor-pointer"
                 title="Fermer l'image / Close Modal"
@@ -824,7 +824,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
                   </span>
                   <div className="flex gap-1.5">
                     {AIRPORTS.map(ap => (
-                      <button
+                      <button type="button" 
                         key={ap.id}
                         onClick={() => setSelectedAirportId(ap.id)}
                         className={`px-3 py-1 rounded-lg text-[10px] font-mono font-extrabold uppercase transition-all cursor-pointer ${
@@ -854,7 +854,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
                         Centering high-resolution lens arrays on estate grounds structures:
                       </p>
                       <div className="grid grid-cols-1 gap-1.5 pt-1">
-                        <button
+                        <button type="button" 
                           onClick={() => setSelectedPoi(null)}
                           className={`w-full text-left p-2 rounded-xl text-[10px] font-mono font-bold transition border ${
                             !selectedPoi
@@ -865,7 +865,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
                           🛰️ Standard helicopter flight route
                         </button>
                         {ZAFIR_POIS.map((p, idx) => (
-                          <button
+                          <button type="button" 
                             key={idx}
                             onClick={() => {
                               setSelectedPoi(p);
@@ -965,7 +965,7 @@ export const ArrivalsTab: React.FC<ArrivalsTabProps> = ({ vipGuests, flights, us
                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
                     <span className="font-extrabold text-[#7c5a30]">Chauffeur Stand-By Active</span>
                   </div>
-                  <button 
+                  <button type="button" 
                     onClick={() => {
                       alert(`Sent alert coordinate updates for ${currentAirportObj.activeFlight.number} approaching ${currentAirportObj.city} to assigned private chauffeur!`);
                     }} 

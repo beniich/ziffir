@@ -331,7 +331,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
               { id: 'apropos', label: trans.navAbout },
               { id: 'contact', label: trans.navContact }
             ].map((item) => (
-              <button
+              <button type="button" 
                 key={item.id}
                 onClick={() => {
                   setActiveSection(item.id as any);
@@ -348,7 +348,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <button
+            <button type="button" 
               onClick={() => {
                 setActiveSection('contact');
                 const el = document.getElementById('contact');
@@ -358,7 +358,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
             >
               {trans.ctaDemo}
             </button>
-            <button
+            <button type="button" 
               onClick={onEnterDashboard}
               className="bg-gradient-to-r from-[#c19a6b] to-[#a37c4c] hover:brightness-110 text-white px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-lg font-mono text-[9px] sm:text-[10px] uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(193,154,107,0.3)] hover:shadow-[0_0_20px_rgba(193,154,107,0.5)] transition-all duration-300 flex items-center gap-1 shrink-0"
             >
@@ -368,7 +368,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
             </button>
 
             {/* Mobile menu hamburger toggle button */}
-            <button
+            <button type="button" 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg border border-white/5 transition-all"
               aria-label="Toggle navigation menu"
@@ -390,7 +390,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
               { id: 'apropos', label: trans.navAbout },
               { id: 'contact', label: trans.navContact }
             ].map((item) => (
-              <button
+              <button type="button" 
                 key={item.id}
                 onClick={() => {
                   setActiveSection(item.id as any);
@@ -407,7 +407,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
             ))}
           </nav>
           <div className="pt-2">
-            <button
+            <button type="button" 
               onClick={() => {
                 setMobileMenuOpen(false);
                 setActiveSection('contact');
@@ -451,7 +451,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
-            <button
+            <button type="button" 
               onClick={() => {
                 setActiveSection('contact');
                 const el = document.getElementById('contact');
@@ -461,7 +461,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
             >
               {trans.ctaDemo}
             </button>
-            <button
+            <button type="button" 
               onClick={() => {
                 const el = document.getElementById('cockpit-playground');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -510,7 +510,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
               { id: 'fleet', label: 'Chauffeurs', icon: <Car className="w-3.5 h-3.5" /> },
               { id: 'predictive', label: 'Maint. IA', icon: <Wrench className="w-3.5 h-3.5" /> },
             ].map((tab) => (
-              <button
+              <button type="button" 
                 key={tab.id}
                 onClick={() => setActiveCockpit(tab.id as any)}
                 className={`py-2.5 px-3 lg:px-1 text-[9px] font-mono rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-300 shrink-0 min-w-[110px] lg:min-w-0 lg:w-auto cursor-pointer ${
@@ -559,7 +559,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                     {/* Suite Selector Toggle */}
                     <div className="flex gap-1.5 bg-black/40 p-1 rounded-xl border border-white/5">
                       {['101', '201', '301'].map((id) => (
-                        <button
+                        <button type="button" 
                           key={id}
                           onClick={() => setSuiteActiveId(id)}
                           className={`px-3 py-1 text-[10px] font-mono rounded-lg transition ${
@@ -590,13 +590,13 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
 
                       {/* Controls */}
                       <div className="flex gap-3 w-full">
-                        <button 
+                        <button type="button" 
                           onClick={() => setSuiteTemp(t => Math.max(16, t - 0.5))}
                           className="flex-1 py-2 bg-white/5 border border-white/10 hover:border-[#c19a6b]/40 rounded-xl text-lg font-mono font-bold transition"
                         >
                           -
                         </button>
-                        <button 
+                        <button type="button" 
                           onClick={() => setSuiteTemp(t => Math.min(30, t + 0.5))}
                           className="flex-1 py-2 bg-white/5 border border-white/10 hover:border-[#c19a6b]/40 rounded-xl text-lg font-mono font-bold transition"
                         >
@@ -614,7 +614,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                         { id: 'READING', label: 'READING FOCUS', desc: 'Targeted high contrast white rays', icon: <BookIcon className="w-4 h-4 text-sky-400" /> },
                         { id: 'RELAX', label: 'ROYAL RELAX', desc: 'Warm candle simulation setup', icon: <Coffee className="w-4 h-4 text-[#c19a6b]" /> }
                       ].map((mood) => (
-                        <button
+                        <button type="button" 
                           key={mood.id}
                           onClick={() => setSuiteLight(mood.id as any)}
                           className={`w-full p-3.5 rounded-xl border text-left flex items-center justify-between transition-all duration-300 ${
@@ -663,7 +663,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                         </p>
                       </div>
 
-                      <button 
+                      <button type="button" 
                         onClick={() => {
                           confetti({ particleCount: 50, spread: 60 });
                           alert("A private steward has been assigned to Suite " + suiteActiveId + ". Expected arrival: 4 mins.");
@@ -720,7 +720,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                           </div>
                         </div>
 
-                        <button 
+                        <button type="button" 
                           onClick={() => alert("Starter plan selected. Our operations team is initializing your cloud node.")}
                           className="w-full py-3 border border-[#101e35] text-[#101e35] font-mono text-[10px] uppercase font-bold tracking-wider rounded-xl hover:bg-[#101e35] hover:text-white transition"
                         >
@@ -754,7 +754,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                           </div>
                         </div>
 
-                        <button 
+                        <button type="button" 
                           onClick={() => alert("Pro Plan requested. Opening secure node configuration.")}
                           className="w-full py-3 bg-gradient-to-r from-[#c19a6b] to-[#a37c4c] text-white font-mono text-[10px] uppercase font-bold tracking-wider rounded-xl hover:brightness-110 transition shadow-md shadow-[#c19a6b]/20"
                         >
@@ -785,7 +785,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                           </div>
                         </div>
 
-                        <button 
+                        <button type="button" 
                           onClick={() => {
                             setActiveSection('contact');
                             const el = document.getElementById('contact');
@@ -866,13 +866,13 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4 relative z-10">
-                    <button 
+                    <button type="button" 
                       onClick={() => alert("Downloading secure whitepaper... SHA-256 Checksum: 0x8f2d...")}
                       className="bg-blue-600 hover:bg-blue-700 text-white font-mono text-[10px] uppercase font-bold py-3 px-6 rounded-xl transition"
                     >
                       Request Security Whitepaper
                     </button>
-                    <button 
+                    <button type="button" 
                       onClick={() => {
                         setActiveSection('contact');
                         const el = document.getElementById('contact');
@@ -1040,7 +1040,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                           { id: 'navy', label: 'Navy Blue', code: '#1e3a8a' },
                           { id: 'charcoal', label: 'Charcoal', code: '#4b5563' }
                         ].map((pal) => (
-                          <button
+                          <button type="button" 
                             key={pal.id}
                             onClick={() => setCmsPalette(pal.id as any)}
                             className={`p-2.5 rounded-xl border text-center transition ${
@@ -1058,7 +1058,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                     <div className="bg-black/30 border border-white/5 p-5 rounded-xl space-y-4 flex flex-col justify-between">
                       <span className="text-[10px] font-mono text-slate-400 block uppercase">Custom Typography</span>
                       <div className="flex gap-2">
-                        <button
+                        <button type="button" 
                           onClick={() => setCmsSerif(true)}
                           className={`flex-1 py-3 px-2 rounded-xl border text-center font-serif text-sm transition ${
                             cmsSerif ? 'bg-[#c19a6b]/20 border-[#c19a6b] text-[#c19a6b]' : 'border-white/5 text-slate-400'
@@ -1066,7 +1066,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                         >
                           Serif (Playfair)
                         </button>
-                        <button
+                        <button type="button" 
                           onClick={() => setCmsSerif(false)}
                           className={`flex-1 py-3 px-2 rounded-xl border text-center font-sans text-sm transition ${
                             !cmsSerif ? 'bg-[#c19a6b]/20 border-[#c19a6b] text-[#c19a6b]' : 'border-white/5 text-slate-400'
@@ -1363,7 +1363,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                       {/* Interactive selector */}
                       <div className="flex gap-2 justify-center py-2">
                         {(['suite', 'lobby', 'spa'] as const).map((zone) => (
-                          <button
+                          <button type="button" 
                             key={zone}
                             onClick={() => setSelectedHeatmapZone(zone)}
                             className={`px-3 py-1 text-[9px] rounded-lg transition ${
@@ -1584,7 +1584,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
 
                   {/* Save button matching image */}
                   <div className="text-center pt-4">
-                    <button 
+                    <button type="button" 
                       onClick={() => {
                         confetti({ particleCount: 60, spread: 50 });
                         alert("Configuration saved securely! Active memberships updated in physical card production ledger.");
@@ -1771,7 +1771,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                         <span className="text-[8px] font-mono text-slate-500">Active solar radiation index</span>
                       </div>
 
-                      <button
+                      <button type="button" 
                         onClick={() => setEnergyReportOpen(!energyReportOpen)}
                         className="w-full bg-gradient-to-r from-emerald-500/10 to-teal-500/5 hover:from-emerald-500/20 hover:to-teal-500/10 text-emerald-400 border border-emerald-500/20 font-mono text-[10px] uppercase font-bold tracking-widest py-3.5 px-4 rounded-xl transition"
                       >
@@ -1844,7 +1844,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
 
                   {/* ACTIVE EMERGENCY TOGGLE BUTTON */}
                   <div className="text-center relative z-10">
-                    <button
+                    <button type="button" 
                       onClick={() => {
                         setEmergencyActive(!emergencyActive);
                         if (!emergencyActive) {
@@ -1881,7 +1881,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                                 <span className="text-[10px] font-mono text-slate-400 block">{responder.phone}</span>
                               </div>
 
-                              <button
+                              <button type="button" 
                                 onClick={() => {
                                   if (isConnected) {
                                     setConnectedResponders(connectedResponders.filter(id => id !== responder.id));
@@ -1957,7 +1957,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                         <span className="text-[8px] font-mono text-red-400 block uppercase">SECURE PANIC BUTTONS</span>
                         
                         <div className="space-y-2">
-                          <button
+                          <button type="button" 
                             onClick={() => {
                               alert("FIRE ALARM DISPATCHED! Smart bio-locks opened in fire escape corridor node.");
                             }}
@@ -1967,7 +1967,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                             FIRE EMERGENCY
                           </button>
 
-                          <button
+                          <button type="button" 
                             onClick={() => {
                               alert("MEDICAL EMERGENCY BROADCAST! Executive Helicopter dispatch node alerted.");
                             }}
@@ -2006,7 +2006,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                       </p>
                     </div>
 
-                    <button
+                    <button type="button" 
                       onClick={() => setBookingFormOpen(!bookingFormOpen)}
                       className="bg-gradient-to-r from-[#c19a6b] to-[#a37c4c] text-slate-950 font-mono text-[10px] uppercase font-extrabold tracking-widest py-2 px-5 rounded-xl hover:shadow-[0_0_15px_rgba(193,154,107,0.3)] transition"
                     >
@@ -2175,7 +2175,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                         </div>
                       </div>
 
-                      <button
+                      <button type="button" 
                         onClick={() => {
                           if (!newWellnessName || !newWellnessGuest) {
                             alert("Please fill name and guest name.");
@@ -2297,7 +2297,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                       </div>
 
                       {/* Interactive dispatch action */}
-                      <button
+                      <button type="button" 
                         onClick={() => {
                           const targetCar = fleetCars.find(c => c.id === selectedFleetVehicle);
                           if (!targetCar) return;
@@ -2407,7 +2407,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                       </div>
 
                       {/* Diagnostic trigger */}
-                      <button
+                      <button type="button" 
                         onClick={() => {
                           setDiagnosticsRunning(true);
                           setDiagnosticsOutput(["Scanning sub-systems..."]);
@@ -2687,7 +2687,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
               </div>
               <div className="flex gap-2 p-1 bg-black/40 rounded-xl border border-white/5">
                 {(['PALACE', 'CLUB', 'CHALET'] as const).map((tier) => (
-                  <button
+                  <button type="button" 
                     key={tier}
                     onClick={() => setSolutionsTier(tier)}
                     className={`px-3 py-1.5 text-[9px] font-mono rounded-lg transition ${
@@ -2797,7 +2797,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
               { id: 'CLUB', label: language === 'FR' ? 'Clubs Privés' : 'Private Clubs' },
               { id: 'FLEET', label: language === 'FR' ? 'Flottes & Jets' : 'Fleets & Jets' }
             ].map((cat) => (
-              <button
+              <button type="button" 
                 key={cat.id}
                 onClick={() => setSelectedClientCategory(cat.id as any)}
                 className={`px-4 py-2 text-[10px] font-mono rounded-xl border transition ${
@@ -2915,7 +2915,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                   <option value="NODE-LOIRE">Nœud Château Loire (#7102)</option>
                 </select>
                 
-                <button
+                <button type="button" 
                   onClick={() => {
                     setClientNodeStatus('PENDING');
                     setClientNodeOutput(["Initialisation handshake TLS 1.3..."]);
@@ -2999,7 +2999,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
               {/* Timeline selector */}
               <div className="flex gap-2 p-1 bg-black/40 border border-white/5 rounded-xl max-w-xs">
                 {([2024, 2025, 2026] as const).map((year) => (
-                  <button
+                  <button type="button" 
                     key={year}
                     onClick={() => setActiveAboutYear(year)}
                     className={`flex-1 py-1.5 text-xs font-mono rounded-lg transition ${
@@ -3200,13 +3200,13 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
                 </div>
 
                 <div className="pt-2 flex justify-center gap-4">
-                  <button
+                  <button type="button" 
                     onClick={onEnterDashboard}
                     className="bg-gradient-to-r from-[#c19a6b] to-[#a37c4c] hover:brightness-110 text-white font-mono text-xs uppercase font-extrabold tracking-widest py-3 px-8 rounded-xl transition shadow-lg"
                   >
                     {trans.ctaDashboard}
                   </button>
-                  <button
+                  <button type="button" 
                     onClick={() => {
                       setSuccess(false);
                       setFormData({ name: '', email: '', hotel: '', plan: 'PRO', notes: '' });
@@ -3369,7 +3369,7 @@ export const MarketingWebsite: React.FC<MarketingWebsiteProps> = ({
             © 2026 ZAPHIR SYSTEME INC. SOVEREIGN HOSPITALITY NETWORKS. French Riviera / European Core Nodes.
           </p>
           <div className="flex gap-4 text-[10px] font-mono text-slate-400">
-            <button onClick={onEnterDashboard} className="hover:text-[#c19a6b] transition">
+            <button type="button" onClick={onEnterDashboard} className="hover:text-[#c19a6b] transition">
               {trans.ctaDashboard}
             </button>
             <span className="text-slate-700">|</span>

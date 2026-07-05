@@ -107,8 +107,7 @@ export const Modal = ({
               {description && <p className="text-sm text-slate-400 mt-1">{description}</p>}
             </div>
             {!hideCloseButton && (
-              <button
-                onClick={onClose}
+              <button type="button"                 onClick={onClose}
                 className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
                 aria-label="Fermer"
               >

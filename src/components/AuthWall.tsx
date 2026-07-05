@@ -159,8 +159,7 @@ export const AuthWall: React.FC<AuthWallProps> = ({
         
         {/* Top bar with back option */}
         <div className="flex justify-start items-center pb-2 border-b border-stone-800/10 dark:border-slate-800/30">
-          <button
-            onClick={onBackToWebsite}
+          <button type="button"             onClick={onBackToWebsite}
             className={`flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider cursor-pointer transition-colors ${
               isDark ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-stone-900'
             }`}
@@ -188,8 +187,7 @@ export const AuthWall: React.FC<AuthWallProps> = ({
         }`}>
           {/* Tabs */}
           <div className="flex border-b border-stone-200 dark:border-slate-800">
-            <button
-              onClick={() => { setMode('login'); setError(null); }}
+            <button type="button"               onClick={() => { setMode('login'); setError(null); }}
               className={`flex-1 py-4 text-xs font-mono uppercase font-bold tracking-widest transition-colors ${
                 mode === 'login' 
                   ? 'border-b-2 border-[#c19a6b] text-[#c19a6b]' 
@@ -198,8 +196,7 @@ export const AuthWall: React.FC<AuthWallProps> = ({
             >
               {t.loginTab}
             </button>
-            <button
-              onClick={() => { setMode('register'); setError(null); }}
+            <button type="button"               onClick={() => { setMode('register'); setError(null); }}
               className={`flex-1 py-4 text-xs font-mono uppercase font-bold tracking-widest transition-colors ${
                 mode === 'register' 
                   ? 'border-b-2 border-[#c19a6b] text-[#c19a6b]' 

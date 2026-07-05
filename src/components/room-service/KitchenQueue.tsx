@@ -119,14 +119,12 @@ export function KitchenQueue() {
                 <footer style={{ display: 'flex', gap: '8px', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
                   {order.status === 'PENDING' && (
                     <>
-                      <button
-                        onClick={() => transition(order.id, 'CONFIRMED', { version: order.version })}
+                      <button type="button"                         onClick={() => transition(order.id, 'CONFIRMED', { version: order.version })}
                         style={{ flex: 1, padding: '10px', backgroundColor: '#34d399', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
                       >
                         ✅ Confirmer
                       </button>
-                      <button
-                        onClick={() => {
+                      <button type="button"                         onClick={() => {
                           const reason = prompt('Raison du refus ?');
                           if (reason) transition(order.id, 'REJECTED', { version: order.version, reason });
                         }}
@@ -138,8 +136,7 @@ export function KitchenQueue() {
                   )}
                   
                   {order.status === 'CONFIRMED' && (
-                    <button
-                      onClick={() => transition(order.id, 'PREPARING', { version: order.version })}
+                    <button type="button"                       onClick={() => transition(order.id, 'PREPARING', { version: order.version })}
                       style={{ flex: 1, padding: '10px', backgroundColor: '#60a5fa', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
                     >
                       👨‍🍳 Commencer
@@ -147,8 +144,7 @@ export function KitchenQueue() {
                   )}
                   
                   {order.status === 'PREPARING' && (
-                    <button
-                      onClick={() => transition(order.id, 'READY', { version: order.version })}
+                    <button type="button"                       onClick={() => transition(order.id, 'READY', { version: order.version })}
                       style={{ flex: 1, padding: '10px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
                     >
                       🍽️ Prête
