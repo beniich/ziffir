@@ -19,7 +19,7 @@ i18n
       it: { translation: it },
       de: { translation: de },
     },
-    fallbackLng: 'fr',
+    fallbackLng: 'en',
     debug: import.meta.env.DEV,
     interpolation: {
       escapeValue: false,

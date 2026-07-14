@@ -220,4 +220,33 @@ router.post('/invitation/:token/accept', async (req, res) => {
   }
 });
 
+// POST /api/auth/google — Échange un Firebase ID Token contre une session JWT Ziffir
+router.post('/google', async (req, res) => {
+  const { idToken } = req.body;
+  if (!idToken) {
+    return res.status(400).json({ success: false, error: { message: 'Missing idToken' } });
+  }
+
+  try {
+    // Verify the Firebase token and upsert the user in our DB
+    const { accessToken, refreshToken, auth } = await authService.loginWithGoogle(idToken);
+    authService.setAuthCookies(res, accessToken, refreshToken);
+
+    await auditService.append({
+      eventType: 'auth.google',
+      tenantId: auth.activeHotel?.id,
+      actorId: auth.user.id,
+      actorType: 'user',
+      action: 'user.google_signin',
+      metadata: { email: auth.user.email },
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+
+    res.json({ success: true, data: auth });
+  } catch (e: any) {
+    res.status(401).json({ success: false, error: { message: e.message } });
+  }
+});
+
 export default router;

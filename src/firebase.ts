@@ -18,7 +18,16 @@ import {
   getDoc
 } from 'firebase/firestore';
 
-import firebaseConfig from '../firebase-applet-config.json';
+// Configuration Firebase via variables d'environnement Vite
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'tonal-legacy-v07pf.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'tonal-legacy-v07pf',
+  appId: '1:1037154403107:web:2984f2dfd3b53580f24296',
+  storageBucket: 'tonal-legacy-v07pf.firebasestorage.app',
+  messagingSenderId: '1037154403107',
+  firestoreDatabaseId: 'ai-studio-c03eed34-6b98-437a-b865-3de7e2a9ecd6',
+};
 
 // Initialize Firebase App
 export const app = initializeApp(firebaseConfig);
@@ -26,7 +35,7 @@ export const app = initializeApp(firebaseConfig);
 // Initialize Firestore with specific databaseId from config
 export const db = getFirestore(
   app, 
-  firebaseConfig.firestoreDatabaseId || "ai-studio-c03eed34-6b98-437a-b865-3de7e2a9ecd6"
+  'ai-studio-c03eed34-6b98-437a-b865-3de7e2a9ecd6'
 );
 
 // Initialize Auth
