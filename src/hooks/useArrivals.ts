@@ -5,6 +5,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useSocket } from './useSocket';
+import { zaphirApi } from '../apiClient';
 import { useToast } from './useToast';
 
 // ---------------------------------------------------------------------------
@@ -101,8 +102,7 @@ export function useArrivals(options: UseArrivalsOptions = {}) {
   const reload = useCallback(() => {
     setLoading(true);
     const qs = buildQS();
-    fetch(`/api/arrivals${qs ? `?${qs}` : ''}`, { credentials: 'include' })
-      .then(r => r.json())
+    zaphirApi.get<any>(`/arrivals${qs ? `?${qs}` : ''}`)
       .then(d => { setArrivals(d.data || []); setLoading(false); })
       .catch(e => { setError(e.message); setLoading(false); });
   }, [buildQS]);
@@ -180,25 +180,15 @@ export function useArrivals(options: UseArrivalsOptions = {}) {
     opts: { version: number; reason?: string; driverInfo?: any; actualArrivalAt?: string } = { version: 0 }
   ) => {
     try {
-      const res = await fetch(`/api/arrivals/${arrivalId}/transition`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toStatus, ...opts }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        if (data.error?.code === 'CRITICAL_TASKS_PENDING') {
-          toast.push(`❌ Tâches critiques non terminées : ${data.error.tasks?.join(', ')}`, 'error');
-        } else {
-          toast.push(data.error?.message || 'Erreur', 'error');
-        }
-        return false;
-      }
+      await zaphirApi.patch<any>(`/arrivals/${arrivalId}/transition`, { toStatus, ...opts });
       toast.push(`✅ ${toStatus}`, 'success');
       return true;
     } catch (e: any) {
-      toast.push(e.message, 'error');
+      if (e.data?.error?.code === 'CRITICAL_TASKS_PENDING') {
+        toast.push(`❌ Tâches critiques non terminées : ${e.data.error.tasks?.join(', ')}`, 'error');
+      } else {
+        toast.push(e.message || 'Erreur', 'error');
+      }
       return false;
     }
   }, [toast]);
@@ -208,41 +198,21 @@ export function useArrivals(options: UseArrivalsOptions = {}) {
     updates: { status?: TaskStatus; version: number; notes?: string; evidenceUrl?: string; assignedUserId?: string }
   ) => {
     try {
-      const res = await fetch(`/api/arrivals/tasks/${taskId}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.push(data.error?.message || 'Erreur tâche', 'error');
-        return false;
-      }
+      await zaphirApi.patch<any>(`/arrivals/tasks/${taskId}`, updates);
       return true;
     } catch (e: any) {
-      toast.push(e.message, 'error');
+      toast.push(e.message || 'Erreur tâche', 'error');
       return false;
     }
   }, [toast]);
 
   const createArrival = useCallback(async (payload: Record<string, any>) => {
     try {
-      const res = await fetch('/api/arrivals', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.push(data.error?.message || 'Erreur création', 'error');
-        return null;
-      }
+      const data = await zaphirApi.post<any>('/arrivals', payload);
       toast.push(`✅ Arrivée créée — ${data.data.taskCount} tâches générées`, 'success');
       return data.data;
     } catch (e: any) {
-      toast.push(e.message, 'error');
+      toast.push(e.message || 'Erreur création', 'error');
       return null;
     }
   }, [toast]);

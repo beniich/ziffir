@@ -34,12 +34,13 @@ class ApiClient {
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
+      credentials: options.credentials || 'include',
       headers
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      const errorMessage = errorData.message || response.statusText;
+      const errorMessage = errorData.error?.message || errorData.message || response.statusText;
       
       // Global Interceptors
       if (response.status === 401) {
@@ -54,7 +55,11 @@ class ApiClient {
         alert(`Token Quota Exceeded: ${errorMessage}`);
       }
 
-      throw new Error(errorMessage);
+      // Preserve the entire error object if it exists (for VERSION_CONFLICT, etc.)
+      const error = new Error(errorMessage) as any;
+      error.status = response.status;
+      error.data = errorData;
+      throw error;
     }
 
     return response.json();

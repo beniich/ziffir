@@ -6,6 +6,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSocket } from './useSocket';
+import { zaphirApi } from '../apiClient';
 
 export interface SuiteState {
   id: string;
@@ -72,16 +73,13 @@ export function useSuiteControls(options: UseSuiteControlsOptions = {}) {
     setLoading(true);
     setError(null);
 
-    fetch(url, { credentials: 'include' })
-      .then(r => r.json())
+    zaphirApi.get<any>(url)
       .then(data => {
-        if (!data.success) throw new Error(data.error?.message || 'Erreur API');
-
         if (options.roomId) {
           setStates(new Map([[data.data.roomId, data.data]]));
         } else {
           const map = new Map<string, SuiteState>();
-          (data.data as SuiteState[]).forEach(s => map.set(s.roomId, s));
+          (data.data as SuiteState[]).forEach((s: SuiteState) => map.set(s.roomId, s));
           setStates(map);
         }
       })
@@ -131,33 +129,21 @@ export function useSuiteControls(options: UseSuiteControlsOptions = {}) {
     setStates(prev => new Map(prev).set(roomId, optimistic));
 
     try {
-      const res = await fetch(`/api/suite-controls/${roomId}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...updates, version: current.version }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        // Rollback vers l'état précédent
-        setStates(prev => new Map(prev).set(roomId, current));
-
-        if (data.error?.code === 'VERSION_CONFLICT' && data.error.currentState) {
-          // Appliquer la version serveur (source de vérité)
-          setStates(prev => new Map(prev).set(roomId, data.error.currentState));
-          return { ok: false, error: 'Conflit : la suite a été modifiée en même temps' };
-        }
-        return { ok: false, error: data.error?.message || 'Erreur' };
-      }
+      const data = await zaphirApi.patch<any>(`/suite-controls/${roomId}`, { ...updates, version: current.version });
 
       // Confirmer avec la version serveur
       setStates(prev => new Map(prev).set(roomId, data.data));
       return { ok: true };
     } catch (e: any) {
+      // Rollback vers l'état précédent
       setStates(prev => new Map(prev).set(roomId, current));
-      return { ok: false, error: e.message };
+
+      if (e.data?.error?.code === 'VERSION_CONFLICT' && e.data?.error?.currentState) {
+        // Appliquer la version serveur (source de vérité)
+        setStates(prev => new Map(prev).set(roomId, e.data.error.currentState));
+        return { ok: false, error: 'Conflit : la suite a été modifiée en même temps' };
+      }
+      return { ok: false, error: e.message || 'Erreur' };
     }
   }, []);
 

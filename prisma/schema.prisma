@@ -746,3 +746,63 @@ model ExternalUpdate {
   @@index([arrivalId, createdAt])
   @@index([source, processedAt])
 }
+
+// ============================================================================
+// BOOKING — Réservations publiques (widget site marketing)
+// ============================================================================
+
+model Booking {
+  id               String   @id @default(cuid())
+  hotelId          String
+  roomId           String
+  confirmationCode String   @unique
+  status           String   @default("PENDING_CONFIRMATION")
+  // Guest info (public, pas forcément un user enregistré)
+  guestFirstName   String
+  guestLastName    String
+  guestEmail       String
+  guestPhone       String?
+  specialRequests  String?
+  // Séjour
+  checkInDate      DateTime
+  checkOutDate     DateTime
+  nights           Int
+  guestsCount      Int      @default(1)
+  promoCode        String?
+  // Pricing (calculé côté serveur)
+  subtotalCents    Int?
+  taxCents         Int?
+  totalCents       Int?
+  currency         String   @default("EUR")
+  // Refs
+  externalRef      String?
+  // Timestamps
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  confirmedAt      DateTime?
+  cancelledAt      DateTime?
+
+  @@index([hotelId, checkInDate])
+  @@index([guestEmail])
+  @@index([status])
+}
+
+// ============================================================================
+// NEWSLETTER — Inscriptions newsletter (double opt-in)
+// ============================================================================
+
+model NewsletterSubscriber {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  firstName         String?
+  interests         String    @default("[]") // JSON array
+  source            String    @default("unknown")
+  confirmationToken String?   @unique
+  confirmedAt       DateTime?
+  unsubscribedAt    DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([email])
+  @@index([confirmationToken])
+}

@@ -17,6 +17,8 @@ import arrivalsRoutes from './src/server/routes/arrivals.routes.js';
 import authRoutes from './src/server/domains/auth/auth.routes.js';
 import auditRoutes from './src/server/domains/audit/audit.routes.js';
 import teamRoutes from './src/server/routes/team.routes.js';
+import bookingRoutes from './src/server/routes/booking.routes.js';
+import newsletterRoutes from './src/server/routes/newsletter.routes.js';
 import cors from 'cors';
 import { config } from './src/server/config.js';
 import { auditMiddleware } from './src/server/middlewares/audit.middleware.js';
@@ -36,9 +38,11 @@ async function startServer() {
 
   app.use('/api/auth', authRoutes);
   app.use('/api/team', teamRoutes);
+  app.use('/api/booking', bookingRoutes); // Public (BookingWidget)
+  app.use('/api/newsletter', newsletterRoutes); // Public
 
   // --- ZAPHIR SECURITY ENVELOPE ---
-  // Ensure all API endpoints are authenticated and tracked
+  // Ensure all API endpoints below are authenticated and tracked
   app.use('/api', requireAuth);
   app.use('/api', trackTokens(1)); // Charge 1 token for standard API calls
   app.use('/api', auditMiddleware); // SOC 2 & ISO 27001 Audit Trail
@@ -58,7 +62,13 @@ async function startServer() {
   // --- ARRIVALS VIP (Semaine 3) ---
   app.use('/api/arrivals', arrivalsRoutes);
 
-  // --- API ROUTES FOR ZAPHIR 23 MICROSERVICES ---
+  // ==========================================================================
+  // API ROUTES FOR ZAPHIR 23 MICROSERVICES (FIRESTORE)
+  // NOTE: These routes (/api/logistics/*, /api/hospitality/*, etc.) interact
+  // with Firebase Firestore. They manage static/configuration states.
+  // DO NOT CONFUSE with Prisma routes (like /api/arrivals, /api/suite-controls)
+  // which handle complex business logic, optimistic locking, and socket sync.
+  // ==========================================================================
 
   // Unified State Handshake Endpoint
   app.get('/api/state', async (req, res) => {

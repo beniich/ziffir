@@ -67,7 +67,8 @@ export function TrialPage() {
       {/* BIG CTA */}
       <section className="max-w-3xl mx-auto px-4 pb-24 text-center">
         <div className="p-10 bg-gradient-to-b from-[#D4AF37]/10 to-transparent border border-[#D4AF37]/30 rounded-3xl relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay"></div>
+          {/* Noise effect removed to fix build error */}
+          <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay"></div>
           <h2 className="text-3xl font-bold text-slate-100 mb-4 relative z-10">Démarrez votre essai maintenant</h2>
           <p className="text-slate-400 mb-8 relative z-10 max-w-lg mx-auto">Vous avez juste besoin d'une adresse email professionnelle. Le reste peut attendre.</p>
           <Link to="/register" className="btn-primary btn-marketing btn-marketing-lg glow-btn relative z-10">Créer mon hôtel →</Link>

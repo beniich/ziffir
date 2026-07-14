@@ -1,12 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import crypto from 'crypto';
-// Mocking PrismaClient and emailService for integration since this is a frontend-centric app without the actual Prisma schema or email service set up yet.
-// import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 // import { emailService } from '../lib/email';
 
 const router = Router();
-// const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 const subscribeSchema = z.object({
   email: z.string().email(),
@@ -28,7 +27,6 @@ router.post('/subscribe', async (req, res) => {
   const { email, firstName, interests = ['product'], source = 'unknown' } = parsed.data;
   
   try {
-    /* MOCKED BACKEND LOGIC
     // Vérifie si déjà inscrit
     const existing = await prisma.newsletterSubscriber.findUnique({
       where: { email },
@@ -43,10 +41,23 @@ router.post('/subscribe', async (req, res) => {
     
     // Crée ou met à jour
     const confirmationToken = crypto.randomBytes(32).toString('hex');
-    const confirmationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
-    */
     
-    const confirmationToken = crypto.randomBytes(32).toString('hex');
+    await prisma.newsletterSubscriber.upsert({
+      where: { email },
+      create: {
+        email,
+        firstName,
+        interests: JSON.stringify(interests),
+        source,
+        confirmationToken,
+      },
+      update: {
+        firstName,
+        interests: JSON.stringify(interests),
+        source,
+        confirmationToken,
+      }
+    });
     
     // Email de confirmation (double opt-in)
     const confirmUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/newsletter/confirm?token=${confirmationToken}`;

@@ -5,7 +5,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useSocket } from './useSocket';
-import { useAppContext } from '../contexts/AppContext';
+import { zaphirApi } from '../apiClient';
 import { useToast } from './useToast';
 
 export type OrderStatus =
@@ -65,7 +65,7 @@ interface UseRoomOrdersOptions {
 
 export function useRoomOrders(options: UseRoomOrdersOptions = {}) {
   const { socket, isConnected } = useSocket();
-  const {  } = useAppContext();
+
   const toast = useToast();
   const [orders, setOrders] = useState<RoomOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,8 +96,7 @@ export function useRoomOrders(options: UseRoomOrdersOptions = {}) {
     setError(null);
     
     const qs = buildQueryString();
-    fetch(`/api/room-orders${qs ? `?${qs}` : ''}`, { credentials: 'include' })
-      .then(r => r.json())
+    zaphirApi.get<any>(`/room-orders${qs ? `?${qs}` : ''}`)
       .then(data => {
         setOrders(data.data || []);
         setLoading(false);
@@ -154,49 +153,35 @@ export function useRoomOrders(options: UseRoomOrdersOptions = {}) {
     transitionOptions: { reason?: string; version: number } = { version: 0 }
   ) => {
     try {
-      const res = await fetch(`/api/room-orders/${orderId}/transition`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          toStatus,
-          reason: transitionOptions.reason,
-          version: transitionOptions.version,
-        }),
+      const data = await zaphirApi.patch<any>(`/room-orders/${orderId}/transition`, {
+        toStatus,
+        reason: transitionOptions.reason,
+        version: transitionOptions.version,
       });
-      
-      const data = await res.json();
-      
-      if (!res.ok) {
-        if (data.error?.code === 'VERSION_CONFLICT') {
-          toast.push('Conflit : commande mise à jour par quelqu\'un d\'autre', 'error');
-          // Recharger la liste
-          const qs = buildQueryString();
-          const r = await fetch(`/api/room-orders${qs ? `?${qs}` : ''}`, { credentials: 'include' });
-          const d = await r.json();
-          setOrders(d.data || []);
-        } else {
-          toast.push(data.error?.message || 'Erreur', 'error');
-        }
-        return false;
-      }
       
       toast.push(`✅ Commande ${data.data.orderNumber} → ${toStatus}`, 'success');
       return true;
     } catch (e: any) {
-      toast.push(e.message, 'error');
+      if (e.data?.error?.code === 'VERSION_CONFLICT') {
+        toast.push('Conflit : commande mise à jour par quelqu\'un d\'autre', 'error');
+        // Recharger la liste
+        const qs = buildQueryString();
+        const d = await zaphirApi.get<any>(`/room-orders${qs ? `?${qs}` : ''}`);
+        setOrders(d.data || []);
+      } else {
+        toast.push(e.message || 'Erreur', 'error');
+      }
       return false;
     }
   }, [buildQueryString, toast]);
   
   const rate = useCallback(async (orderId: string, rating: number, feedback?: string) => {
-    const res = await fetch(`/api/room-orders/${orderId}/rate`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rating, feedback }),
-    });
-    return res.ok;
+    try {
+      await zaphirApi.post(`/room-orders/${orderId}/rate`, { rating, feedback });
+      return true;
+    } catch {
+      return false;
+    }
   }, []);
   
   // --------------------------------------------------------------------------
