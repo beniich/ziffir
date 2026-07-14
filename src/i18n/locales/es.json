@@ -1,6 +1,20 @@
 {
-  "common": { "loading": "Cargando…", "error": "Ocurrió un error", "retry": "Reintentar", "save": "Guardar", "cancel": "Cancelar" },
-  "nav": { "home": "Inicio", "features": "Funciones", "pricing": "Precios", "trial": "Prueba gratis", "login": "Iniciar sesión", "register": "Crear cuenta", "logout": "Cerrar sesión" },
+  "common": {
+    "loading": "Cargando…", "error": "Ocurrió un error", "retry": "Reintentar",
+    "save": "Guardar", "cancel": "Cancelar", "delete": "Eliminar", "edit": "Editar",
+    "create": "Crear", "search": "Buscar", "next": "Siguiente", "previous": "Anterior",
+    "submit": "Enviar", "close": "Cerrar", "yes": "Sí", "no": "No"
+  },
+  "nav": {
+    "home": "Inicio", "features": "Funciones", "pricing": "Precios",
+    "trial": "Prueba gratis", "about": "Acerca de", "blog": "Blog",
+    "changelog": "Novedades", "careers": "Empleo", "partners": "Socios",
+    "contact": "Contacto", "docs": "Documentación", "integrations": "Integraciones",
+    "status": "Estado", "login": "Iniciar sesión", "register": "Crear cuenta",
+    "logout": "Cerrar sesión", "dashboard": "Panel", "settings": "Configuración",
+    "terms": "Términos de servicio", "privacy": "Política de privacidad",
+    "gdpr": "Cumplimiento RGPD", "cgv": "Condiciones generales", "cookies_policy": "Política de cookies"
+  },
   "hero": {
     "title": "Inteligencia predictiva para la hostelería de lujo",
     "subtitle": "Domótica inteligente, room service en tiempo real, llegadas VIP orquestadas, bodega con IA. Una sola plataforma para orquestar la excelencia.",
@@ -9,22 +23,47 @@
     "trust": "Prueba gratis de 14 días · Sin tarjeta · Configuración en 5 min"
   },
   "auth": {
-    "login_title": "Iniciar sesión",
-    "register_title": "Crear cuenta",
-    "email": "Correo electrónico",
-    "password": "Contraseña",
-    "forgot_password": "¿Olvidaste tu contraseña?",
-    "create_account": "Crear cuenta",
-    "displayName": "Nombre completo",
-    "hotelName": "Nombre de tu hotel",
+    "login_title": "Iniciar sesión", "register_title": "Crear cuenta",
+    "email": "Correo electrónico", "password": "Contraseña",
+    "forgot_password": "¿Olvidaste tu contraseña?", "no_account": "¿No tienes cuenta?",
+    "have_account": "¿Ya tienes cuenta?", "create_account": "Crear cuenta",
+    "signup_subtitle": "14 días gratis, sin tarjeta requerida",
+    "displayName": "Nombre completo", "hotelName": "Nombre de tu hotel",
+    "phone": "Teléfono", "password_min_length": "Mínimo 12 caracteres",
     "create_hotel": "Crear mi hotel"
+  },
+  "suite_controls": {
+    "title": "Suite Controls", "temperature": "Temperatura", "light": "Luz",
+    "curtains": "Cortinas", "music": "Música",
+    "scene_idle": "Reposo", "scene_welcome": "Bienvenida", "scene_morning": "Mañana",
+    "scene_work": "Trabajo", "scene_dinner": "Cena", "scene_night": "Noche", "scene_away": "Ausente",
+    "do_not_disturb": "No molestar", "dnd_active": "DND activo", "dnd_inactive": "DND inactivo"
+  },
+  "room_service": {
+    "title": "Room Service", "pending": "Pendiente", "preparing": "En preparación",
+    "ready": "Listo", "delivered": "Entregado", "estimated_time": "Tiempo estimado", "minutes": "min"
+  },
+  "arrivals": {
+    "title": "Llegadas VIP", "war_room": "War Room", "next_24h": "Próximas 24h",
+    "critical_tasks": "Tareas críticas",
+    "vip_royal": "Royal", "vip_prestige": "Prestige", "vip_vip": "VIP",
+    "vip_preferred": "Preferido", "vip_classic": "Classic"
+  },
+  "billing": {
+    "title": "Suscripción", "current_plan": "Plan actual",
+    "trial_active": "Prueba gratuita activa",
+    "trial_days_left_one": "{{count}} día restante",
+    "trial_days_left_other": "{{count}} días restantes",
+    "trial_expired": "Tu prueba gratuita ha expirado",
+    "subscribe": "Suscribirse", "invoice": "Factura", "next_billing": "Próxima facturación"
   },
   "errors": {
     "network": "Error de red. Comprueba tu conexión.",
     "unauthorized": "Sesión expirada. Vuelve a iniciar sesión.",
     "forbidden": "No tienes acceso a este recurso.",
     "not_found": "Página no encontrada.",
-    "server_error": "Error del servidor. Inténtalo más tarde."
+    "server_error": "Error del servidor. Inténtalo más tarde.",
+    "validation": "Por favor, revisa los datos introducidos."
   },
   "footer": {
     "product": "Producto", "company": "Empresa", "legal": "Legal", "contact": "Contacto",

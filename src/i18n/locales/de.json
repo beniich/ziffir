@@ -1,6 +1,20 @@
 {
-  "common": { "loading": "Laden…", "error": "Ein Fehler ist aufgetreten", "retry": "Erneut versuchen", "save": "Speichern", "cancel": "Abbrechen" },
-  "nav": { "home": "Startseite", "features": "Funktionen", "pricing": "Preise", "trial": "Kostenlos testen", "login": "Anmelden", "register": "Konto erstellen", "logout": "Abmelden" },
+  "common": {
+    "loading": "Laden…", "error": "Ein Fehler ist aufgetreten", "retry": "Erneut versuchen",
+    "save": "Speichern", "cancel": "Abbrechen", "delete": "Löschen", "edit": "Bearbeiten",
+    "create": "Erstellen", "search": "Suchen", "next": "Weiter", "previous": "Zurück",
+    "submit": "Absenden", "close": "Schließen", "yes": "Ja", "no": "Nein"
+  },
+  "nav": {
+    "home": "Startseite", "features": "Funktionen", "pricing": "Preise",
+    "trial": "Kostenlos testen", "about": "Über uns", "blog": "Blog",
+    "changelog": "Änderungen", "careers": "Karriere", "partners": "Partner",
+    "contact": "Kontakt", "docs": "Dokumentation", "integrations": "Integrationen",
+    "status": "Status", "login": "Anmelden", "register": "Konto erstellen",
+    "logout": "Abmelden", "dashboard": "Dashboard", "settings": "Einstellungen",
+    "terms": "Nutzungsbedingungen", "privacy": "Datenschutzrichtlinie",
+    "gdpr": "DSGVO-Konformität", "cgv": "AGB", "cookies_policy": "Cookie-Richtlinie"
+  },
   "hero": {
     "title": "Prädiktive Intelligenz für Luxushotellerie",
     "subtitle": "Intelligente Hausautomation, Room-Service in Echtzeit, orchestrierte VIP-Ankünfte, KI-Weinkeller. Eine Plattform zur Orchestrierung von Exzellenz.",
@@ -9,22 +23,47 @@
     "trust": "14 Tage kostenlos testen · Keine Kreditkarte · In 5 Min. eingerichtet"
   },
   "auth": {
-    "login_title": "Anmelden",
-    "register_title": "Konto erstellen",
-    "email": "E-Mail",
-    "password": "Passwort",
-    "forgot_password": "Passwort vergessen?",
-    "create_account": "Konto erstellen",
-    "displayName": "Vollständiger Name",
-    "hotelName": "Name Ihres Hotels",
+    "login_title": "Anmelden", "register_title": "Konto erstellen",
+    "email": "E-Mail", "password": "Passwort",
+    "forgot_password": "Passwort vergessen?", "no_account": "Noch kein Konto?",
+    "have_account": "Bereits ein Konto?", "create_account": "Konto erstellen",
+    "signup_subtitle": "14 Tage kostenlos, keine Karte erforderlich",
+    "displayName": "Vollständiger Name", "hotelName": "Name Ihres Hotels",
+    "phone": "Telefon", "password_min_length": "Mindestens 12 Zeichen",
     "create_hotel": "Mein Hotel erstellen"
+  },
+  "suite_controls": {
+    "title": "Suite Controls", "temperature": "Temperatur", "light": "Licht",
+    "curtains": "Vorhänge", "music": "Musik",
+    "scene_idle": "Ruhig", "scene_welcome": "Willkommen", "scene_morning": "Morgen",
+    "scene_work": "Arbeit", "scene_dinner": "Abendessen", "scene_night": "Nacht", "scene_away": "Abwesend",
+    "do_not_disturb": "Bitte nicht stören", "dnd_active": "DND aktiv", "dnd_inactive": "DND inaktiv"
+  },
+  "room_service": {
+    "title": "Zimmerservice", "pending": "Ausstehend", "preparing": "In Vorbereitung",
+    "ready": "Bereit", "delivered": "Geliefert", "estimated_time": "Geschätzte Zeit", "minutes": "Min."
+  },
+  "arrivals": {
+    "title": "VIP-Ankünfte", "war_room": "War Room", "next_24h": "Nächste 24h",
+    "critical_tasks": "Kritische Aufgaben",
+    "vip_royal": "Royal", "vip_prestige": "Prestige", "vip_vip": "VIP",
+    "vip_preferred": "Bevorzugt", "vip_classic": "Classic"
+  },
+  "billing": {
+    "title": "Abonnement", "current_plan": "Aktueller Plan",
+    "trial_active": "Kostenlose Testphase aktiv",
+    "trial_days_left_one": "{{count}} Tag verbleibend",
+    "trial_days_left_other": "{{count}} Tage verbleibend",
+    "trial_expired": "Ihre Testphase ist abgelaufen",
+    "subscribe": "Abonnieren", "invoice": "Rechnung", "next_billing": "Nächste Abrechnung"
   },
   "errors": {
     "network": "Netzwerkfehler. Überprüfen Sie Ihre Verbindung.",
     "unauthorized": "Sitzung abgelaufen. Bitte erneut anmelden.",
     "forbidden": "Sie haben keinen Zugriff auf diese Ressource.",
     "not_found": "Seite nicht gefunden.",
-    "server_error": "Serverfehler. Bitte versuchen Sie es später erneut."
+    "server_error": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "validation": "Bitte überprüfen Sie die eingegebenen Daten."
   },
   "footer": {
     "product": "Produkt", "company": "Unternehmen", "legal": "Rechtliches", "contact": "Kontakt",

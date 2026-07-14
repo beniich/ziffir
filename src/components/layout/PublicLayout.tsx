@@ -1,6 +1,7 @@
 import { SEO } from '../seo/SEO';
 import { Link } from 'react-router-dom';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -11,6 +12,8 @@ interface PublicLayoutProps {
 }
 
 export function PublicLayout({ children, title, description, noindex, jsonLd }: PublicLayoutProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       <SEO title={title} description={description} noindex={noindex} jsonLd={jsonLd} />
@@ -22,16 +25,16 @@ export function PublicLayout({ children, title, description, noindex, jsonLd }: 
           </Link>
 
           <ul className="nav-links" role="list">
-            <li><Link to="/features">Features</Link></li>
-            <li><Link to="/pricing">Pricing</Link></li>
-            <li><Link to="/blog">Blog</Link></li>
-            <li><Link to="/changelog">Changelog</Link></li>
+            <li><Link to="/features">{t('nav.features')}</Link></li>
+            <li><Link to="/pricing">{t('nav.pricing')}</Link></li>
+            <li><Link to="/blog">{t('nav.blog')}</Link></li>
+            <li><Link to="/changelog">{t('nav.changelog')}</Link></li>
           </ul>
 
           <div className="nav-actions">
             <LanguageSwitcher compact />
-            <Link to="/login" className="btn-ghost">Login</Link>
-            <Link to="/register" className="btn-primary glow-btn-sm">Free Trial</Link>
+            <Link to="/login" className="btn-ghost">{t('nav.login')}</Link>
+            <Link to="/register" className="btn-primary glow-btn-sm">{t('nav.trial')}</Link>
           </div>
         </nav>
       </header>
@@ -43,39 +46,40 @@ export function PublicLayout({ children, title, description, noindex, jsonLd }: 
       <footer role="contentinfo" className="public-footer">
         <div className="footer-grid">
           <section aria-labelledby="footer-product">
-            <h2 id="footer-product">Produit</h2>
+            <h2 id="footer-product">{t('footer.product')}</h2>
             <ul>
-              <li><Link to="/features">Fonctionnalités</Link></li>
-              <li><Link to="/pricing">Tarifs</Link></li>
-              <li><Link to="/trial">Essai Gratuit</Link></li>
-              <li><Link to="/status">Statut</Link></li>
+              <li><Link to="/features">{t('nav.features')}</Link></li>
+              <li><Link to="/pricing">{t('nav.pricing')}</Link></li>
+              <li><Link to="/trial">{t('nav.trial')}</Link></li>
+              <li><Link to="/status">{t('nav.status')}</Link></li>
+              <li><Link to="/integrations">{t('nav.integrations')}</Link></li>
             </ul>
           </section>
 
           <section aria-labelledby="footer-company">
-            <h2 id="footer-company">Entreprise</h2>
+            <h2 id="footer-company">{t('footer.company')}</h2>
             <ul>
-              <li><Link to="/blog">Blog</Link></li>
-              <li><Link to="/changelog">Changelog</Link></li>
-              <li><Link to="/careers">Carrières</Link></li>
-              <li><Link to="/partners">Partenaires</Link></li>
-              <li><Link to="/docs">Documentation</Link></li>
+              <li><Link to="/blog">{t('nav.blog')}</Link></li>
+              <li><Link to="/changelog">{t('nav.changelog')}</Link></li>
+              <li><Link to="/careers">{t('nav.careers')}</Link></li>
+              <li><Link to="/partners">{t('nav.partners')}</Link></li>
+              <li><Link to="/docs">{t('nav.docs')}</Link></li>
             </ul>
           </section>
 
           <section aria-labelledby="footer-legal">
-            <h2 id="footer-legal"><Link to="/legal" className="hover:text-[#D4AF37]">Légal</Link></h2>
+            <h2 id="footer-legal"><Link to="/legal" className="hover:text-[#D4AF37]">{t('footer.legal')}</Link></h2>
             <ul>
-              <li><Link to="/legal/terms">Conditions d'utilisation</Link></li>
-              <li><Link to="/legal/privacy">Politique de confidentialité</Link></li>
-              <li><Link to="/legal/gdpr">Conformité RGPD</Link></li>
-              <li><Link to="/legal/cgv">CGV</Link></li>
-              <li><Link to="/legal/cookies">Cookies</Link></li>
+              <li><Link to="/legal/terms">{t('nav.terms')}</Link></li>
+              <li><Link to="/legal/privacy">{t('nav.privacy')}</Link></li>
+              <li><Link to="/legal/gdpr">{t('nav.gdpr')}</Link></li>
+              <li><Link to="/legal/cgv">{t('nav.cgv')}</Link></li>
+              <li><Link to="/legal/cookies">{t('nav.cookies_policy')}</Link></li>
             </ul>
           </section>
 
           <section aria-labelledby="footer-contact">
-            <h2 id="footer-contact">Contact</h2>
+            <h2 id="footer-contact">{t('footer.contact')}</h2>
             <address>
               Ziffir SAS<br />
               Paris, France<br />
@@ -85,7 +89,7 @@ export function PublicLayout({ children, title, description, noindex, jsonLd }: 
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Ziffir SAS. All rights reserved.</p>
+          <p>{t('footer.rights', { year: new Date().getFullYear() })}</p>
         </div>
       </footer>
     </>

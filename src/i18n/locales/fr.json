@@ -25,13 +25,21 @@
     "blog": "Blog",
     "changelog": "Nouveautés",
     "careers": "Carrières",
+    "partners": "Partenaires",
     "contact": "Contact",
     "docs": "Documentation",
+    "integrations": "Intégrations",
+    "status": "Statut",
     "login": "Connexion",
     "register": "Créer un compte",
     "logout": "Déconnexion",
     "dashboard": "Tableau de bord",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité",
+    "gdpr": "Conformité RGPD",
+    "cgv": "CGV",
+    "cookies_policy": "Politique cookies"
   },
   "hero": {
     "title": "L'intelligence prédictive au service de l'hôtellerie de luxe",

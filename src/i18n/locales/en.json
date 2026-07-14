@@ -25,13 +25,21 @@
     "blog": "Blog",
     "changelog": "Changelog",
     "careers": "Careers",
+    "partners": "Partners",
     "contact": "Contact",
     "docs": "Documentation",
+    "integrations": "Integrations",
+    "status": "Status",
     "login": "Login",
     "register": "Sign up",
     "logout": "Logout",
     "dashboard": "Dashboard",
-    "settings": "Settings"
+    "settings": "Settings",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "gdpr": "GDPR Compliance",
+    "cgv": "General Conditions",
+    "cookies_policy": "Cookie Policy"
   },
   "hero": {
     "title": "Predictive intelligence for luxury hospitality",

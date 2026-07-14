@@ -1,6 +1,20 @@
 {
-  "common": { "loading": "Caricamento…", "error": "Si è verificato un errore", "retry": "Riprova", "save": "Salva", "cancel": "Annulla" },
-  "nav": { "home": "Home", "features": "Funzionalità", "pricing": "Prezzi", "trial": "Prova gratuita", "login": "Accedi", "register": "Crea account", "logout": "Esci" },
+  "common": {
+    "loading": "Caricamento…", "error": "Si è verificato un errore", "retry": "Riprova",
+    "save": "Salva", "cancel": "Annulla", "delete": "Elimina", "edit": "Modifica",
+    "create": "Crea", "search": "Cerca", "next": "Avanti", "previous": "Indietro",
+    "submit": "Invia", "close": "Chiudi", "yes": "Sì", "no": "No"
+  },
+  "nav": {
+    "home": "Home", "features": "Funzionalità", "pricing": "Prezzi",
+    "trial": "Prova gratuita", "about": "Chi siamo", "blog": "Blog",
+    "changelog": "Novità", "careers": "Carriere", "partners": "Partner",
+    "contact": "Contatto", "docs": "Documentazione", "integrations": "Integrazioni",
+    "status": "Stato", "login": "Accedi", "register": "Crea account",
+    "logout": "Esci", "dashboard": "Dashboard", "settings": "Impostazioni",
+    "terms": "Termini di servizio", "privacy": "Informativa sulla privacy",
+    "gdpr": "Conformità GDPR", "cgv": "Condizioni generali", "cookies_policy": "Politica sui cookie"
+  },
   "hero": {
     "title": "Intelligenza predittiva per l'hotelleria di lusso",
     "subtitle": "Domotica intelligente, room service in tempo reale, arrivi VIP orchestrati, cantina IA. Un'unica piattaforma per orchestrare l'eccellenza.",
@@ -9,22 +23,47 @@
     "trust": "Prova gratuita di 14 giorni · Senza carta di credito · Configurazione in 5 min"
   },
   "auth": {
-    "login_title": "Accedi",
-    "register_title": "Crea il tuo account",
-    "email": "Email",
-    "password": "Password",
-    "forgot_password": "Password dimenticata?",
-    "create_account": "Crea account",
-    "displayName": "Nome completo",
-    "hotelName": "Nome del tuo hotel",
+    "login_title": "Accedi", "register_title": "Crea il tuo account",
+    "email": "Email", "password": "Password",
+    "forgot_password": "Password dimenticata?", "no_account": "Non hai un account?",
+    "have_account": "Hai già un account?", "create_account": "Crea account",
+    "signup_subtitle": "14 giorni gratis, nessuna carta richiesta",
+    "displayName": "Nome completo", "hotelName": "Nome del tuo hotel",
+    "phone": "Telefono", "password_min_length": "Minimo 12 caratteri",
     "create_hotel": "Crea il mio hotel"
+  },
+  "suite_controls": {
+    "title": "Suite Controls", "temperature": "Temperatura", "light": "Luce",
+    "curtains": "Tende", "music": "Musica",
+    "scene_idle": "Riposo", "scene_welcome": "Benvenuto", "scene_morning": "Mattina",
+    "scene_work": "Lavoro", "scene_dinner": "Cena", "scene_night": "Notte", "scene_away": "Assente",
+    "do_not_disturb": "Non disturbare", "dnd_active": "DND attivo", "dnd_inactive": "DND inattivo"
+  },
+  "room_service": {
+    "title": "Room Service", "pending": "In attesa", "preparing": "In preparazione",
+    "ready": "Pronto", "delivered": "Consegnato", "estimated_time": "Tempo stimato", "minutes": "min"
+  },
+  "arrivals": {
+    "title": "Arrivi VIP", "war_room": "War Room", "next_24h": "Prossime 24h",
+    "critical_tasks": "Attività critiche",
+    "vip_royal": "Royal", "vip_prestige": "Prestige", "vip_vip": "VIP",
+    "vip_preferred": "Preferito", "vip_classic": "Classic"
+  },
+  "billing": {
+    "title": "Abbonamento", "current_plan": "Piano attuale",
+    "trial_active": "Prova gratuita attiva",
+    "trial_days_left_one": "{{count}} giorno rimanente",
+    "trial_days_left_other": "{{count}} giorni rimanenti",
+    "trial_expired": "La tua prova gratuita è scaduta",
+    "subscribe": "Abbonati", "invoice": "Fattura", "next_billing": "Prossima fatturazione"
   },
   "errors": {
     "network": "Errore di rete. Controlla la connessione.",
     "unauthorized": "Sessione scaduta. Accedi di nuovo.",
     "forbidden": "Non hai accesso a questa risorsa.",
     "not_found": "Pagina non trovata.",
-    "server_error": "Errore del server. Riprova più tardi."
+    "server_error": "Errore del server. Riprova più tardi.",
+    "validation": "Si prega di controllare i dati inseriti."
   },
   "footer": {
     "product": "Prodotto", "company": "Azienda", "legal": "Legale", "contact": "Contatto",
