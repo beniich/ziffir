@@ -22,10 +22,9 @@ import newsletterRoutes from './src/server/routes/newsletter.routes.js';
 import cors from 'cors';
 import { config } from './src/server/config.js';
 import { auditMiddleware } from './src/server/middlewares/audit.middleware.js';
-async function startServer() {
-  const app = express();
-  const httpServer = createHttpServer(app);
-  const PORT = 3000;
+export const app = express();
+const httpServer = createHttpServer(app);
+const PORT = process.env.PORT || 3000;
 
   // CORS
   app.use(cors({
@@ -510,16 +509,17 @@ async function startServer() {
     });
   }
 
-  // --- SOCKET.IO REALTIME SERVER ---
-  initRealtimeServer(httpServer);
+  // --- SOCKET.IO REALTIME SERVER (Désactivé pour Vercel Serverless) ---
+  // Vercel Serverless Functions ne supportent pas les connexions persistantes (WebSockets).
+  // initRealtimeServer(httpServer);
 
-  // --- ZAPHIR CORE AI ORCHESTRATOR ---
-  orchestrator.init();
+  // --- ZAPHIR CORE AI ORCHESTRATOR (Désactivé pour Vercel Serverless) ---
+  // L'orchestrateur nécessite un cron job externe sur Vercel, pas un setInterval en RAM.
+  // orchestrator.init();
 
-  httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Zaphir Full-Stack Hub running on port ${PORT}`);
-    console.log(`⚡ Socket.IO realtime server active`);
+// Ne lancer le serveur en écoute que si nous ne sommes PAS sur Vercel
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  httpServer.listen(PORT, () => {
+    console.log(`🚀 Zaphir Full-Stack Hub running locally on port ${PORT}`);
   });
 }
-
-startServer();
