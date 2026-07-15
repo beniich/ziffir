@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lock, UserCircle2, KeyRound, ChevronLeft, ShieldCheck, Mail, LogIn, UserPlus, RefreshCw, Cpu } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../contexts/AuthContext';
-import { auth, googleProvider } from '../firebase';
+import { auth, provider } from '../firebase';
 import { signInWithPopup } from 'firebase/auth';
 
 interface AuthWallProps {
@@ -140,7 +140,7 @@ export const AuthWall: React.FC<AuthWallProps> = ({
     setError(null);
     setLoading(true);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
       await loginWithGoogle(idToken);
       triggerSuccess({ email: result.user.email });
