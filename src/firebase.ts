@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app';
+import { getAnalytics } from "firebase/analytics";
 import { 
   getAuth, 
   signInWithPopup, 
@@ -18,25 +19,23 @@ import {
   getDoc
 } from 'firebase/firestore';
 
-// Configuration Firebase via variables d'environnement Vite
+// Configuration Firebase
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'tonal-legacy-v07pf.firebaseapp.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'tonal-legacy-v07pf',
-  appId: '1:1037154403107:web:2984f2dfd3b53580f24296',
-  storageBucket: 'tonal-legacy-v07pf.firebasestorage.app',
-  messagingSenderId: '1037154403107',
-  firestoreDatabaseId: 'ai-studio-c03eed34-6b98-437a-b865-3de7e2a9ecd6',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCTvszTeSV_NkLZHyknDWJf0CUc4-7sanE",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "zaphir-auth.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "zaphir-auth",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "zaphir-auth.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "143662316165",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:143662316165:web:fb3c5ed3e1cb44c8c687ec",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-N2V9HVWY4F"
 };
 
 // Initialize Firebase App
 export const app = initializeApp(firebaseConfig);
+export const analytics = getAnalytics(app);
 
-// Initialize Firestore with specific databaseId from config
-export const db = getFirestore(
-  app, 
-  'ai-studio-c03eed34-6b98-437a-b865-3de7e2a9ecd6'
-);
+// Initialize Firestore
+export const db = getFirestore(app);
 
 // Initialize Auth
 export const auth = getAuth(app);
