@@ -40,10 +40,8 @@ export const db = getFirestore(app);
 // Initialize Auth
 export const auth = getAuth(app);
 
-// Configure Google OAuth Provider with Workspace Sheets and Drive scopes
+// Configure Google OAuth Provider
 export const provider = new GoogleAuthProvider();
-provider.addScope('https://www.googleapis.com/auth/drive.file');
-provider.addScope('https://www.googleapis.com/auth/spreadsheets');
 
 // Cache the access token in memory
 let cachedAccessToken: string | null = null;
