@@ -17,6 +17,11 @@ export default defineConfig({
     host: true,
   },
 
+  // Force Vite/Rollup 4 to pre-bundle transitive deps used by recharts
+  optimizeDeps: {
+    include: ['react-is'],
+  },
+
   build: {
     // Warn at 800 KB instead of 500 KB (we'll hit it during code-split migration)
     chunkSizeWarningLimit: 800,
