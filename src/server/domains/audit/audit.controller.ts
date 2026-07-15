@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { auditService } from '../shared/services/audit.service';
-import { prisma } from '../../../lib/prisma';
+import { prisma } from '../../lib/prisma.js';
 import { format } from 'date-fns';
 
 export class AuditController {

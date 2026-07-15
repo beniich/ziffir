@@ -492,6 +492,99 @@ class AuthService {
       password: input.password,
     });
   }
+
+  // ===========================================================================
+  // GOOGLE AUTHENTICATION
+  // ===========================================================================
+  async loginWithGoogle(idToken: string): Promise<{ auth: AuthResult; accessToken: string; refreshToken: string }> {
+    // We can use Google's tokeninfo endpoint to verify the token without firebase-admin
+    const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
+    if (!response.ok) {
+      throw new Error('Invalid Google ID token');
+    }
+    const tokenInfo = await response.json();
+    
+    if (!tokenInfo.email || !tokenInfo.email_verified) {
+      throw new Error('Google account must have a verified email');
+    }
+    
+    const email = tokenInfo.email;
+    const displayName = tokenInfo.name || email.split('@')[0];
+    
+    // Check if user exists
+    let user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        memberships: {
+          where: { isActive: true, removedAt: null },
+          include: { hotel: true },
+          orderBy: { joinedAt: 'asc' },
+        },
+      }
+    });
+    
+    // If user doesn't exist, create them
+    if (!user) {
+      // Create a random password for Google-authenticated users
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      const passwordHash = await bcrypt.hash(randomPassword, 12);
+      
+      user = await prisma.user.create({
+        data: {
+          email,
+          passwordHash,
+          displayName,
+          role: 'CLIENT',
+        },
+        include: {
+          memberships: {
+            where: { isActive: true, removedAt: null },
+            include: { hotel: true },
+            orderBy: { joinedAt: 'asc' },
+          },
+        }
+      });
+    } else if (!user.isActive) {
+      throw new Error('Compte désactivé');
+    }
+    
+    // Setup session and tokens
+    const activeHotel = 
+      user.memberships.find(m => m.role === 'OWNER')?.hotel ||
+      user.memberships[0]?.hotel ||
+      null;
+    
+    const refreshToken = crypto.randomBytes(32).toString('hex');
+    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+    
+    const session = await prisma.userSession.create({
+      data: {
+        userId: user.id,
+        activeHotelId: activeHotel?.id || null,
+        refreshToken: refreshTokenHash,
+        expiresAt: new Date(Date.now() + 7 * 86400000),
+      },
+    });
+    
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { failedLoginCount: 0, lockedUntil: null, lastLoginAt: new Date() },
+    });
+    
+    const accessToken = this.signAccessToken({
+      sub: user.id,
+      role: user.role,
+      activeHotelId: activeHotel?.id || null,
+      sessionId: session.id,
+    });
+    
+    return {
+      accessToken,
+      refreshToken,
+      auth: await this.buildAuthResult(user.id, session.id, activeHotel?.id || null),
+    };
+  }
+
   
   // ===========================================================================
   // HELPERS
