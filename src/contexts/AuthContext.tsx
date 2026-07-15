@@ -34,6 +34,7 @@ export interface AuthState {
 
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string, totpCode?: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   switchHotel: (hotelId: string) => Promise<void>;
@@ -105,6 +106,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
   
+  const loginWithGoogle = useCallback(async (idToken: string) => {
+    const res = await fetch('/api/auth/google', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+    const json = await res.json();
+    
+    if (!res.ok) throw new Error(json.error?.message || 'Erreur lors de la connexion Google');
+    
+    setState({
+      user: json.data.user,
+      activeHotel: json.data.activeHotel,
+      availableHotels: json.data.availableHotels,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+  }, []);
+  
   const register = useCallback(async (data: RegisterData) => {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
@@ -163,6 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider value={{
       ...state,
       login,
+      loginWithGoogle,
       register,
       logout,
       switchHotel,

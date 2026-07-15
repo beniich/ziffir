@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Lock, UserCircle2, KeyRound, ChevronLeft, ShieldCheck, Mail, LogIn, UserPlus, RefreshCw, Cpu } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../contexts/AuthContext';
+import { auth, googleProvider } from '../firebase';
+import { signInWithPopup } from 'firebase/auth';
 
 interface AuthWallProps {
   onAuthSuccess: (user: any) => void;
@@ -93,7 +95,7 @@ export const AuthWall: React.FC<AuthWallProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { login, register } = useAuth();
+  const { login, register, loginWithGoogle } = useAuth();
   
   const triggerSuccess = (user: any) => {
     confetti({
@@ -134,7 +136,24 @@ export const AuthWall: React.FC<AuthWallProps> = ({
   };
 
   const handleGoogleSignIn = async () => {
-    setError('Google SignIn est désactivé sur le système propriétaire Zafir. Veuillez utiliser une clé cryptographique (email/mdp).');
+    if (loading) return;
+    setError(null);
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+      await loginWithGoogle(idToken);
+      triggerSuccess({ email: result.user.email });
+    } catch (err: any) {
+      console.error(err);
+      if (err.code === 'auth/unauthorized-domain') {
+        setError("Ce domaine n'est pas autorisé. Ajoutez 'ziffir.vercel.app' dans Firebase > Authentication > Settings > Authorized domains.");
+      } else {
+        setError(err.message || 'Google Auth Failed');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDevBypass = () => {
