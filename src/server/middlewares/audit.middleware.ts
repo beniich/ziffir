@@ -10,9 +10,9 @@ export const auditMiddleware = (req: Request, res: Response, next: NextFunction)
   // Intercept the response finish event to ensure we log successful/failed actions
   res.on('finish', () => {
     // Determine the actor
-    const actorId = (req as any).user?.id || null;
+    const actorId = (req as any).user?.id || undefined;
     const actorType = (req as any).user?.role === 'ADMIN' ? 'super_admin' : 'user';
-    const tenantId = (req as any).activeHotel?.id || null;
+    const tenantId = (req as any).activeHotel?.id || undefined;
 
     // Sanitize body (remove passwords, tokens, etc.)
     const sanitizedBody = { ...req.body };
@@ -26,7 +26,7 @@ export const auditMiddleware = (req: Request, res: Response, next: NextFunction)
     // Identify resource from URL (e.g. /api/users/123 -> Resource: users, ID: 123)
     const urlParts = req.originalUrl.split('?')[0].split('/').filter(Boolean);
     let resourceType = urlParts.length > 1 ? urlParts[1] : 'system';
-    let resourceId = urlParts.length > 2 ? urlParts[2] : null;
+    let resourceId = urlParts.length > 2 ? urlParts[2] : undefined;
 
     // Skip certain high-volume non-sensitive routes if necessary
     // e.g., if (resourceType === 'metrics') return;
@@ -40,7 +40,7 @@ export const auditMiddleware = (req: Request, res: Response, next: NextFunction)
       resourceId,
       action: `${req.method} ${req.originalUrl}`,
       ipAddress: req.ip,
-      userAgent: req.headers['user-agent'] || null,
+      userAgent: (req.headers['user-agent'] as string) || undefined,
       metadata: {
         statusCode: res.statusCode,
         body: sanitizedBody,

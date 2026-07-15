@@ -92,7 +92,7 @@ router.post('/create', async (req: Request, res: Response) => {
       eventType: 'booking.create',
       tenantId: hotelId,
       actorId: guestInfo.email,
-      actorType: 'guest',
+      actorType: 'user',
       resourceType: 'Booking',
       resourceId: booking.id,
       action: 'booking.create',
@@ -103,8 +103,8 @@ router.post('/create', async (req: Request, res: Response) => {
         guestEmail: guestInfo.email,
         promoCode: promoCode || null,
       },
-      ipAddress: req.ip || null,
-      userAgent: req.headers['user-agent'] || null,
+      ipAddress: req.ip,
+      userAgent: (req.headers['user-agent'] as string) || undefined,
     });
 
     // TODO: Envoyer un email de confirmation (service email à brancher)
@@ -134,7 +134,7 @@ router.post('/create', async (req: Request, res: Response) => {
 router.get('/confirm/:code', async (req: Request, res: Response) => {
   try {
     const booking = await prisma.booking.findUnique({
-      where: { confirmationCode: req.params.code },
+      where: { confirmationCode: req.params.code as string },
       include: {
         room: {
           select: { number: true, type: true },
