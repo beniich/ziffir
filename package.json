@@ -16,7 +16,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "echo 'Skipping prisma generate in postinstall — run via buildCommand'"
   },
   "dependencies": {
     "@prisma/client": "^6.4.0",
