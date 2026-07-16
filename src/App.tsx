@@ -11,6 +11,8 @@ import {
   CreditCard,
   Activity,
   RefreshCw,
+  ShieldAlert,
+  Cpu,
   Moon,
   Sun,
   Fingerprint,
@@ -26,7 +28,8 @@ import {
   Menu,
   Wine
 } from 'lucide-react';
-import { useAuth } from './contexts/AuthContext';
+import { initAuth, logout, getOrCreateUserProfile } from './firebase';
+import { User as FirebaseUser } from 'firebase/auth';
 import QRCode from 'qrcode';
 import confetti from 'canvas-confetti';
 import { jsPDF } from 'jspdf';
@@ -53,8 +56,6 @@ import { UserManagerSuite } from './components/UserManagerSuite';
 import { WineCellarTab } from './components/WineCellarTab';
 import { MarketingWebsite } from './components/MarketingWebsite';
 import { SaaSCheckoutWall } from './components/SaaSCheckoutWall';
-import { AuthWall } from './components/AuthWall';
-import { zaphirApi } from './apiClient';
 
 // Cryptographic Simulation Utilities for dynamic chain audit logging
 export interface AuditEntry {
@@ -82,43 +83,33 @@ function computeSimpleHash(input: string): string {
 const INITIAL_AUDITS: AuditEntry[] = [
   {
     id: "LOG-001",
-    timestamp: "2026-06-30 08:30:15 AM",
-    action: "SYSTEM_BOOT",
-    role: "ZAFIR-CORE",
-    reason: "Zafir Command Center initialized — production environment online",
+    timestamp: "2024-10-26 08:30:15 AM",
+    action: "SYSTEM_BOOT_GENESIS",
+    role: "ACADEMY-CORE",
+    reason: "Secure core init for student Elena Petrova (ZCA-2024-9182)",
     previousHash: "0000000000000000000000000000000000000000000000000000000000000000",
     hash: "0x7b8f9e0c5afde9c3b123d4f6eef050b16",
     status: "AUTHORIZED"
   },
   {
     id: "LOG-002",
-    timestamp: "2026-06-30 09:02:44 AM",
-    action: "CHECK_IN_CONFIRMED",
-    role: "FRONT_DESK",
-    reason: "Suite 1801 — Royal Suite — Mr. Al-Rashid & party. Check-in validated via passport scan.",
+    timestamp: "2024-10-26 09:12:44 AM",
+    action: "TRANSCRIPT_BLOCKCHAIN_ANCHOR",
+    role: "VICE_DEAN_VANCE",
+    reason: "GPA Anchor to sovereign ledger matching hash 0x89C...D4AF",
     previousHash: "0x7b8f9e0c5afde9c3b123d4f6eef050b16",
     hash: "0xc8d9e2a14b301cdfe98eba18274381907cb",
-    status: "AUTHORIZED"
-  },
-  {
-    id: "LOG-003",
-    timestamp: "2026-06-30 10:15:00 AM",
-    action: "SUITE_ACCESS_GRANTED",
-    role: "SECURITY",
-    reason: "Digital key issued — Suite 2204 — Imperial Suite — Ms. Laurent.",
-    previousHash: "0xc8d9e2a14b301cdfe98eba18274381907cb",
-    hash: "0xd4ef3c7912b8a0e6f5c290178364b5308ef",
     status: "AUTHORIZED"
   }
 ];
 
-// Hotel production billing records
+// Academic and mock structures
 const INITIAL_COURSES: Course[] = [
-  { code: 'INV-0041', name: 'Royal Suite — 3 nights', category: 'Accommodation', credits: 3, grade: 'PAID', completedDate: '2026-06-28' },
-  { code: 'INV-0042', name: 'Sommelier Dinner — Cave des Souverains', category: 'F&B', credits: 1, grade: 'PAID', completedDate: '2026-06-29' },
-  { code: 'INV-0043', name: 'Spa Prestige Package', category: 'Wellness', credits: 1, grade: 'PENDING', completedDate: '2026-06-30' },
-  { code: 'INV-0044', name: 'Airport Private Transfer — Bentley', category: 'Conciergerie', credits: 1, grade: 'PAID', completedDate: '2026-06-30' },
-  { code: 'INV-0045', name: 'Imperial Suite — 5 nights', category: 'Accommodation', credits: 5, grade: 'INVOICED', completedDate: '2026-07-01' },
+  { code: 'HOSP-501', name: 'Advanced Guest Experience Design', category: 'Operations', credits: 4.0, grade: 'A+', completedDate: '2025-11-20' },
+  { code: 'SOMM-612', name: 'Master Oenology & Fine Wine Curation', category: 'Gastronomy', credits: 3.0, grade: 'A', completedDate: '2025-12-15' },
+  { code: 'ESTM-505', name: 'Five-Star Estate & Butler Management', category: 'Service', credits: 4.0, grade: 'A+', completedDate: '2026-02-10' },
+  { code: 'CULN-410', name: 'Elite Haute Gastronomy & Hospitality Ethics', category: 'Gastronomy', credits: 3.0, grade: 'A-', completedDate: '2026-03-01' },
+  { code: 'FINH-590', name: 'Yield Management & Luxury Resort Finance', category: 'Management', credits: 4.0, grade: 'A', completedDate: '2026-04-18' },
 ];
 
 const translations = {
@@ -174,8 +165,9 @@ const translations = {
     stylesEngine: "ZAFIR CORE STYLES ENGINE v1.4",
     sovereignLive: "Sovereign Alignment Live",
     registry: "REGISTRY",
-    overview3d: "3D Overview",
-    blueprint2d: "2D Blueprint",
+    wallpaperHeading: "Sovereign Wallpaper / Image Preservation",
+    wallpaperLabelCustom: "Paste Custom Wallpaper URL",
+    wallpaperSaved: "Wallpaper State Preserved Successfully",
   },
   FR: {
     syncActive: "Synchro Réseau Sécurisée Active",
@@ -229,8 +221,9 @@ const translations = {
     stylesEngine: "MOTEUR DE STYLES ZAFIR v1.4",
     sovereignLive: "Alignement Souverain Actif",
     registry: "REGISTRE",
-    overview3d: "Aperçu 3D",
-    blueprint2d: "Plan 2D",
+    wallpaperHeading: "Arrière-plan / Conservation d'Image",
+    wallpaperLabelCustom: "Coller l'URL d'image personnalisée",
+    wallpaperSaved: "État de l'Arrière-plan Conservé",
   },
   RU: {
     syncActive: "Безопасная синхронизация сети активна",
@@ -284,8 +277,9 @@ const translations = {
     stylesEngine: "ОСНОВНОЙ СТИЛЕВОЙ ДВИГАТЕЛЬ v1.4",
     sovereignLive: "Суверенное выравнивание активно",
     registry: "РЕЕСТР",
-    overview3d: "3D Обзор",
-    blueprint2d: "2D Чертеж",
+    wallpaperHeading: "Сохранение изображения / Фон",
+    wallpaperLabelCustom: "Вставить URL пользовательского фона",
+    wallpaperSaved: "Состояние фонового рисунка сохранено",
   }
 };
 
@@ -293,10 +287,10 @@ const TAB_CLEARANCE: Record<string, ('administrateur' | 'client' | 'hotel')[]> =
   'prestige-portal': ['administrateur', 'client', 'hotel'],
   'arrivals': ['administrateur', 'hotel'],
   'room-service': ['administrateur', 'client', 'hotel'],
-  'controls': ['administrateur'],
+  'controls': ['administrateur', 'client'],
   'channel-sync': ['administrateur'],
   'vault': ['administrateur'],
-  'memberships': ['administrateur'],
+  'memberships': ['administrateur', 'client'],
   'billing': ['administrateur'],
   'maintenance': ['administrateur', 'hotel'],
   'omni-stream': ['administrateur'],
@@ -304,8 +298,8 @@ const TAB_CLEARANCE: Record<string, ('administrateur' | 'client' | 'hotel')[]> =
   'management': ['administrateur'],
   'user-directory': ['administrateur'],
   'hospitality-manager': ['administrateur', 'hotel'],
-  'wine-cellar': ['administrateur', 'hotel'],
-  'profile': ['administrateur', 'hotel'],
+  'wine-cellar': ['administrateur', 'client', 'hotel'],
+  'profile': ['administrateur', 'client', 'hotel'],
   'settings': ['administrateur', 'client', 'hotel'],
   'design-showcase': ['administrateur']
 };
@@ -313,15 +307,7 @@ const TAB_CLEARANCE: Record<string, ('administrateur' | 'client' | 'hotel')[]> =
 export default function App() {
   const [viewMode, setViewMode] = useState<'website' | 'dashboard'>('website');
   const [activeTab, setActiveTab ] = useState<'arrivals' | 'room-service' | 'controls' | 'channel-sync' | 'vault' | 'memberships' | 'maintenance' | 'omni-stream' | 'ledger' | 'management' | 'hospitality-manager' | 'wine-cellar' | 'profile' | 'prestige-portal' | 'design-showcase' | 'settings' | 'billing' | 'user-directory'>('prestige-portal');
-  const { user: currentUser, activeHotel, logout: authLogout } = useAuth();
-  
-  const sessionRole = activeHotel?.role === 'OWNER' 
-    ? 'administrateur' 
-    : activeHotel?.role 
-      ? 'hotel' 
-      : currentUser?.role === 'ADMIN' 
-        ? 'administrateur' 
-        : 'client';
+  const [sessionRole, setSessionRole] = useState<'administrateur' | 'client' | 'hotel'>('administrateur');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [language, setLanguage] = useState<'EN' | 'FR' | 'RU'>('EN');
 
@@ -330,55 +316,66 @@ export default function App() {
   };
 
   // Dynamic 5 Styles and 5 RBAC options state!
+  const [userRole, setUserRole] = useState<'operator' | 'manager'>('operator');
   const [styleMode, setStyleMode] = useState<'standard' | 'cyberpunk' | 'luxury'>('standard');
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
   const [colorScheme, setColorScheme] = useState<'gold' | 'sapphire' | 'emerald' | 'sunset'>('gold');
+  const [currentWallpaper, setCurrentWallpaper] = useState<string>(() => {
+    return localStorage.getItem('zafir_current_wallpaper') || 'https://lh3.googleusercontent.com/aida/AP1WRLuEMj6PXWI0qW0PAm0L_gb9ns8063JRR0X7RssoeAl_9TMxhqwZGbzHDLK0zIhu9RtEuzWfooxSMYvdYpV-ayMuG3tKXEerdRfTT0kSeyatilNGI2EsiAaPmuTpDo44Tj7UFGr1pbZ8VKaThMxP_-J-L0hftaB10OXkTel3bXWrsGdJQWM682Bavn6ZjVXMWhAvADx5aGd6E5hUwINjE-tv-uhYkaw2NPGah4Ixyyfec6HAsd9mJmfavcE';
+  });
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [auditLogs, setAuditLogs] = useState<AuditEntry[]>(INITIAL_AUDITS);
 
+  // Elevation sequence overlay/countdown state
+  const [showOverrideModal, setShowOverrideModal] = useState(false);
+  const [overrideReason, setOverrideReason] = useState('');
+  const [countdown, setCountdown] = useState(5);
+  const [isCounting, setIsCounting] = useState(false);
+  const [attemptedTab, setAttemptedTab] = useState<string | null>(null);
+
+  // Fingerprint Scan Simulator State
+  const [fingerprintScanStatus, setFingerprintScanStatus] = useState<'idle' | 'scanning' | 'success'>('idle');
 
   // Student details
-  const [studentName, setStudentName] = useState<string>('Invité / Guest');
-
-  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
+  const [studentName, setStudentName] = useState<string>('Elena Petrova');
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean>(() => {
     return localStorage.getItem('sapphir_has_active_subscription') === 'true';
   });
 
-
   useEffect(() => {
-    const handleAuthError = () => {
-      // Zaphir API rejected token
-      authLogout();
-    };
-    window.addEventListener('zaphir-unauthorized', handleAuthError);
-
-    if (currentUser && hasActiveSubscription) {
-      setIsLoadingBackend(true);
-      zaphirApi.get('/state')
-        .then((data: any) => {
-          if (data.arrivals?.vipGuests) setVipGuests(data.arrivals.vipGuests);
-          if (data.roomService?.roomOrders) setRoomOrders(data.roomService.roomOrders);
-          if (data.suiteControls?.currentTemp) setCurrentTemp(data.suiteControls.currentTemp);
-          if (data.suiteControls?.targetTemp) setTargetTemp(data.suiteControls.targetTemp);
-          // And so on for other modules...
-        })
-        .catch(console.error)
-        .finally(() => setIsLoadingBackend(false));
-    }
-    
-    return () => {
-      window.removeEventListener('zaphir-unauthorized', handleAuthError);
-    };
-  }, [currentUser, hasActiveSubscription]);
-
-  useEffect(() => {
-    if (currentUser) {
-      setStudentName(currentUser.displayName || currentUser.email?.split('@')[0] || 'Utilisateur');
-    } else {
-      setStudentName('Invité / Guest');
-    }
-  }, [currentUser]);
+    const unsubscribe = initAuth(
+      async (user) => {
+        setCurrentUser(user);
+        if (user) {
+          setStudentName(user.displayName || user.email || 'Elena Petrova');
+          try {
+            const profile = await getOrCreateUserProfile(user);
+            if (profile) {
+              setSessionRole(profile.role);
+              // Set corresponding userRole clearance: Managers/Admins get 'manager', VIPs get 'operator'
+              if (profile.role === 'administrateur' || profile.role === 'hotel') {
+                setUserRole('manager');
+              } else {
+                setUserRole('operator');
+              }
+              addAuditLog(
+                'USER_PROFILE_SYNC',
+                `Synchronized active permissions from secure database. Assigned simulated role: [${profile.role.toUpperCase()}].`,
+                'AUTHORIZED'
+              );
+            }
+          } catch (profileErr) {
+            console.warn("Error synchronizing profile permissions on load:", profileErr);
+          }
+        }
+      },
+      () => {
+        setCurrentUser(null);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -393,16 +390,16 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const [studentId] = useState<string>('ZFR-2026-0001');
-  const [dob] = useState<string>('—');
-  const [major] = useState<string>('Luxury Hospitality Operations');
+  const [studentId] = useState<string>('ZCA-2024-9182');
+  const [dob] = useState<string>('1998-05-14');
+  const [major] = useState<string>('Master of Premium Hospitality');
   const [blockchainId] = useState<string>('0x89C...D4AF');
   const [courses, setCourses] = useState<Course[]>(INITIAL_COURSES);
 
   // Tab State Handlers
   
   // Helper to add audit logs dynamically
-  const addAuditLog = (action: string, reason: string, status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', roleStr: string = sessionRole.toUpperCase()) => {
+  const addAuditLog = (action: string, reason: string, status: 'AUTHORIZED' | 'BYPASS' | 'RESTRICTED_ATTEMPT', roleStr: string = userRole.toUpperCase()) => {
     const lastEntry = auditLogs[auditLogs.length - 1] || INITIAL_AUDITS[INITIAL_AUDITS.length - 1];
     const prevHash = lastEntry ? lastEntry.hash : '0000000000000000000000000000000000000000000000000000000000000000';
     const timestampStr = new Date().toLocaleString('en-US', {
@@ -428,10 +425,63 @@ export default function App() {
     setAuditLogs(prev => [...prev, newEntry]);
   };
 
+  // Trigger role elevation countdown
+  const startOverrideSequence = (tabToOpen: string) => {
+    setAttemptedTab(tabToOpen);
+    setCountdown(5);
+    setOverrideReason('');
+    setShowOverrideModal(true);
+    setFingerprintScanStatus('idle');
+    setIsCounting(false);
+  };
 
-  // Try to access a tab
+  // Handle countdown interval
+  useEffect(() => {
+    let timer: any;
+    if (isCounting) {
+      if (countdown > 0) {
+        timer = setTimeout(() => {
+          setCountdown(prev => prev - 1);
+        }, 1000);
+      } else {
+        setIsCounting(false);
+        // Completed successfully!
+        setUserRole('manager');
+        setShowOverrideModal(false);
+        addAuditLog(
+          'EMERGENCY_SOVEREIGN_BYPASS',
+          `Bypassed access restriction with reason: "${overrideReason || 'Direct emergency override manual elevation'}"`,
+          'BYPASS',
+          'MANAGER'
+        );
+        if (attemptedTab) {
+          setActiveTab(attemptedTab as any);
+        }
+        confetti({
+          particleCount: 150,
+          spread: 85,
+          colors: ['#c19a6b', '#ffffff', '#ffd700']
+        });
+      }
+    }
+    return () => clearTimeout(timer);
+  }, [countdown, isCounting]);
+
+  // Try to access a tab (with RBAC checking)
   const navigateToTab = (tab: 'arrivals' | 'room-service' | 'controls' | 'channel-sync' | 'vault' | 'memberships' | 'maintenance' | 'omni-stream' | 'ledger' | 'management' | 'hospitality-manager' | 'wine-cellar' | 'profile' | 'prestige-portal' | 'design-showcase' | 'settings' | 'billing' | 'user-directory') => {
-    setActiveTab(tab);
+    const restrictedTabs = ['controls', 'channel-sync', 'vault', 'maintenance'];
+    if (userRole === 'operator' && restrictedTabs.includes(tab)) {
+      // Access attempt denied
+      setAttemptedTab(tab);
+      addAuditLog(
+        'UNAUTHORIZED_RESTRICTED_ACCESS_ATTEMPT',
+        `Access to restricted tab "${tab.toUpperCase()}" was blocked due to insufficient Operator clearance (Level 4).`,
+        'RESTRICTED_ATTEMPT'
+      );
+      setActiveTab(tab); // Set active tab to show the block screen!
+    } else {
+      setActiveTab(tab);
+    }
   };
 
   // 1. ARRIVALS DATA
@@ -772,7 +822,190 @@ export default function App() {
     );
   };
 
+  // Render Lock Screen for Operator when accessing restricted nodes
+  const renderClearanceLockScreen = (restrictedTab: string) => {
+    return (
+      <div 
+        className={`p-10 rounded-3xl text-center flex flex-col items-center justify-center space-y-6 relative overflow-hidden transition-all duration-300 border-2 border-black max-w-4xl mx-auto shadow-[0_0_20px_rgba(var(--accent-rgb),0.6)] ${
+          themeMode === 'light' ? 'bg-[#fcfaf2]/95 text-stone-900 shadow-[0_0_22px_#000]' : 'bg-obsidian-900/90 text-stone-100'
+        }`}
+        style={{ minHeight: '480px' }}
+      >
+        {styleMode === 'cyberpunk' && (
+          <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-pink-500/5 pointer-events-none animate-pulse" />
+        )}
+        
+        <div className="w-20 h-20 rounded-full bg-red-500/10 border-2 border-red-500 flex items-center justify-center text-red-500 animate-pulse relative">
+          <ShieldAlert className="w-10 h-10" />
+          <span className="absolute inset-0 w-full h-full rounded-full border border-red-500 animate-ping opacity-60" />
+        </div>
+        
+        <div className="space-y-2 max-w-lg">
+          <h2 className="text-2xl font-sans font-bold uppercase tracking-widest text-red-500">
+            Clearance Level Insufficient
+          </h2>
+          <p className="text-xs font-mono text-red-400 font-bold tracking-wider">
+            RESTRICTED SYSTEM ARCHITECTURE IS SHIELDED
+          </p>
+          <div className="bg-black/90 border-2 border-stone-800 rounded-2xl p-5 my-4 font-mono text-[11px] text-left text-slate-300 shadow-inner">
+            <p className="text-[#c19a6b] font-bold">// SECURE REGISTRY COMPLIANCE DETECTED:</p>
+            <p className="text-xs text-slate-100 font-bold mb-2">ACCESS_STAGE: {restrictedTab.toUpperCase()}_v2</p>
+            <div className="border-t border-stone-800 pt-2 space-y-1 text-[10px]">
+              <p><span className="text-slate-400">Current Node Level:</span> LEVEL-4 (Active Operator)</p>
+              <p><span className="text-slate-400">Required Clearance:</span> LEVEL-5 (Sovereign Proprietor)</p>
+            </div>
+          </div>
+        </div>
 
+        {/* Identity confirmation/fingerprint scanner card */}
+        <div className="bg-black/90 p-6 rounded-2xl w-full max-w-md flex flex-col items-center gap-4 relative border-2 border-stone-800 shadow-[0_0_15px_rgba(193,154,107,0.3)]">
+          <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-[#c19a6b]">Sovereign Identity Verification</h4>
+          
+          <button
+            onClick={() => {
+              if (fingerprintScanStatus === 'idle') {
+                setFingerprintScanStatus('scanning');
+                setTimeout(() => {
+                  setFingerprintScanStatus('success');
+                  confetti({ particleCount: 35, spread: 45, colors: ['#c19a6b', '#ffffff'] });
+                }, 1600);
+              }
+            }}
+            className={`w-20 h-20 rounded-2xl flex items-center justify-center border-2 transition-all duration-300 relative overflow-hidden ${
+              fingerprintScanStatus === 'idle' ? 'border-[#c19a6b]/45 bg-stone-900 text-[#c19a6b] hover:scale-105 hover:bg-stone-800' :
+              fingerprintScanStatus === 'scanning' ? 'border-sky-500 bg-sky-950/20 text-sky-400' :
+              'border-emerald-500 bg-emerald-950/20 text-emerald-400'
+            }`}
+          >
+            {fingerprintScanStatus === 'scanning' && (
+              <span className="absolute inset-x-0 h-[2px] bg-sky-400 animate-[bounce_1.5s_infinite] shadow-[0_0_12px_#38bdf8]" />
+            )}
+            <Fingerprint className={`w-12 h-12 ${fingerprintScanStatus === 'scanning' ? 'animate-pulse' : ''}`} />
+          </button>
+
+          <span className="text-[10px] font-mono text-[#c19a6b] tracking-wider uppercase font-bold text-center">
+            {fingerprintScanStatus === 'idle' && 'Click biometrics grid to initialize biometric scan'}
+            {fingerprintScanStatus === 'scanning' && 'Calibrating local telemetry nodes...'}
+            {fingerprintScanStatus === 'success' && 'Biometrics confirmed: Petrova E. (ZCA-2024-9182)'}
+          </span>
+
+          {fingerprintScanStatus === 'success' && (
+            <button
+              onClick={() => startOverrideSequence(restrictedTab)}
+              className="bg-[#c19a6b] hover:bg-white text-black font-mono font-bold py-2.5 px-6 rounded-xl text-xs uppercase tracking-wider transition duration-150 border-2 border-stone-900 shadow-[0_0_10px_#c19a6b] w-full"
+            >
+              ⚡ Initiate Sovereign Role Override Sequence
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Render Sovereign Bypass Modal
+  const renderOverrideModal = () => {
+    if (!showOverrideModal) return null;
+    const isReady = countdown === 0 && overrideReason.trim().length > 0;
+    
+    return (
+      <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 backdrop-blur-md">
+        <div className="premium-border-glow p-8 rounded-3xl max-w-md w-full text-center bg-obsidian-900 border-2 border-stone-950 relative shadow-[0_0_30px_rgba(193,154,107,0.7)]">
+          
+          <button 
+            onClick={() => {
+              setShowOverrideModal(false);
+              setIsCounting(false);
+            }} 
+            className="absolute top-4 right-4 text-slate-400 hover:text-white"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div className="w-16 h-16 rounded-full bg-[#c19a6b]/10 border-2 border-[#c19a6b] flex items-center justify-center text-[#c19a6b] mx-auto mb-4 animate-pulse">
+            <Cpu className="w-8 h-8" />
+          </div>
+
+          <h3 className="text-lg font-serif-luxury font-bold text-slate-100 mb-2">Sovereign Authority Override</h3>
+          <p className="text-[11px] text-slate-400 mb-4 font-mono">
+            Direct vice-dean security bypass. Enter cryptographic log reason to launch sequence.
+          </p>
+
+          <div className="space-y-4 text-left">
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#c19a6b] block">
+                Forensic Bypass Reason
+              </label>
+              <input
+                type="text"
+                value={overrideReason}
+                onChange={(e) => setOverrideReason(e.target.value)}
+                placeholder="e.g. Authorized audit & maintenance synchronization"
+                className="w-full bg-black border-2 border-stone-900 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-[#c19a6b] font-mono shadow-inner"
+              />
+            </div>
+
+            <div className="bg-black p-4 rounded-xl border-2 border-stone-950 text-center relative overflow-hidden">
+              <span className="text-[10px] font-mono tracking-widest text-[#c19a6b] uppercase block mb-1">Calibration Progress</span>
+              
+              {countdown > 0 ? (
+                <div className="flex flex-col items-center">
+                  <span className="text-4xl font-mono font-bold text-[#ef4444] tracking-tight">{countdown}s</span>
+                  {isCounting ? (
+                    <span className="text-[9px] font-mono text-slate-400 block animate-pulse">Synchronizing ledger chain security...</span>
+                  ) : (
+                    <button
+                      onClick={() => setIsCounting(true)}
+                      disabled={overrideReason.trim().length === 0}
+                      className="mt-2 py-1.5 px-4 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-mono font-bold uppercase transition"
+                    >
+                      Begin Cryptographic Run
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-xs text-emerald-500 font-mono font-bold">✓ AUTHENTICATION BLOCKS SEALED</span>
+                  <span className="text-[9px] text-slate-400 font-mono uppercase">Decentralized token ready for signature</span>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => {
+                if (isReady) {
+                  setIsCounting(false);
+                  setUserRole('manager');
+                  setShowOverrideModal(false);
+                  addAuditLog(
+                    'EMERGENCY_SOVEREIGN_BYPASS',
+                    `Bypassed restriction to tab "${attemptedTab?.toUpperCase()}" with reason: "${overrideReason}"`,
+                    'BYPASS',
+                    'MANAGER'
+                  );
+                  if (attemptedTab) {
+                    setActiveTab(attemptedTab as any);
+                  }
+                  confetti({
+                    particleCount: 150,
+                    spread: 85,
+                    colors: ['#c19a6b', '#ffffff', '#ffd700']
+                  });
+                }
+              }}
+              disabled={!isReady}
+              className={`w-full py-3 rounded-xl text-xs font-mono uppercase tracking-widest transition shadow font-bold border-2 border-stone-950 ${
+                isReady 
+                  ? 'bg-[#c19a6b] text-black hover:bg-white' 
+                  : 'bg-stone-900 text-stone-500 cursor-not-allowed'
+              }`}
+            >
+              Sign override block (Level 5)
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // Render Drawer with Aesthetic/Role options
   const renderSettingsDrawer = () => {
@@ -784,7 +1017,7 @@ export default function App() {
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#c19a6b] flex items-center gap-2">
               <Settings className="w-4 h-4 animate-spin-slow" /> {t('settingsHeading')}
             </h3>
-            <button type="button" onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white">
+            <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -795,7 +1028,7 @@ export default function App() {
               {t('themeHeading')}
             </label>
             <div className="grid grid-cols-2 gap-2">
-              <button type="button"
+              <button
                 onClick={() => {
                   setThemeMode('dark');
                   addAuditLog('THEME_RECALIBRATION', 'Switched master lightwave back into Deep Cosmic Obsidian Dark mode.', 'AUTHORIZED');
@@ -808,7 +1041,7 @@ export default function App() {
               >
                 <Moon className="w-3.5 h-3.5" /> {t('themeDark')}
               </button>
-              <button type="button"
+              <button
                 onClick={() => {
                   setThemeMode('light');
                   addAuditLog('THEME_RECALIBRATION', 'Calibrated master lightwave into Champagne Light mode.', 'AUTHORIZED');
@@ -830,7 +1063,7 @@ export default function App() {
               {t('aestheticHeading')}
             </label>
             <div className="flex flex-col gap-1.5">
-              <button type="button"
+              <button
                 onClick={() => {
                   setStyleMode('standard');
                   addAuditLog('AESTHETIC_RECONFIG', 'Restored Zafir Command standard luxury visual layouts.', 'AUTHORIZED');
@@ -845,7 +1078,7 @@ export default function App() {
                 <span className="text-[9px] bg-[#c19a6b]/20 px-1.5 py-0.5 rounded text-[#c19a6b]">ACTIVE</span>
               </button>
 
-              <button type="button"
+              <button
                 onClick={() => {
                   setStyleMode('cyberpunk');
                   addAuditLog('AESTHETIC_RECONFIG', 'Forced Cyberpunk Extrême mode. Active CRT scanlines, flicker & cyan neon spikes.', 'AUTHORIZED');
@@ -860,7 +1093,7 @@ export default function App() {
                 <span className="text-[9px] bg-cyan-500/20 px-1.5 py-0.5 rounded text-cyan-400">NEON</span>
               </button>
 
-              <button type="button"
+              <button
                 onClick={() => {
                   setStyleMode('luxury');
                   addAuditLog('AESTHETIC_RECONFIG', 'Adopted Quiet Luxury style: thin Georgia serifs with muted borders.', 'AUTHORIZED');
@@ -889,7 +1122,7 @@ export default function App() {
                 { name: 'emerald', code: '#10b981', label: 'Forest' },
                 { name: 'sunset', code: '#f97316', label: 'Riviera' },
               ].map(gem => (
-                <button type="button"
+                <button
                   key={gem.name}
                   onClick={() => {
                     setColorScheme(gem.name as any);
@@ -906,7 +1139,42 @@ export default function App() {
             </div>
           </div>
 
-
+          {/* 4. Active Clearance Role Toggle */}
+          <div className="space-y-2 pt-2 border-t border-stone-800">
+            <label className="text-[10px] font-mono uppercase tracking-widest text-slate-400 block font-bold">
+              {t('securityRoleHeading')}
+            </label>
+            <div className="flex bg-black p-1 rounded-xl border-2 border-stone-950">
+              <button
+                onClick={() => {
+                  setUserRole('operator');
+                  addAuditLog('MANUAL_ROLE_REVOCATION', 'Active operator manually revoked higher Level 5 clearance. Shifted back to Operator.', 'AUTHORIZED');
+                  confetti({ particleCount: 15, spread: 25, colors: ['#3b82f6'] });
+                }}
+                className={`flex-1 py-2 rounded-lg text-xs font-mono font-bold uppercase transition ${
+                  userRole === 'operator'
+                    ? 'bg-sky-600 text-white font-bold'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+              >
+                {t('operator')}
+              </button>
+              <button
+                onClick={() => {
+                  setUserRole('manager');
+                  addAuditLog('MANUAL_ROLE_ELEVATION', 'Manual bypass switch to high Proprietor Level 5 clearance enabled.', 'AUTHORIZED');
+                  confetti({ particleCount: 40, spread: 45, colors: ['#ffd700'] });
+                }}
+                className={`flex-1 py-2 rounded-lg text-xs font-mono font-bold uppercase transition ${
+                  userRole === 'manager'
+                    ? 'bg-amber-600 text-white font-bold'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+              >
+                {t('manager')}
+              </button>
+            </div>
+          </div>
 
           {/* 5. Aesthetic Language Matrix */}
           <div className="space-y-2 pt-2 border-t border-stone-800">
@@ -919,7 +1187,7 @@ export default function App() {
                 { code: 'FR', name: 'Français', flag: '🇫🇷' },
                 { code: 'RU', name: 'Русский', flag: '🇷🇺' }
               ].map(lang => (
-                <button type="button"
+                <button
                   key={lang.code}
                   onClick={() => {
                     setLanguage(lang.code as any);
@@ -936,6 +1204,71 @@ export default function App() {
                   <span className="text-[9px] uppercase tracking-wider">{lang.code}</span>
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* 6. Sovereign Wallpaper Background / Image Preservation */}
+          <div className="space-y-2 pt-2 border-t border-stone-800">
+            <label className="text-[10px] font-mono uppercase tracking-widest text-slate-400 flex items-center gap-1 font-bold">
+              <Layers className="w-3.5 h-3.5 text-[#c19a6b]" /> {t('wallpaperHeading')}
+            </label>
+            
+            {/* Presets Grid */}
+            <div className="grid grid-cols-3 gap-1.5 bg-black p-1 rounded-xl border-2 border-stone-950">
+              {[
+                { 
+                  name: 'Gold Spa', 
+                  url: 'https://lh3.googleusercontent.com/aida/AP1WRLuEMj6PXWI0qW0PAm0L_gb9ns8063JRR0X7RssoeAl_9TMxhqwZGbzHDLK0zIhu9RtEuzWfooxSMYvdYpV-ayMuG3tKXEerdRfTT0kSeyatilNGI2EsiAaPmuTpDo44Tj7UFGr1pbZ8VKaThMxP_-J-L0hftaB10OXkTel3bXWrsGdJQWM682Bavn6ZjVXMWhAvADx5aGd6E5hUwINjE-tv-uhYkaw2NPGah4Ixyyfec6HAsd9mJmfavcE',
+                  icon: '⚜️' 
+                },
+                { 
+                  name: 'Obsidian', 
+                  url: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=2600&q=85',
+                  icon: '🌌' 
+                },
+                { 
+                  name: 'Château', 
+                  url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80',
+                  icon: '🏰' 
+                }
+              ].map(preset => (
+                <button
+                  key={preset.name}
+                  onClick={() => {
+                    setCurrentWallpaper(preset.url);
+                    localStorage.setItem('zafir_current_wallpaper', preset.url);
+                    addAuditLog('WALLPAPER_CONSERVATION', `Preserved and loaded ${preset.name} ambient backdrop.`, 'AUTHORIZED');
+                    confetti({ particleCount: 20, spread: 35, colors: ['#c19a6b', '#ffffff'] });
+                  }}
+                  className={`py-1.5 rounded-lg text-[10px] font-mono font-bold transition flex flex-col items-center justify-center border-2 ${
+                    currentWallpaper === preset.url
+                      ? 'bg-black border-[#c19a6b] text-[#c19a6b] font-bold'
+                      : 'bg-stone-900 border-transparent text-stone-400 hover:text-stone-200 hover:bg-stone-850'
+                  }`}
+                  title={preset.name}
+                >
+                  <span className="text-[13px] mb-0.5">{preset.icon}</span>
+                  <span className="uppercase tracking-wider truncate max-w-[65px]">{preset.name}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Custom URL Input for Dynamic Preservation */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[9px] font-mono uppercase text-[#849495] block">{t('wallpaperLabelCustom')}</span>
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  placeholder="https://..."
+                  value={currentWallpaper}
+                  onChange={(e) => {
+                    const newUrl = e.target.value;
+                    setCurrentWallpaper(newUrl);
+                    localStorage.setItem('zafir_current_wallpaper', newUrl);
+                  }}
+                  className="w-full bg-stone-900 border border-stone-800 text-[10px] font-mono text-[#c19a6b] px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-[#c19a6b]"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -962,22 +1295,6 @@ export default function App() {
     );
   }
 
-  // REQUIRE AUTHENTICATION WALL BEFORE CHECKOUT
-  if (!currentUser) {
-    return (
-      <AuthWall
-        themeMode={themeMode}
-        language={language}
-        onAuthSuccess={async (user) => {
-          addAuditLog('AUTH_SUCCESS', `User authenticated successfully: ${user.email}`, 'AUTHORIZED');
-        }}
-        onBackToWebsite={() => {
-          setViewMode('website');
-        }}
-      />
-    );
-  }
-
   // REQUIRE PAYMENT ACCESS WALL BEFORE DASHBOARD IS ENTERED
   if (!hasActiveSubscription) {
     return (
@@ -992,17 +1309,6 @@ export default function App() {
           setViewMode('website');
         }}
       />
-    );
-  }
-
-  if (isLoadingBackend) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-obsidian-950 text-[#c19a6b] font-mono text-sm tracking-widest uppercase">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-2 border-[#c19a6b]/20 border-t-[#c19a6b] rounded-full animate-spin"></div>
-          <div>Establishing Secure Handshake...</div>
-        </div>
-      </div>
     );
   }
 
@@ -1023,7 +1329,7 @@ export default function App() {
           <div 
             className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none z-0 opacity-40 transition-opacity duration-300" 
             style={{ 
-              backgroundImage: "url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=2600&q=85')",
+              backgroundImage: `url('${currentWallpaper}')`,
               transform: "scale(1.02)",
               filter: "blur(5px) brightness(0.6) contrast(1.1)"
             }} 
@@ -1043,7 +1349,7 @@ export default function App() {
       )}
 
       {/* Floating Settings Button in bottom-right corner */}
-      <button type="button"
+      <button
         onClick={() => setShowSettings(!showSettings)}
         className="fixed bottom-6 right-6 z-50 p-3.5 rounded-full bg-black border-2 border-stone-800 shadow-[0_0_15px_rgba(193,154,107,0.85)] text-[#c19a6b] hover:text-white hover:scale-110 active:scale-95 transition-all duration-200"
         title="Custom Sovereign Aesthetics Deck"
@@ -1053,7 +1359,7 @@ export default function App() {
 
       {/* Drawers and modals renderers */}
       {renderSettingsDrawer()}
-
+      {renderOverrideModal()}
 
       {/* TOP BRADING HEADER BAR */}
       <header className={`border-b backdrop-blur-md sticky top-0 z-40 shadow-sm relative transition-all duration-300 ${
@@ -1063,7 +1369,7 @@ export default function App() {
       }`}>
         <div className="max-w-7xl mx-auto px-3 sm:px-6 min-h-18 py-2.5 sm:py-0 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5">
-            <button type="button"
+            <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               className="p-1.5 sm:p-2 mr-1 rounded-xl bg-white/70 dark:bg-[#121214]/60 border border-[#c19a6b]/25 hover:border-[#c19a6b]/60 text-[#7c5a30] dark:text-[#c19a6b] hover:bg-[#c19a6b]/10 transition-all flex items-center justify-center shadow-xs"
               title={sidebarCollapsed ? "Show Sidebar" : "Hide Sidebar"}
@@ -1116,7 +1422,7 @@ export default function App() {
             </div>
 
             <div className="relative">
-              <button type="button" 
+              <button 
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="flex items-center gap-2 cursor-pointer focus:outline-none hover:opacity-90 select-none group"
               >
@@ -1163,8 +1469,15 @@ export default function App() {
                             key={roleItem.id}
                             type="button"
                             onClick={() => {
-                              alert('Le changement de rôle est maintenant géré par le backend unifié (switchHotel).');
+                              setSessionRole(roleItem.id as any);
+                              addAuditLog(
+                                'SESSION_ROLE_SIMULATED',
+                                `Switched active credentials profile simulated role to [${roleItem.id.toUpperCase()}].`,
+                                'AUTHORIZED',
+                                roleItem.id.toUpperCase()
+                              );
                               setProfileDropdownOpen(false);
+                              confetti({ particleCount: 15, colors: ['#c19a6b', '#ffffff'] });
                             }}
                             className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border ${
                               sessionRole === roleItem.id
@@ -1209,14 +1522,16 @@ export default function App() {
                         onClick={async () => {
                           setProfileDropdownOpen(false);
                           try {
-                            await authLogout();
+                            await logout();
                             addAuditLog(
                               'CRYPTO_SECURITY_LOGOUT',
                               'User triggered defensive logout sequence. Recovering access tokens and recycling keys.',
                               'AUTHORIZED',
                               sessionRole.toUpperCase()
                             );
-                            setStudentName('Invité / Guest');
+                            setStudentName('Guest Operator');
+                            setUserRole('operator');
+                            setSessionRole('client');
                             confetti({ particleCount: 15, colors: ['#e11d48'] });
                             alert(language === 'FR' ? 'Déconnexion effectuée avec succès !' : 'Successfully logged out !');
                           } catch (err) {
@@ -1246,7 +1561,7 @@ export default function App() {
         {!sidebarCollapsed && (
           <aside className="w-full lg:w-64 flex flex-row lg:flex-col gap-1.5 shrink-0 overflow-x-auto pb-2 lg:pb-0 scrollbar-none glass-panel p-2.5 sm:p-4 h-fit sticky top-[62px] lg:top-24 z-30 shadow-md animate-fade-in">
           
-          <button type="button"
+          <button
             onClick={() => {
               setViewMode('website');
               addAuditLog('RETURNED_TO_WEBSITE', 'Navigated back to the public landing page from secure cockpit.', 'AUTHORIZED');
@@ -1258,7 +1573,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/30 text-[#7c5a30] px-1.5 py-0.2 rounded font-bold">WEB</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('prestige-portal')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'prestige-portal'
@@ -1271,7 +1586,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/30 text-[#7c5a30] px-1.5 py-0.2 rounded font-bold">INFO</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('arrivals')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'arrivals'
@@ -1284,7 +1599,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-sky-500/10 text-sky-700 px-1.5 py-0.2 rounded border border-sky-500/20 font-bold">VIP</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('room-service')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'room-service'
@@ -1297,7 +1612,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/15 text-[#7c5a30] px-1.5 py-0.2 rounded border border-[#c19a6b]/30 font-bold">6</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('controls')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'controls'
@@ -1307,10 +1622,10 @@ export default function App() {
           >
             <Sliders className="w-4 h-4 text-sapphire" />
             <span className="text-xs font-semibold tracking-wider uppercase font-mono font-sans-luxury">{t('tabControls')}</span>
-
+            {userRole === 'operator' && <Lock className="w-3.5 h-3.5 text-red-500/80 shrink-0 ml-auto animate-pulse" />}
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('channel-sync')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'channel-sync'
@@ -1320,9 +1635,14 @@ export default function App() {
           >
             <Layers className="w-4 h-4 text-sapphire" />
             <span className="text-xs font-semibold tracking-wider uppercase font-mono font-sans-luxury">{t('tabChannelSync')}</span>
+            {userRole === 'operator' ? (
+              <Lock className="w-3.5 h-3.5 text-red-500/80 shrink-0 ml-auto animate-pulse" />
+            ) : (
+              <span className="ml-auto text-[10px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.2 rounded border border-emerald-500/20 font-semibold font-sans-luxury">99%</span>
+            )}
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('vault')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'vault'
@@ -1332,10 +1652,10 @@ export default function App() {
           >
             <Lock className="w-4 h-4 text-sapphire" />
             <span className="text-xs font-semibold tracking-wider uppercase font-mono font-sans-luxury">{t('tabVault')}</span>
-
+            {userRole === 'operator' && <Lock className="w-3.5 h-3.5 text-red-500/80 shrink-0 ml-auto animate-pulse" />}
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('memberships')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'memberships'
@@ -1347,7 +1667,7 @@ export default function App() {
             <span className="text-xs font-semibold tracking-wider uppercase font-mono flex-1 font-sans-luxury">{t('tabMemberships')}</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('billing')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'billing'
@@ -1361,7 +1681,7 @@ export default function App() {
             <span className="ml-auto text-[9px] bg-emerald-500/15 text-emerald-700 px-1.5 py-0.2 rounded border border-emerald-500/20 font-bold uppercase">SaaS</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('maintenance')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'maintenance'
@@ -1371,10 +1691,10 @@ export default function App() {
           >
             <HardHat className="w-4 h-4 text-sapphire" />
             <span className="text-xs font-semibold tracking-wider uppercase font-mono font-sans-luxury">{t('tabMaintenance')}</span>
-
+            {userRole === 'operator' && <Lock className="w-3.5 h-3.5 text-red-500/80 shrink-0 ml-auto animate-pulse" />}
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('omni-stream')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'omni-stream'
@@ -1388,7 +1708,7 @@ export default function App() {
 
           <div className="hidden lg:block border-t border-slate-350/50 my-4" />
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('ledger')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'ledger'
@@ -1401,7 +1721,7 @@ export default function App() {
             <span className="ml-auto text-[9px] bg-[#c19a6b]/20 text-[#7c5a30] px-1.5 py-0.2 rounded border border-[#c19a6b]/30 font-bold">GPA {totalGPA}</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('management')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'management'
@@ -1414,7 +1734,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.2 rounded border border-emerald-500/20 font-bold font-mono">SYS</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('user-directory')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'user-directory'
@@ -1429,7 +1749,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/20 text-[#7c5a30] px-1.5 py-0.2 rounded border border-[#c19a6b]/40 font-bold font-mono">ROLE</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('hospitality-manager')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'hospitality-manager'
@@ -1442,7 +1762,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/20 text-[#7c5a30] px-1.5 py-0.2 rounded border border-[#c19a6b]/40 font-bold font-mono">OPS</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('wine-cellar')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'wine-cellar'
@@ -1455,7 +1775,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/20 text-[#7c5a30] px-1.5 py-0.2 rounded border border-[#c19a6b]/40 font-bold font-mono">CAV</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('profile')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'profile'
@@ -1475,7 +1795,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-[#c19a6b]/30 text-[#7c5a30] px-1.5 py-0.2 rounded font-bold">VIP-V</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('settings')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'settings'
@@ -1488,7 +1808,7 @@ export default function App() {
             <span className="ml-auto text-[10px] bg-amber-500/10 text-amber-600 px-1.5 py-0.2 rounded border border-amber-500/20 font-bold font-mono">SYNC</span>
           </button>
 
-          <button type="button"
+          <button
             onClick={() => navigateToTab('design-showcase')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full shrink-0 lg:shrink text-left ${
               activeTab === 'design-showcase'
@@ -1509,11 +1829,14 @@ export default function App() {
             renderSessionRoleLockScreen(activeTab)
           ) : (
             <>
-              {activeTab === 'arrivals' && <ArrivalsTab vipGuests={vipGuests} flights={flights} />}
+              {activeTab === 'arrivals' && <ArrivalsTab vipGuests={vipGuests} flights={flights} userRole={userRole} />}
               
               {activeTab === 'room-service' && <RoomServiceTab roomOrders={roomOrders} advanceOrderStatus={advanceOrderStatus} addAuditLog={addAuditLog} language={language} />}
               
-
+              {userRole === 'operator' && ['controls', 'channel-sync', 'vault', 'maintenance'].includes(activeTab) ? (
+                renderClearanceLockScreen(activeTab as any)
+              ) : (
+                <>
               {activeTab === 'controls' && (
                 <ControlsTab
                   lightScene={lightScene}
@@ -1587,8 +1910,9 @@ export default function App() {
                 <ProfileTab
                   language={language}
                   addAuditLog={addAuditLog}
-                  onUserChange={(name, _role) => {
+                  onUserChange={(name, role) => {
                     setStudentName(name);
+                    setUserRole(role);
                   }}
                 />
               )}
@@ -1621,6 +1945,8 @@ export default function App() {
                   sessionRole={sessionRole}
                 />
               )}
+            </>
+          )}
             </>
           )}
         </main>

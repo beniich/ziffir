@@ -45,7 +45,7 @@ const PORT = process.env.PORT || 3000;
   app.use('/api', requireAuth);
   app.use('/api', trackTokens(1)); // Charge 1 token for standard API calls
   app.use('/api', auditMiddleware); // SOC 2 & ISO 27001 Audit Trail
-  
+
   app.use('/api/audit', auditRoutes); // SOC 2 Export & Logging routes
 
   // --- SUITE CONTROLS (Prisma + Socket.IO) ---
