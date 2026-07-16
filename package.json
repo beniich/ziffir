@@ -16,7 +16,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
-    "cap:sync": "npm run build:full && npx cap sync"
+    "cap:sync": "npm run build:full && npx cap sync",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@capacitor/core": "^8.4.2",
