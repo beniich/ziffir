@@ -56,6 +56,7 @@ import { UserManagerSuite } from './components/UserManagerSuite';
 import { WineCellarTab } from './components/WineCellarTab';
 import { MarketingWebsite } from './components/MarketingWebsite';
 import { SaaSCheckoutWall } from './components/SaaSCheckoutWall';
+import { CookieBanner } from './components/CookieBanner';
 
 // Cryptographic Simulation Utilities for dynamic chain audit logging
 export interface AuditEntry {
@@ -1962,7 +1963,8 @@ export default function App() {
           </div>
         </div>
       )}
-
+      
+      <CookieBanner />
     </div>
   );
 }
