@@ -27,3 +27,13 @@ export { Tooltip } from './Tooltip';
 
 export { ToastContainer, toast, useToastStore } from './Toast';
 export type { ToastType } from './Toast';
+
+// ── New primitives ─────────────────────────────────────────────────────────
+export { DataTable } from './DataTable';
+export type { Column } from './DataTable';
+
+export { Stat, StatGroup } from './Stat';
+
+export { Timeline } from './Timeline';
+export type { TimelineItem, TimelineVariant } from './Timeline';
+

@@ -1,4 +1,5 @@
 import { PublicLayout } from '../../components/layout/PublicLayout';
+import { Link } from 'react-router-dom';
 
 export function TermsPage() {
   return (

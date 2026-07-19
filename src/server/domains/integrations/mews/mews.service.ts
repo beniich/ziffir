@@ -93,7 +93,7 @@ export class MewsIntegrationService {
               scheduledArrivalAt: new Date(m.ArrivalUtc),
               scheduledDepartureAt: new Date(m.DepartureUtc),
               roomId: m.AssignedResourceId, // Mews resource = room
-              transportMode: 'WALKING', // À raffiner
+              transportMode: 'WALK_IN',
               status: 'SCHEDULED',
               createdById: 'system',
             },
@@ -144,13 +144,13 @@ export class MewsIntegrationService {
     );
   }
   
-  private mapVipLevel(classifications: any[]): 'CLASSIC' | 'PREFERRED' | 'VIP' | 'PRESTIGE' | 'ROYAL' {
-    // Mews loyalty classification mapping
+  private mapVipLevel(classifications: any[]): 'CLASSIC' | 'SILVER' | 'GOLD' | 'DIAMOND' | 'AMBASSADOR' {
+    // Mews loyalty classification mapping (mapped to Prisma VipLevel enum)
     if (!classifications) return 'CLASSIC';
-    if (classifications.includes('Royal')) return 'ROYAL';
-    if (classifications.includes('Prestige')) return 'PRESTIGE';
-    if (classifications.includes('VIP')) return 'VIP';
-    if (classifications.includes('Preferred')) return 'PREFERRED';
+    if (classifications.includes('Royal')) return 'AMBASSADOR';
+    if (classifications.includes('Prestige')) return 'DIAMOND';
+    if (classifications.includes('VIP')) return 'GOLD';
+    if (classifications.includes('Preferred')) return 'SILVER';
     return 'CLASSIC';
   }
 }

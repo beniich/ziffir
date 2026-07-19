@@ -353,16 +353,16 @@ export default function App() {
           try {
             const profile = await getOrCreateUserProfile(user);
             if (profile) {
-              setSessionRole(profile.role);
+              setSessionRole(profile);
               // Set corresponding userRole clearance: Managers/Admins get 'manager', VIPs get 'operator'
-              if (profile.role === 'administrateur' || profile.role === 'hotel') {
+              if (profile === 'administrateur' || profile === 'hotel') {
                 setUserRole('manager');
               } else {
                 setUserRole('operator');
               }
               addAuditLog(
                 'USER_PROFILE_SYNC',
-                `Synchronized active permissions from secure database. Assigned simulated role: [${profile.role.toUpperCase()}].`,
+                `Synchronized active permissions from secure database. Assigned simulated role: [${profile.toUpperCase()}].`,
                 'AUTHORIZED'
               );
             }

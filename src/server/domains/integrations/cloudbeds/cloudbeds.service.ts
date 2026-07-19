@@ -44,32 +44,37 @@ export class CloudbedsIntegrationService {
     
     const guestName = `${reservation.guestFirstName} ${reservation.guestLastName}`;
     
-    await prisma.arrival.upsert({
-      where: { 
-        hotelId_externalRef: { 
-          hotelId, 
-          externalRef: reservation.reservationID 
-        } 
-      },
-      create: {
-        hotelId,
-        externalRef: reservation.reservationID,
-        guestName,
-        guestEmail: reservation.guestEmail,
-        guestPhone: reservation.guestPhone,
-        scheduledArrivalAt: new Date(reservation.checkInDate),
-        scheduledDepartureAt: new Date(reservation.checkOutDate),
-        roomId: reservation.assignedUnitID,
-        status: this.mapStatus(reservation.status),
-        createdById: 'system',
-      },
-      update: {
-        guestName,
-        scheduledArrivalAt: new Date(reservation.checkInDate),
-        scheduledDepartureAt: new Date(reservation.checkOutDate),
-        status: this.mapStatus(reservation.status),
-      },
+    const existing = await prisma.arrival.findFirst({
+      where: { hotelId, externalRef: reservation.reservationID },
     });
+
+    if (existing) {
+      await prisma.arrival.update({
+        where: { id: existing.id },
+        data: {
+          guestName,
+          scheduledArrivalAt: new Date(reservation.checkInDate),
+          scheduledDepartureAt: new Date(reservation.checkOutDate),
+          status: this.mapStatus(reservation.status) as any,
+        },
+      });
+    } else {
+      await prisma.arrival.create({
+        data: {
+          hotelId,
+          externalRef: reservation.reservationID,
+          guestName,
+          guestEmail: reservation.guestEmail,
+          guestPhone: reservation.guestPhone,
+          scheduledArrivalAt: new Date(reservation.checkInDate),
+          scheduledDepartureAt: new Date(reservation.checkOutDate),
+          roomId: reservation.assignedUnitID ?? null,
+          transportMode: 'WALK_IN',
+          status: 'SCHEDULED',
+          createdById: 'system',
+        },
+      });
+    }
   }
   
   private mapStatus(cb: string): any {
@@ -85,7 +90,7 @@ export class CloudbedsIntegrationService {
   
   private async getHotelIdFromCloudbedsProperty(propertyID: string): Promise<string> {
     const hotel = await prisma.hotel.findFirst({
-      where: { cloudbedsPropertyId: propertyID },
+      where: { OR: [{ slug: propertyID }, { id: propertyID }] },
     });
     if (!hotel) throw new Error(`No hotel for Cloudbeds property ${propertyID}`);
     return hotel.id;

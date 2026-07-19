@@ -54,7 +54,31 @@ export default {
           slate: '#0F1626',
           glass: 'rgba(255, 255, 255, 0.03)',
           border: 'rgba(255, 255, 255, 0.08)'
-        }
+        },
+
+        // ── Tokens sémantiques ──────────────────────────────────────────────
+        // Surface
+        surface: {
+          DEFAULT:  'rgba(20, 21, 24, 0.70)',   // surface neutre dark
+          elevated: 'rgba(34, 35, 38, 0.80)',   // carte surélevée
+          overlay:  'rgba(12, 13, 16, 0.92)',   // modal/drawer overlay
+          glass:    'rgba(255, 255, 255, 0.06)', // glassmorphism
+          light:    '#faf3e6',                   // fond clair (light mode)
+        },
+        // Text
+        text: {
+          primary:  '#f1f5f9',   // slate-100
+          secondary:'#94a3b8',   // slate-400
+          muted:    '#64748b',   // slate-500
+          accent:   '#c19a6b',   // or camel
+          inverse:  '#0c0d10',   // pour fond clair
+        },
+        // Border
+        border: {
+          subtle:  'rgba(255,255,255,0.08)',
+          default: 'rgba(255,255,255,0.15)',
+          accent:  'rgba(193,154,107,0.40)',
+        },
       },
       backdropBlur: {
         xs: '2px',

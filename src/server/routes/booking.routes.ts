@@ -135,11 +135,6 @@ router.get('/confirm/:code', async (req: Request, res: Response) => {
   try {
     const booking = await prisma.booking.findUnique({
       where: { confirmationCode: req.params.code as string },
-      include: {
-        room: {
-          select: { number: true, type: true },
-        },
-      },
     });
 
     if (!booking) {
